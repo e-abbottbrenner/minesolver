@@ -4,6 +4,7 @@
 #include <QGraphicsObject>
 
 class MinefieldData;
+class CellDisplay;
 
 class MinefieldDisplay : public QGraphicsObject
 {
@@ -15,11 +16,21 @@ public:
 
     virtual QRectF boundingRect() const;
 
+    ~MinefieldDisplay();
+
+private slots:
+    void onCellRevealed(int x, int y);
+
 private:
     MinefieldData *mineData;
 
-    int width;
-    int height;
+    int pixelWidth;
+    int pixelHeight;
+
+    int fieldWidth;
+    int fieldHeight;
+
+    CellDisplay*** cellDisplays;
 };
 
 #endif // MINEFIELDDISPLAY_H

@@ -17,11 +17,11 @@ SOURCES += main.cpp\
     MinefieldData.cpp \
     MinefieldDisplay.cpp \
     RandomNumbers.cpp \
-    MineDisplay.cpp
+    CellDisplay.cpp
 
 HEADERS  += MainWindow.h \
     MinefieldData.h \
     MinefieldDisplay.h \
     Encapsulation.h \
     RandomNumbers.h \
-    MineDisplay.h
+    CellDisplay.h

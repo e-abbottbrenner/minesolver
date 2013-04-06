@@ -3,6 +3,9 @@
 
 #include <QMainWindow>
 
+class MinefieldData;
+class MinefieldDisplay;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -10,6 +13,10 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
+
+private:
+    MinefieldData *fieldData;
+    MinefieldDisplay *fieldDisplay;
 };
 
 #endif // MAINWINDOW_H

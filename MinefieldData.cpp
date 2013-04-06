@@ -2,9 +2,11 @@
 
 #include "RandomNumbers.h"
 
-MinefieldData::MinefieldData(int numMines, int width, int height, QObject *parent) :
-    QObject(parent), numMines(numMines), width(width), height(height)
+MinefieldData::MinefieldData(int numMines, int width, int height, int seed, QObject *parent) :
+    QObject(parent), numMines(numMines), width(width), height(height), seed(seed)
 {
+    populated = false;
+
     underlyingMinefield = new MineStatus*[width];
     revealedMinefield = new MineStatus*[width];
     for(int i = 0; i < width; ++i)
@@ -19,7 +21,7 @@ MinefieldData::MinefieldData(int numMines, int width, int height, QObject *paren
     }
 }
 
-void MinefieldData::populateMinefield(int seed, int originX, int originY)
+void MinefieldData::populateMinefield(int originX, int originY)
 {
     RandomNumbers random(seed);
 
@@ -77,15 +79,41 @@ void MinefieldData::populateMinefield(int seed, int originX, int originY)
             }
         }
     }
+
+    populated = true;
 }
 
-bool MinefieldData::revealCell(int x, int y)
+void MinefieldData::revealCell(int x, int y)
 {
+    if(!populated)
+    {
+        populateMinefield(x, y);
+    }
+
     bool clear = underlyingMinefield[x][y] != SpecialStatus::Mine;
 
-    recursiveReveal(x, y);
+    if(clear)
+    {
+        recursiveReveal(x, y);
+    }
+    else
+    {
+        revealAll();
 
-    return clear;
+        emit mineHit();
+    }
+}
+
+void MinefieldData::toggleCellFlag(int x, int y)
+{
+    if(revealedMinefield[x][y] = SpecialStatus::Unknown)
+    {
+        revealedMinefield[x][y] = SpecialStatus::GuessMine;
+    }
+    else if(revealedMinefield[x][y] == SpecialStatus::GuessMine)
+    {
+        revealedMinefield[x][y] = SpecialStatus::Unknown;
+    }
 }
 
 void MinefieldData::recursiveReveal(int x, int y)
@@ -102,6 +130,18 @@ void MinefieldData::recursiveReveal(int x, int y)
             {
                 recursiveReveal(x + i, y + j);
             }
+        }
+    }
+}
+
+void MinefieldData::revealAll()
+{
+    for(int x = 0; x < width; ++x)
+    {
+        for(int y = 0; y < height; ++y)
+        {
+            revealedMinefield[x][y] = underlyingMinefield[x][y];
+            emit cellRevealed(x, y);
         }
     }
 }
@@ -123,5 +163,12 @@ int MinefieldData::getHeight() const
 
 MinefieldData::~MinefieldData()
 {
+    for(int i = 0; i < width; ++i)
+    {
+        delete[] underlyingMinefield[i];
+        delete[] revealedMinefield[i];
+    }
 
+    delete[] underlyingMinefield;
+    delete[] revealedMinefield;
 }
