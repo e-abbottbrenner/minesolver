@@ -25,6 +25,9 @@ public:
 
     MineStatus getCell(int x, int y) const;
 
+    int getWidth() const;
+    int getHeight() const;
+
     ~MinefieldData();
     
 signals:

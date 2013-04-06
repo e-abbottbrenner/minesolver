@@ -3,16 +3,23 @@
 
 #include <QGraphicsObject>
 
+class MinefieldData;
+
 class MinefieldDisplay : public QGraphicsObject
 {
     Q_OBJECT
 public:
-    explicit MinefieldDisplay(QGraphicsItem *parent = 0);
-    
-signals:
-    
-public slots:
-    
+    explicit MinefieldDisplay(MinefieldData *fieldData, QGraphicsItem *parent = 0);
+
+    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+
+    virtual QRectF boundingRect() const;
+
+private:
+    MinefieldData *mineData;
+
+    int width;
+    int height;
 };
 
 #endif // MINEFIELDDISPLAY_H

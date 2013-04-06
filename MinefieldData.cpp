@@ -36,7 +36,7 @@ void MinefieldData::populateMinefield(int seed, int originX, int originY)
         {
             for(int y = 0; y < height; ++y)
             {
-                if(underlingMinefield[x][y] != SpecialStatus::Mine
+                if(underlyingMinefield[x][y] != SpecialStatus::Mine
                         && x > originX + 1 && x < originX - 1
                         && y > originY + 1 && y < originY - 1)
                 {// not already a mine or within a cell of the origin
@@ -109,6 +109,16 @@ void MinefieldData::recursiveReveal(int x, int y)
 MineStatus MinefieldData::getCell(int x, int y) const
 {
     return revealedMinefield[x][y];
+}
+
+int MinefieldData::getWidth() const
+{
+    return width;
+}
+
+int MinefieldData::getHeight() const
+{
+    return height;
 }
 
 MinefieldData::~MinefieldData()
