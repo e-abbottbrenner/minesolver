@@ -27,7 +27,21 @@ void MinefieldData::populateMinefield(int originX, int originY)
 
     // this is slow, but it's guaranteed to work and I like that
     // I also doubt it's slow enough to notice
-    int freeCells = width * height - 9;
+    int bannedCells = 0;
+
+    for(int i = -1; i <= 1; ++i)
+    {
+        for(int j = -1; j <= 1; ++j)
+        {
+            if(originX + i >= 0 && originX + i < width
+                    && originY + j >= 0 && originY + j < height)
+            {// count the number of cells within bounds that aren't allowed to be mines
+                ++bannedCells;
+            }
+        }
+    }
+
+    int freeCells = width * height - bannedCells;
 
     for(int mineCount = 0; mineCount < numMines && freeCells > 0; ++mineCount, --freeCells)
     {
@@ -39,8 +53,8 @@ void MinefieldData::populateMinefield(int originX, int originY)
             for(int y = 0; y < height; ++y)
             {
                 if(underlyingMinefield[x][y] != SpecialStatus::Mine
-                        && x > originX + 1 && x < originX - 1
-                        && y > originY + 1 && y < originY - 1)
+                        && (x > originX + 1 || x < originX - 1
+                            || y > originY + 1 || y < originY - 1))
                 {// not already a mine or within a cell of the origin
                     if(mineLoc == 0)
                     {
@@ -83,6 +97,43 @@ void MinefieldData::populateMinefield(int originX, int originY)
     populated = true;
 }
 
+bool MinefieldData::checkBounds(int x, int y)
+{
+    return x >= 0 && y >= 0 && x < width && y < height;
+}
+
+void MinefieldData::revealAdjacents(int x, int y)
+{
+    int guessCount = 0;
+
+    for(int i = -1; i <= 1; ++i)
+    {
+        for(int j = -1; j <= 1; ++j)
+        {// bounds checking in reveal cell
+            if(checkBounds(x + i, y + j)
+                    && revealedMinefield[x + i][y + j] == SpecialStatus::GuessMine)
+            {
+                ++guessCount;
+            }
+        }
+    }
+
+    if(guessCount == revealedMinefield[x][y])
+    {
+        for(int i = -1; i <= 1; ++i)
+        {
+            for(int j = -1; j <= 1; ++j)
+            {// bounds checking in reveal cell
+                if(checkBounds(x + i, y + j)
+                        && revealedMinefield[x + i][y + j] != SpecialStatus::GuessMine)
+                {
+                    revealCell(x + i, y + j);
+                }
+            }
+        }
+    }
+}
+
 void MinefieldData::revealCell(int x, int y)
 {
     if(!populated)
@@ -106,7 +157,7 @@ void MinefieldData::revealCell(int x, int y)
 
 void MinefieldData::toggleCellFlag(int x, int y)
 {
-    if(revealedMinefield[x][y] = SpecialStatus::Unknown)
+    if(revealedMinefield[x][y] == SpecialStatus::Unknown)
     {
         revealedMinefield[x][y] = SpecialStatus::GuessMine;
     }
@@ -114,21 +165,29 @@ void MinefieldData::toggleCellFlag(int x, int y)
     {
         revealedMinefield[x][y] = SpecialStatus::Unknown;
     }
+
+    emit cellRevealed(x, y);
 }
 
 void MinefieldData::recursiveReveal(int x, int y)
 {
-    revealedMinefield[x][y] = underlyingMinefield[x][y];
+    if(underlyingMinefield[x][y] != revealedMinefield[x][y])
+    {
+        revealedMinefield[x][y] = underlyingMinefield[x][y];
 
-    emit cellRevealed(x, y);
+        emit cellRevealed(x, y);
 
-    if(underlyingMinefield[x][y] == 0)
-    {// no nearby mines, do the recursive reveal
-        for(int i = -1; i <= 1; ++i)
-        {
-            for(int j = -1; j <= 1; ++j)
+        if(underlyingMinefield[x][y] == 0)
+        {// no nearby mines, do the recursive reveal
+            for(int i = -1; i <= 1; ++i)
             {
-                recursiveReveal(x + i, y + j);
+                for(int j = -1; j <= 1; ++j)
+                {
+                    if(checkBounds(x +i, y + j))
+                    {
+                        recursiveReveal(x + i, y + j);
+                    }
+                }
             }
         }
     }

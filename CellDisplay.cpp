@@ -23,15 +23,21 @@ void CellDisplay::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 {
     painter->save();
 
-    painter->setBrush(Qt::gray);
+    MineStatus status = mineData->getCell(x, y);
+
+    if(status == SpecialStatus::Unknown)
+    {
+        painter->setBrush(Qt::gray);
+    }
+    else
+    {
+        painter->setBrush(Qt::lightGray);
+    }
     painter->setPen(Qt::darkGray);
 
     painter->drawRect(boundingRect());
 
     painter->save();
-
-    // TODO: paint the visible state of the cell
-    MineStatus status = mineData->getCell(x, y);
 
     int margin = CellSize / 10;
     QRectF statusRect = boundingRect().adjusted(margin, margin, -margin, -margin);
@@ -39,26 +45,28 @@ void CellDisplay::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     switch(status)
     {
     case SpecialStatus::Mine:
-        painter->setPen(Qt::red);
+        painter->setBrush(Qt::red);
         painter->setPen(Qt::black);
         painter->drawEllipse(statusRect);
         break;
     case SpecialStatus::Unknown:
         break;
     case SpecialStatus::GuessMine:
-        painter->setPen(Qt::yellow);
+        painter->setBrush(Qt::yellow);
         painter->setPen(Qt::black);
         painter->drawEllipse(statusRect);
         break;
     case SpecialStatus::GuessClear:
-        painter->setPen(Qt::green);
+        painter->setBrush(Qt::green);
         painter->setPen(Qt::black);
         painter->drawEllipse(statusRect);
+        break;
+    case 0:
         break;
     default:
         painter->setBrush(Qt::black);
         painter->setPen(Qt::black);
-        painter->drawText(statusRect, QString::number(status));
+        painter->drawText(statusRect, QString::number(status), QTextOption(Qt::AlignCenter));
         break;
     }
 
@@ -90,7 +98,7 @@ void CellDisplay::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
-void CellDisplay::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
+void CellDisplay::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *)
 {
-
+    mineData->revealAdjacents(x, y);
 }

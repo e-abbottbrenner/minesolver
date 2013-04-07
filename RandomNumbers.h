@@ -7,7 +7,7 @@ public:
     // if we use a fancier method of generating the numbers, we might need to keep data so this is a class
     RandomNumbers(int seed);
 
-    int nextRand(int max = 1);
+    int nextRand(int range = 2);
 };
 
 #endif // RANDOMNUMBERS_H

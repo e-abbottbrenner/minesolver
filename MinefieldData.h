@@ -19,8 +19,11 @@ class MinefieldData : public QObject
 public:
     explicit MinefieldData(int numMines, int width, int height, int seed, QObject *parent = 0);
 
+    void revealAdjacents(int x, int y);
     void revealCell(int x, int y);
     void toggleCellFlag(int x, int y);
+
+    bool checkBounds(int x, int y);
 
     MineStatus getCell(int x, int y) const;
 

@@ -9,12 +9,12 @@ RandomNumbers::RandomNumbers(int seed)
     qsrand(seed);
 }
 
-int RandomNumbers::nextRand(int max)
+int RandomNumbers::nextRand(int range)
 {
     int value = qrand();
 
     // add 1 so max is inclusive
-    value = value % (max + 1);
+    value = value % range;
 
     return value;
 }
