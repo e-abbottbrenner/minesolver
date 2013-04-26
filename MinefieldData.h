@@ -2,6 +2,7 @@
 #define MINEFIELDDATA_H
 
 #include <QObject>
+#include <functional>
 
 typedef int MineStatus;
 
@@ -23,9 +24,15 @@ public:
     void revealCell(int x, int y);
     void toggleCellFlag(int x, int y);
 
-    bool checkBounds(int x, int y);
+    bool checkBounds(int x, int y) const;
 
     MineStatus getCell(int x, int y) const;
+
+    MineStatus** getRevealedMinefield() const;
+
+    // no const on these as we might want to make changes in the passed func
+    void traverseAdacentCells(int x, int y, std::function<void (int, int)> func);
+    void traverseCells(std::function<void (int, int)> func);
 
     int getWidth() const;
     int getHeight() const;

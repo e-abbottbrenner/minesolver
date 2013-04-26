@@ -29,17 +29,8 @@ void MinefieldData::populateMinefield(int originX, int originY)
     // I also doubt it's slow enough to notice
     int bannedCells = 0;
 
-    for(int i = -1; i <= 1; ++i)
-    {
-        for(int j = -1; j <= 1; ++j)
-        {
-            if(originX + i >= 0 && originX + i < width
-                    && originY + j >= 0 && originY + j < height)
-            {// count the number of cells within bounds that aren't allowed to be mines
-                ++bannedCells;
-            }
-        }
-    }
+    // count the number of cells within bounds that aren't allowed to be mines
+    traverseAdacentCells(originX, originY, [&] (int, int) {++bannedCells;});
 
     int freeCells = width * height - bannedCells;
 
@@ -47,57 +38,56 @@ void MinefieldData::populateMinefield(int originX, int originY)
     {
         int mineLoc = random.nextRand(freeCells);
 
-        // place the mine at mineLoc in the remaining free cells
-        for(int x = 0; x < width; ++x)
+        auto placeMines = [&] (int x, int y)
         {
-            for(int y = 0; y < height; ++y)
-            {
-                if(underlyingMinefield[x][y] != SpecialStatus::Mine
-                        && (x > originX + 1 || x < originX - 1
-                            || y > originY + 1 || y < originY - 1))
-                {// not already a mine or within a cell of the origin
-                    if(mineLoc == 0)
-                    {
-                        underlyingMinefield[x][y] = SpecialStatus::Mine;
-                    }
-
-                    --mineLoc;
-                }
-            }
-        }
-    }
-
-    for(int x = 0; x < width; ++x)
-    {
-        for(int y = 0; y < height; ++y)
-        {
-            int mineCount = 0;
-
-            // label the cells that don't have mines with their mine counts
-            if(underlyingMinefield[x][y] == SpecialStatus::Unknown)
-            {
-                for(int i = -1; i <= 1; ++i)
+            if(underlyingMinefield[x][y] != SpecialStatus::Mine
+                    && (x > originX + 1 || x < originX - 1
+                        || y > originY + 1 || y < originY - 1))
+            {// not already a mine or within a cell of the origin
+                if(mineLoc == 0)
                 {
-                    for(int j = -1; j <= 1; ++j)
-                    {
-                        if(x + i >= 0 && x + i < width
-                                && y + j >= 0 && y +j < height
-                                && underlyingMinefield[x + i][y + j] == SpecialStatus::Mine)
-                        {
-                            ++mineCount;
-                        }
-                    }
+                    underlyingMinefield[x][y] = SpecialStatus::Mine;
                 }
 
-                underlyingMinefield[x][y] = mineCount;
+                --mineLoc;
             }
-        }
+        };
+
+        // place the mine at mineLoc in the remaining free cells
+        traverseCells(placeMines);
     }
+
+    // declare this out here so that both can capture it
+    int mineCount = 0;
+
+    auto countMine = [&] (int x, int y)
+    {
+        // increase count if the cell atx, y is a mine
+        if(underlyingMinefield[x][y] == SpecialStatus::Mine)
+        {
+            ++mineCount;
+        }
+    };
+
+    auto labelCells = [&] (int x, int y)
+    {
+        mineCount = 0;
+
+        // label the cells that don't have mines with their mine counts
+        if(underlyingMinefield[x][y] != SpecialStatus::Mine)
+        {
+            traverseAdacentCells(x, y, countMine);
+
+            underlyingMinefield[x][y] = mineCount;
+        }
+    };
+
+    traverseCells(labelCells);
 
     populated = true;
 }
 
-bool MinefieldData::checkBounds(int x, int y)
+bool MinefieldData::checkBounds(int x, int y) const
 {
     return x >= 0 && y >= 0 && x < width && y < height;
 }
@@ -106,31 +96,27 @@ void MinefieldData::revealAdjacents(int x, int y)
 {
     int guessCount = 0;
 
-    for(int i = -1; i <= 1; ++i)
+    auto countGuess = [&] (int x, int y)
     {
-        for(int j = -1; j <= 1; ++j)
-        {// bounds checking in reveal cell
-            if(checkBounds(x + i, y + j)
-                    && revealedMinefield[x + i][y + j] == SpecialStatus::GuessMine)
-            {
-                ++guessCount;
-            }
+        if(revealedMinefield[x][y] == SpecialStatus::GuessMine)
+        {
+            ++guessCount;
         }
-    }
+    };
+
+    traverseAdacentCells(x, y, countGuess);
 
     if(guessCount == revealedMinefield[x][y])
     {
-        for(int i = -1; i <= 1; ++i)
+        auto reveal = [&] (int x, int y)
         {
-            for(int j = -1; j <= 1; ++j)
-            {// bounds checking in reveal cell
-                if(checkBounds(x + i, y + j)
-                        && revealedMinefield[x + i][y + j] != SpecialStatus::GuessMine)
-                {
-                    revealCell(x + i, y + j);
-                }
+            if(revealedMinefield[x][y] != SpecialStatus::GuessMine)
+            {
+                revealCell(x, y);
             }
-        }
+        };
+
+        traverseAdacentCells(x, y, reveal);
     }
 }
 
@@ -179,35 +165,55 @@ void MinefieldData::recursiveReveal(int x, int y)
 
         if(underlyingMinefield[x][y] == 0)
         {// no nearby mines, do the recursive reveal
-            for(int i = -1; i <= 1; ++i)
-            {
-                for(int j = -1; j <= 1; ++j)
-                {
-                    if(checkBounds(x +i, y + j))
-                    {
-                        recursiveReveal(x + i, y + j);
-                    }
-                }
-            }
+            traverseAdacentCells(x, y, [this] (int x, int y) {recursiveReveal(x, y);});
         }
     }
 }
 
 void MinefieldData::revealAll()
 {
-    for(int x = 0; x < width; ++x)
+    auto reveal = [&] (int x, int y)
     {
-        for(int y = 0; y < height; ++y)
-        {
-            revealedMinefield[x][y] = underlyingMinefield[x][y];
-            emit cellRevealed(x, y);
-        }
-    }
+        revealedMinefield[x][y] = underlyingMinefield[x][y];
+        emit cellRevealed(x, y);
+    };
+
+    traverseCells(reveal);
 }
 
 MineStatus MinefieldData::getCell(int x, int y) const
 {
     return revealedMinefield[x][y];
+}
+
+MineStatus** MinefieldData::getRevealedMinefield() const
+{
+    return revealedMinefield;
+}
+
+void MinefieldData::traverseAdacentCells(int x, int y, std::function<void (int, int)> func)
+{
+    for(int i = -1; i <= 1; ++i)
+    {
+        for(int j = -1; j <= 1; ++j)
+        {
+            if(checkBounds(x + i, y + j))
+            {
+                func(x + i, y + j);
+            }
+        }
+    }
+}
+
+void MinefieldData::traverseCells(std::function<void (int, int)> func)
+{
+    for(int x = 0; x < width; ++x)
+    {
+        for(int y = 0; y < height; ++y)
+        {
+            func(x, y);
+        }
+    }
 }
 
 int MinefieldData::getWidth() const
