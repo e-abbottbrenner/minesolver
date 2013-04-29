@@ -30,6 +30,8 @@ private:
     int height;
     MineStatus** fieldCells;
 
+    int countAdjacentUnknowns(int x, int y) const;
+
     Coordinate getNextCoord(const FringeMap &currentFringe) const;
 //    FringeSet getUpdatedFringe(const FringeMap& currentFringe, Coordinate coord);
 };
