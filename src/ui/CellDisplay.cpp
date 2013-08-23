@@ -19,7 +19,7 @@ QRectF CellDisplay::boundingRect() const
     return QRectF(0, 0, CellSize, CellSize);
 }
 
-void CellDisplay::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void CellDisplay::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
     painter->save();
 

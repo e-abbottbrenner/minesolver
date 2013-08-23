@@ -32,7 +32,7 @@ QRectF MinefieldDisplay::boundingRect() const
     return QRectF(0, 0, pixelWidth, pixelHeight);
 }
 
-void MinefieldDisplay::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void MinefieldDisplay::paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *)
 {
     // probably nothing to paint
 }
