@@ -29,6 +29,7 @@ void PathChooser::decidePath()
         {
             path.append(coord);
 
+            // takes a cell near coord and updates the fringe to account for it
             auto updateFringe = [&] (int x, int y)
             {
                 Coordinate fringeCoord(x, y);
@@ -50,12 +51,13 @@ void PathChooser::decidePath()
                     int influencers = countAdjacentUnknowns(x, y);
 
                     if(influencers > 1)
-                    {
-                        currentFringe.insert(fringeCoord, influencers - 1);// we've already found one influencer
+                    {// we've already found one influencer in coord
+                        currentFringe.insert(fringeCoord, influencers - 1);
                     }
                 }
             };
 
+            // update the fringe
             fieldData->traverseAdacentCells(coord.first, coord.second, updateFringe);
         }
         else
@@ -78,18 +80,20 @@ int PathChooser::countAdjacentUnknowns(int x, int y) const
 Coordinate PathChooser::getNextCoord(const FringeMap& currentFringe) const
 {
     Coordinate bestCoord(-1, -1);
-    int smallestFringeIncrease;// doesn't need to be assigned here, we check best coord to see if it's invalid
+    int smallestFringeDelta;// doesn't need to be assigned here, we check best coord to see if it's invalid
     bool bestCoordHasAdjacentCountCells;
 
+    // figure out if the coordinate x, y is the best so far and update the local variables above
     auto findBestCoord = [&] (int x, int y)
     {
         MineStatus coordStatus = fieldData->getCell(x, y);
 
         if(coordStatus == SpecialStatus::Unknown)
-        {
+        {// status is unknown, so this could be a cell in our path
             CoordVector adjacentCountCells;
             int fringeDelta = 0;
 
+            // adds the cell at x, y to the adjacentCountCells if it's a count cell
             auto getAdjacentCountCells = [&] (int x, int y)
             {
                 MineStatus adjacentCellStatus = fieldData->getCell(x, y);
@@ -101,6 +105,7 @@ Coordinate PathChooser::getNextCoord(const FringeMap& currentFringe) const
                 }
             };
 
+            // construct the list of adjacent count cells
             fieldData->traverseAdacentCells(x, y, getAdjacentCountCells);
 
             // use the list of adjacent count cells to compute the change in our fringe
@@ -108,7 +113,7 @@ Coordinate PathChooser::getNextCoord(const FringeMap& currentFringe) const
             {
                 if(currentFringe.contains(*coordIter) && currentFringe.value(*coordIter) == 1)
                 {
-                    // our current cell is the last adjacent to this count cell so the finge decreases
+                    // our current cell is the last adjacent to this count cell so the fringe decreases
                     --fringeDelta;
                 }
                 else if(!currentFringe.contains(*coordIter) &&
@@ -118,16 +123,18 @@ Coordinate PathChooser::getNextCoord(const FringeMap& currentFringe) const
                 }
             }
 
-            if((bestCoord.first < 0 || bestCoord.second < 0)
-                    || (!bestCoordHasAdjacentCountCells || fringeDelta <= smallestFringeIncrease))
+            if(bestCoord.first < 0 || bestCoord.second < 0 // negative coordinates indicates this is the first iteration
+                    || !bestCoordHasAdjacentCountCells // the current best had no adjacent count cells, we want to save these for last
+                    || fringeDelta <= smallestFringeDelta) // take the cell that has the smallest fringe delta
             {
                 bestCoord = Coordinate(x, y);
                 bestCoordHasAdjacentCountCells = !adjacentCountCells.isEmpty();
-                smallestFringeIncrease = fringeDelta;
+                smallestFringeDelta = fringeDelta;
             }
         }
     };
 
+    // traverse all the cells and find the best coordinate
     fieldData->traverseCells(findBestCoord);
 
     return bestCoord;

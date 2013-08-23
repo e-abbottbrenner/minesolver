@@ -1,0 +1,4 @@
+* Refactor Mine displa to be use Qt's Model/View
+* Fill in The analyzer
+* Fill in the state machine set up
+* Unit tests
