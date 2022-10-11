@@ -21,6 +21,7 @@ include(src/solver/solver.pri)
 include(src/utils/utils.pri)
 
 CONFIG(test) {
+LIBS += -lgtest
 include(test/test.pri)
 } else {
 include(src/main/main.pri)
@@ -32,5 +33,3 @@ include(src/main/main.pri)
 
 debug: LIBS += -L$$PWD/lib/debug
 release: LIBS += -L$$PWD/lib/release
-
-LIBS += -lgtest

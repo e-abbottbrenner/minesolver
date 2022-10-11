@@ -4,7 +4,7 @@
 #include <QObject>
 #include <functional>
 
-typedef int MineStatus;
+typedef qint8 MineStatus;
 
 namespace SpecialStatus
 {
@@ -28,7 +28,7 @@ public:
 
     MineStatus getCell(int x, int y) const;
 
-    MineStatus** getRevealedMinefield() const;
+    QByteArray getRevealedMinefield() const;
 
     // no const on these as we might want to make changes in the passed func
     void traverseAdacentCells(int x, int y, std::function<void (int, int)> func);
@@ -48,6 +48,8 @@ private:
     void recursiveReveal(int x, int y);
     void revealAll();
 
+    int map(int x, int y) const;
+
     int numMines;
     int width;
     int height;
@@ -55,8 +57,8 @@ private:
 
     bool populated;
 
-    MineStatus** underlyingMinefield;
-    MineStatus** revealedMinefield;
+    QByteArray underlyingMinefield;
+    QByteArray revealedMinefield;
 };
 
 #endif // MINEFIELDDATA_H

@@ -7,16 +7,14 @@ MinefieldData::MinefieldData(int numMines, int width, int height, int seed, QObj
 {
     populated = false;
 
-    underlyingMinefield = new MineStatus*[width];
-    revealedMinefield = new MineStatus*[width];
+    underlyingMinefield.resize(width * height, SpecialStatus::Unknown);
+    revealedMinefield.resize(width * height, SpecialStatus::Unknown);
     for(int i = 0; i < width; ++i)
     {
-        underlyingMinefield[i] = new MineStatus[height];
-        revealedMinefield[i] = new MineStatus[height];
         for(int j = 0; j < height; ++j)
         {
-            underlyingMinefield[i][j] = SpecialStatus::Unknown;
-            revealedMinefield[i][j] = SpecialStatus::Unknown;
+            underlyingMinefield[map(i, j)] = SpecialStatus::Unknown;
+            revealedMinefield[map(i, j)] = SpecialStatus::Unknown;
         }
     }
 }
@@ -40,13 +38,13 @@ void MinefieldData::populateMinefield(int originX, int originY)
 
         auto placeMines = [&] (int x, int y)
         {
-            if(underlyingMinefield[x][y] != SpecialStatus::Mine
+            if(underlyingMinefield[map(x, y)] != SpecialStatus::Mine
                     && (x > originX + 1 || x < originX - 1
                         || y > originY + 1 || y < originY - 1))
             {// not already a mine or within a cell of the origin
                 if(mineLoc == 0)
                 {
-                    underlyingMinefield[x][y] = SpecialStatus::Mine;
+                    underlyingMinefield[map(x, y)] = SpecialStatus::Mine;
                 }
 
                 --mineLoc;
@@ -63,7 +61,7 @@ void MinefieldData::populateMinefield(int originX, int originY)
     auto countMine = [&] (int x, int y)
     {
         // increase count if the cell atx, y is a mine
-        if(underlyingMinefield[x][y] == SpecialStatus::Mine)
+        if(underlyingMinefield[map(x, y)] == SpecialStatus::Mine)
         {
             ++mineCount;
         }
@@ -74,11 +72,11 @@ void MinefieldData::populateMinefield(int originX, int originY)
         mineCount = 0;
 
         // label the cells that don't have mines with their mine counts
-        if(underlyingMinefield[x][y] != SpecialStatus::Mine)
+        if(underlyingMinefield[map(x, y)] != SpecialStatus::Mine)
         {
             traverseAdacentCells(x, y, countMine);
 
-            underlyingMinefield[x][y] = mineCount;
+            underlyingMinefield[map(x, y)] = mineCount;
         }
     };
 
@@ -98,7 +96,7 @@ void MinefieldData::revealAdjacents(int x, int y)
 
     auto countGuess = [&] (int x, int y)
     {
-        if(revealedMinefield[x][y] == SpecialStatus::GuessMine)
+        if(revealedMinefield[map(x, y)] == SpecialStatus::GuessMine)
         {
             ++guessCount;
         }
@@ -106,11 +104,11 @@ void MinefieldData::revealAdjacents(int x, int y)
 
     traverseAdacentCells(x, y, countGuess);
 
-    if(guessCount == revealedMinefield[x][y])
+    if(guessCount == revealedMinefield[map(x, y)])
     {
         auto reveal = [&] (int x, int y)
         {
-            if(revealedMinefield[x][y] != SpecialStatus::GuessMine)
+            if(revealedMinefield[map(x, y)] != SpecialStatus::GuessMine)
             {
                 revealCell(x, y);
             }
@@ -127,7 +125,7 @@ void MinefieldData::revealCell(int x, int y)
         populateMinefield(x, y);
     }
 
-    bool clear = underlyingMinefield[x][y] != SpecialStatus::Mine;
+    bool clear = underlyingMinefield[map(x, y)] != SpecialStatus::Mine;
 
     if(clear)
     {
@@ -143,13 +141,13 @@ void MinefieldData::revealCell(int x, int y)
 
 void MinefieldData::toggleCellFlag(int x, int y)
 {
-    if(revealedMinefield[x][y] == SpecialStatus::Unknown)
+    if(revealedMinefield[map(x, y)] == SpecialStatus::Unknown)
     {
-        revealedMinefield[x][y] = SpecialStatus::GuessMine;
+        revealedMinefield[map(x, y)] = SpecialStatus::GuessMine;
     }
-    else if(revealedMinefield[x][y] == SpecialStatus::GuessMine)
+    else if(revealedMinefield[map(x, y)] == SpecialStatus::GuessMine)
     {
-        revealedMinefield[x][y] = SpecialStatus::Unknown;
+        revealedMinefield[map(x, y)] = SpecialStatus::Unknown;
     }
 
     emit cellRevealed(x, y);
@@ -157,13 +155,13 @@ void MinefieldData::toggleCellFlag(int x, int y)
 
 void MinefieldData::recursiveReveal(int x, int y)
 {
-    if(underlyingMinefield[x][y] != revealedMinefield[x][y])
+    if(underlyingMinefield[map(x, y)] != revealedMinefield[map(x, y)])
     {
-        revealedMinefield[x][y] = underlyingMinefield[x][y];
+        revealedMinefield[map(x, y)] = underlyingMinefield[map(x, y)];
 
         emit cellRevealed(x, y);
 
-        if(underlyingMinefield[x][y] == 0)
+        if(underlyingMinefield[map(x, y)] == 0)
         {// no nearby mines, do the recursive reveal
             traverseAdacentCells(x, y, [this] (int x, int y) {recursiveReveal(x, y);});
         }
@@ -174,19 +172,24 @@ void MinefieldData::revealAll()
 {
     auto reveal = [&] (int x, int y)
     {
-        revealedMinefield[x][y] = underlyingMinefield[x][y];
+        revealedMinefield[map(x, y)] = underlyingMinefield[map(x, y)];
         emit cellRevealed(x, y);
     };
 
     traverseCells(reveal);
 }
 
-MineStatus MinefieldData::getCell(int x, int y) const
+int MinefieldData::map(int x, int y) const
 {
-    return revealedMinefield[x][y];
+    return x + y * width;
 }
 
-MineStatus** MinefieldData::getRevealedMinefield() const
+MineStatus MinefieldData::getCell(int x, int y) const
+{
+    return revealedMinefield[map(x, y)];
+}
+
+QByteArray MinefieldData::getRevealedMinefield() const
 {
     return revealedMinefield;
 }
@@ -228,12 +231,4 @@ int MinefieldData::getHeight() const
 
 MinefieldData::~MinefieldData()
 {
-    for(int i = 0; i < width; ++i)
-    {
-        delete[] underlyingMinefield[i];
-        delete[] revealedMinefield[i];
-    }
-
-    delete[] underlyingMinefield;
-    delete[] revealedMinefield;
 }

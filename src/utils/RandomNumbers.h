@@ -1,6 +1,8 @@
 #ifndef RANDOMNUMBERS_H
 #define RANDOMNUMBERS_H
 
+#include <QRandomGenerator>
+
 class RandomNumbers
 {
 public:
@@ -8,6 +10,9 @@ public:
     RandomNumbers(int seed);
 
     int nextRand(int range = 2);
+
+private:
+    QRandomGenerator generator;
 };
 
 #endif // RANDOMNUMBERS_H
