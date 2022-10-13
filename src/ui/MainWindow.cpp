@@ -10,7 +10,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    fieldData = new Minefield(100, 30, 30, QDateTime::currentMSecsSinceEpoch(), this);
+    fieldData = new Minefield(10, 10, 10, QDateTime::currentMSecsSinceEpoch(), this);
     fieldDisplay = new MinefieldDisplay(fieldData);
 
     QGraphicsView *view = new QGraphicsView(this);

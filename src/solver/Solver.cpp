@@ -5,6 +5,8 @@
 #include "Minefield.h"
 #include "PathChooser.h"
 
+#include <QDebug>
+
 Solver::Solver(Minefield *minefield)
     : minefield(minefield)
 {
@@ -15,6 +17,7 @@ void Solver::computeSolution()
 {
     decidePath();
     buildSolutionGraph();
+    analyzeSolutionGraph();
 }
 
 const QHash<Coordinate, double> &Solver::getChancesToBeMine() const
@@ -54,6 +57,8 @@ void Solver::buildSolutionGraph()
         auto currentColumn = choiceColumns[i];
         auto nextColumn = choiceColumns[i + 1];
 
+        qDebug() << "processing column with" << currentColumn->getChoiceNodes().size() << "nodes";
+
         // we traverse each state in the current column and generate the successor states in the next column
         for(auto choiceNode : currentColumn->getChoiceNodes())
         {
@@ -64,9 +69,13 @@ void Solver::buildSolutionGraph()
 
 void Solver::analyzeSolutionGraph()
 {
+    qDebug() << "Analyzing...";
+
     for(auto column : choiceColumns)
     {// calculate all the ways to be
         column->calculateWaysToBe(minefield->getNumMines());
+
+        qDebug() << column->getX() << column->getY() << column->getPercentChanceToBeMine();
 
         chancesToBeMine.insert({column->getX(), column->getY()}, column->getPercentChanceToBeMine());
     }

@@ -2,6 +2,7 @@
 
 #include "Minefield.h"
 #include "CellDisplay.h"
+#include "Solver.h"
 
 MinefieldDisplay::MinefieldDisplay(Minefield *fieldData, QGraphicsItem *parent) :
     QGraphicsObject(parent), mineData(fieldData)
@@ -40,6 +41,10 @@ void MinefieldDisplay::paint(QPainter *, const QStyleOptionGraphicsItem *, QWidg
 void MinefieldDisplay::onCellRevealed(int x, int y)
 {
     cellDisplays[x][y]->update();
+
+    Solver solver(mineData);
+
+    solver.computeSolution();
 }
 
 MinefieldDisplay::~MinefieldDisplay()

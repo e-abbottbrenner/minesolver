@@ -44,7 +44,7 @@ void ChoiceNode::tryAddEdge(QSharedPointer<ChoiceColumn> column, const Potential
 
         if(edgeTargetNode.isNull())
         {// no existing target, so need to create one
-            edgeTargetNode = edgeTargetNode.create(minefield, column->getX(), column->getY());
+            edgeTargetNode = edgeTargetNode.create(minefield);
             // we add it to the column so it can be reused
             column->addChoiceNode(edgeTargetNode);
         }
