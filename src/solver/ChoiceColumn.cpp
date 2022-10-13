@@ -21,6 +21,11 @@ void ChoiceColumn::addChoiceNode(QSharedPointer<ChoiceNode> node)
     choicesInColumn.insert(node->getMinefield().getMinefieldBytes(), node);
 }
 
+QList<QSharedPointer<ChoiceNode> > ChoiceColumn::getChoiceNodes() const
+{
+    return choicesInColumn.values();
+}
+
 int ChoiceColumn::getX() const
 {
     return x;

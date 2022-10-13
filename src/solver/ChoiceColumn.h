@@ -15,6 +15,8 @@ public:
     QSharedPointer<ChoiceNode> getChoiceNode(const QByteArray& minefieldBytes) const;
     void addChoiceNode(QSharedPointer<ChoiceNode> node);
 
+    QList<QSharedPointer<ChoiceNode>> getChoiceNodes() const;
+
     int getX() const;
     int getY() const;
 
