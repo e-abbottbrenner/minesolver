@@ -16,10 +16,12 @@ public:
 
     bool isLegal() const;
 
+    const QByteArray &getMinefieldBytes() const;
+
 private:
     bool legal = true;
 
-    QByteArray minefield;
+    QByteArray minefieldBytes;
 };
 
 #endif // POTENTIALMINEFIELD_H

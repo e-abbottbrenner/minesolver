@@ -19,6 +19,8 @@ public:
 
     void decidePath();
 
+    const CoordVector &getPath() const;
+
 private:
     Minefield *fieldData;
 

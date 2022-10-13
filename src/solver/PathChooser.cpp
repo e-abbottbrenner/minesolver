@@ -66,6 +66,11 @@ void PathChooser::decidePath()
     }
 }
 
+const CoordVector &PathChooser::getPath() const
+{
+    return path;
+}
+
 int PathChooser::countAdjacentUnknowns(int x, int y) const
 {
     int influencers = 0;
