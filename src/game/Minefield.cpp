@@ -174,6 +174,11 @@ void Minefield::revealAll()
     traverseCells(reveal);
 }
 
+int Minefield::getNumMines() const
+{
+    return numMines;
+}
+
 MineStatus Minefield::getCell(int x, int y) const
 {
     return revealedMinefield[mapToArray(x, y)];

@@ -2,6 +2,7 @@
 #define SOLVER_H
 
 #include <QList>
+#include <QHash>
 #include <QPair>
 #include <QSharedPointer>
 #include <QVector>
@@ -19,12 +20,17 @@ public:
 
     void computeSolution();
 
+    const QHash<Coordinate, double> &getChancesToBeMine() const;
+
 private:
     CoordVector path;
     QList<QSharedPointer<ChoiceColumn>> choiceColumns;
 
+    QHash<Coordinate, double> chancesToBeMine;
+
     void decidePath();
     void buildSolutionGraph();
+    void analyzeSolutionGraph();
 
     Minefield* minefield;
 };

@@ -20,10 +20,12 @@ public:
 
     MineStatus getCell(int x, int y) const;
 
+    int getNumMines() const;
+
     QByteArray getRevealedMinefield() const;
 
     ~Minefield();
-    
+
 signals:
     void cellRevealed(int x, int y);
     void mineHit();

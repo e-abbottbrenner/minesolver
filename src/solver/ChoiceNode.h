@@ -3,6 +3,7 @@
 
 #include <QEnableSharedFromThis>
 
+#include <QHash>
 #include <QList>
 #include <QSharedPointer>
 
@@ -14,7 +15,7 @@ class ChoiceColumn;
 class ChoiceNode : public QEnableSharedFromThis<ChoiceNode>
 {
 public:
-    ChoiceNode(PotentialMinefield minefield, int x, int y);
+    ChoiceNode(PotentialMinefield minefield);
 
     struct Edge
     {
@@ -30,17 +31,30 @@ public:
     // adds the successor choices (mine or clear) to the next column
     void addSuccessorsToColumn(QSharedPointer<ChoiceColumn> column);
 
+    void calculateWaysToBe(int mineCount);
+
+    qint64 getWaysToBeMine() const;
+
+    qint64 getWaysToBeClear() const;
+
 private:
     PotentialMinefield minefield;
-
-    int x = 0;
-    int y = 0;
 
     QList<Edge> edgesForward;
     QList<Edge> edgesReverse;
 
+    QSharedPointer<ChoiceNode> mineForwardEdge;
+    QSharedPointer<ChoiceNode> clearForwardEdge;
+
+    qint64 waysToBeMine = 0;
+    qint64 waysToBeClear = 0;
+
     void tryAddEdge(QSharedPointer<ChoiceColumn> column, const PotentialMinefield& minefield, int cost);
     void linkTarget(QSharedPointer<ChoiceNode> edgeTarget, int cost);
+
+    int findPathsForward(int mineCount) const;
+    int findPathsReverse(int mineCount) const;
+    int findPaths(int mineCount, bool forward = true) const;
 };
 
 #endif // CHOICENODE_H

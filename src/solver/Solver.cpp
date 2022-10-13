@@ -17,6 +17,11 @@ void Solver::computeSolution()
     buildSolutionGraph();
 }
 
+const QHash<Coordinate, double> &Solver::getChancesToBeMine() const
+{
+    return chancesToBeMine;
+}
+
 void Solver::decidePath()
 {
     PathChooser chooser(minefield);
@@ -38,8 +43,7 @@ void Solver::buildSolutionGraph()
 
     // the starting node is the current state of the revealed minefield, with a choice pending for the first cell that we will visit
     QSharedPointer<ChoiceNode> startingNode(new ChoiceNode(PotentialMinefield(minefield->getRevealedMinefield(),
-                                                                              minefield->getWidth(), minefield->getHeight()),
-                                                           initialChoiceColumn->getX(), initialChoiceColumn->getY()));
+                                                                              minefield->getWidth(), minefield->getHeight())));
 
     // adding the initial node gives us a starting point for the graph
     initialChoiceColumn->addChoiceNode(startingNode);
@@ -55,5 +59,15 @@ void Solver::buildSolutionGraph()
         {
             choiceNode->addSuccessorsToColumn(nextColumn);
         }
+    }
+}
+
+void Solver::analyzeSolutionGraph()
+{
+    for(auto column : choiceColumns)
+    {// calculate all the ways to be
+        column->calculateWaysToBe(minefield->getNumMines());
+
+        chancesToBeMine.insert({column->getX(), column->getY()}, column->getPercentChanceToBeMine());
     }
 }

@@ -35,3 +35,33 @@ int ChoiceColumn::getY() const
 {
     return y;
 }
+
+void ChoiceColumn::calculateWaysToBe(int mineCount)
+{
+    waysToBeMine = 0;
+    waysToBeClear = 0;
+
+    for(auto choiceNode : getChoiceNodes())
+    {
+        choiceNode->calculateWaysToBe(mineCount);
+
+        waysToBeMine += choiceNode->getWaysToBeMine();
+        waysToBeClear += choiceNode->getWaysToBeClear();
+    }
+}
+
+double ChoiceColumn::getPercentChanceToBeMine() const
+{
+    // hopefully double is enough to store the ways it can be a mine... Might need to change data types around eventually
+    return static_cast<double>(waysToBeMine) / (waysToBeMine + waysToBeClear);
+}
+
+qint64 ChoiceColumn::getWaysToBeMine() const
+{
+    return waysToBeMine;
+}
+
+qint64 ChoiceColumn::getWaysToBeClear() const
+{
+    return waysToBeClear;
+}
