@@ -13,8 +13,8 @@ Minefield::Minefield(int numMines, int width, int height, int seed, QObject *par
     {
         for(int j = 0; j < height; ++j)
         {
-            underlyingMinefield[map(i, j)] = SpecialStatus::Unknown;
-            revealedMinefield[map(i, j)] = SpecialStatus::Unknown;
+            underlyingMinefield[mapToArray(i, j)] = SpecialStatus::Unknown;
+            revealedMinefield[mapToArray(i, j)] = SpecialStatus::Unknown;
         }
     }
 }
@@ -28,7 +28,7 @@ void Minefield::populateMinefield(int originX, int originY)
     int bannedCells = 0;
 
     // count the number of cells within bounds that aren't allowed to be mines
-    traverseAdacentCells(originX, originY, [&] (int, int) {++bannedCells;});
+    traverseAdjacentCells(originX, originY, [&] (int, int) {++bannedCells;});
 
     int freeCells = getWidth() * getHeight() - bannedCells;
 
@@ -38,13 +38,13 @@ void Minefield::populateMinefield(int originX, int originY)
 
         auto placeMines = [&] (int x, int y)
         {
-            if(underlyingMinefield[map(x, y)] != SpecialStatus::Mine
+            if(underlyingMinefield[mapToArray(x, y)] != SpecialStatus::Mine
                     && (x > originX + 1 || x < originX - 1
                         || y > originY + 1 || y < originY - 1))
             {// not already a mine or within a cell of the origin
                 if(mineLoc == 0)
                 {
-                    underlyingMinefield[map(x, y)] = SpecialStatus::Mine;
+                    underlyingMinefield[mapToArray(x, y)] = SpecialStatus::Mine;
                 }
 
                 --mineLoc;
@@ -61,7 +61,7 @@ void Minefield::populateMinefield(int originX, int originY)
     auto countMine = [&] (int x, int y)
     {
         // increase count if the cell atx, y is a mine
-        if(underlyingMinefield[map(x, y)] == SpecialStatus::Mine)
+        if(underlyingMinefield[mapToArray(x, y)] == SpecialStatus::Mine)
         {
             ++mineCount;
         }
@@ -72,11 +72,11 @@ void Minefield::populateMinefield(int originX, int originY)
         mineCount = 0;
 
         // label the cells that don't have mines with their mine counts
-        if(underlyingMinefield[map(x, y)] != SpecialStatus::Mine)
+        if(underlyingMinefield[mapToArray(x, y)] != SpecialStatus::Mine)
         {
-            traverseAdacentCells(x, y, countMine);
+            traverseAdjacentCells(x, y, countMine);
 
-            underlyingMinefield[map(x, y)] = mineCount;
+            underlyingMinefield[mapToArray(x, y)] = mineCount;
         }
     };
 
@@ -91,25 +91,25 @@ void Minefield::revealAdjacents(int x, int y)
 
     auto countGuess = [&] (int x, int y)
     {
-        if(revealedMinefield[map(x, y)] == SpecialStatus::GuessMine)
+        if(revealedMinefield[mapToArray(x, y)] == SpecialStatus::GuessMine)
         {
             ++guessCount;
         }
     };
 
-    traverseAdacentCells(x, y, countGuess);
+    traverseAdjacentCells(x, y, countGuess);
 
-    if(guessCount == revealedMinefield[map(x, y)])
+    if(guessCount == revealedMinefield[mapToArray(x, y)])
     {
         auto reveal = [&] (int x, int y)
         {
-            if(revealedMinefield[map(x, y)] != SpecialStatus::GuessMine)
+            if(revealedMinefield[mapToArray(x, y)] != SpecialStatus::GuessMine)
             {
                 revealCell(x, y);
             }
         };
 
-        traverseAdacentCells(x, y, reveal);
+        traverseAdjacentCells(x, y, reveal);
     }
 }
 
@@ -120,7 +120,7 @@ void Minefield::revealCell(int x, int y)
         populateMinefield(x, y);
     }
 
-    bool clear = underlyingMinefield[map(x, y)] != SpecialStatus::Mine;
+    bool clear = underlyingMinefield[mapToArray(x, y)] != SpecialStatus::Mine;
 
     if(clear)
     {
@@ -136,13 +136,13 @@ void Minefield::revealCell(int x, int y)
 
 void Minefield::toggleCellFlag(int x, int y)
 {
-    if(revealedMinefield[map(x, y)] == SpecialStatus::Unknown)
+    if(revealedMinefield[mapToArray(x, y)] == SpecialStatus::Unknown)
     {
-        revealedMinefield[map(x, y)] = SpecialStatus::GuessMine;
+        revealedMinefield[mapToArray(x, y)] = SpecialStatus::GuessMine;
     }
-    else if(revealedMinefield[map(x, y)] == SpecialStatus::GuessMine)
+    else if(revealedMinefield[mapToArray(x, y)] == SpecialStatus::GuessMine)
     {
-        revealedMinefield[map(x, y)] = SpecialStatus::Unknown;
+        revealedMinefield[mapToArray(x, y)] = SpecialStatus::Unknown;
     }
 
     emit cellRevealed(x, y);
@@ -150,15 +150,15 @@ void Minefield::toggleCellFlag(int x, int y)
 
 void Minefield::recursiveReveal(int x, int y)
 {
-    if(underlyingMinefield[map(x, y)] != revealedMinefield[map(x, y)])
+    if(underlyingMinefield[mapToArray(x, y)] != revealedMinefield[mapToArray(x, y)])
     {
-        revealedMinefield[map(x, y)] = underlyingMinefield[map(x, y)];
+        revealedMinefield[mapToArray(x, y)] = underlyingMinefield[mapToArray(x, y)];
 
         emit cellRevealed(x, y);
 
-        if(underlyingMinefield[map(x, y)] == 0)
+        if(underlyingMinefield[mapToArray(x, y)] == 0)
         {// no nearby mines, do the recursive reveal
-            traverseAdacentCells(x, y, [this] (int x, int y) {recursiveReveal(x, y);});
+            traverseAdjacentCells(x, y, [this] (int x, int y) {recursiveReveal(x, y);});
         }
     }
 }
@@ -167,21 +167,16 @@ void Minefield::revealAll()
 {
     auto reveal = [&] (int x, int y)
     {
-        revealedMinefield[map(x, y)] = underlyingMinefield[map(x, y)];
+        revealedMinefield[mapToArray(x, y)] = underlyingMinefield[mapToArray(x, y)];
         emit cellRevealed(x, y);
     };
 
     traverseCells(reveal);
 }
 
-int Minefield::map(int x, int y) const
-{
-    return x + y * getWidth();
-}
-
 MineStatus Minefield::getCell(int x, int y) const
 {
-    return revealedMinefield[map(x, y)];
+    return revealedMinefield[mapToArray(x, y)];
 }
 
 QByteArray Minefield::getRevealedMinefield() const

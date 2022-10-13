@@ -3,18 +3,10 @@
 
 #include "TraversableGrid.h"
 
-#include <QObject>
+#include "MineStatus.h"
+
 #include <functional>
-
-typedef qint8 MineStatus;
-
-namespace SpecialStatus
-{
-    const MineStatus Mine = -1;
-    const MineStatus Unknown = -2;
-    const MineStatus GuessMine = -3;
-    const MineStatus GuessClear = -4;
-}
+#include <QObject>
 
 class Minefield : public QObject, public TraversableGrid
 {
@@ -40,8 +32,6 @@ private:
     void populateMinefield(int originX, int originY);
     void recursiveReveal(int x, int y);
     void revealAll();
-
-    int map(int x, int y) const;
 
     int numMines = 0;
     int seed = 0;

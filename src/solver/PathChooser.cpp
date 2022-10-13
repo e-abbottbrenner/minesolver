@@ -57,7 +57,7 @@ void PathChooser::decidePath()
             };
 
             // update the fringe
-            fieldData->traverseAdacentCells(coord.first, coord.second, updateFringe);
+            fieldData->traverseAdjacentCells(coord.first, coord.second, updateFringe);
         }
         else
         {
@@ -70,7 +70,7 @@ int PathChooser::countAdjacentUnknowns(int x, int y) const
 {
     int influencers = 0;
 
-    fieldData->traverseAdacentCells(x, y, [&] (int x, int y) -> void {fieldData->getCell(x, y) == SpecialStatus::Unknown? ++influencers : 0;});
+    fieldData->traverseAdjacentCells(x, y, [&] (int x, int y) -> void {fieldData->getCell(x, y) == SpecialStatus::Unknown? ++influencers : 0;});
 
     return influencers;
 }
@@ -105,7 +105,7 @@ Coordinate PathChooser::getNextCoord(const FringeMap& currentFringe) const
             };
 
             // construct the list of adjacent count cells
-            fieldData->traverseAdacentCells(x, y, getAdjacentCountCells);
+            fieldData->traverseAdjacentCells(x, y, getAdjacentCountCells);
 
             // use the list of adjacent count cells to compute the change in our fringe
             for(CoordVector::Iterator coordIter = adjacentCountCells.begin(); coordIter != adjacentCountCells.end(); ++coordIter)

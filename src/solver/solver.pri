@@ -1,11 +1,9 @@
 INCLUDEPATH += $$PWD
 
 SOURCES += \
-    src/solver/PathChooser.cpp \
-    src/solver/MineStateMachine.cpp \
-    src/solver/MineStateAnalyzer.cpp
+    $$PWD/PotentialMinefield.cpp \
+    src/solver/PathChooser.cpp
 
 HEADERS += \
-    src/solver/PathChooser.h \
-    src/solver/MineStateMachine.h \
-    src/solver/MineStateAnalyzer.h
+    $$PWD/PotentialMinefield.h \
+    src/solver/PathChooser.h
