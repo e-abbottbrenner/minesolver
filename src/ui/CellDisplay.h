@@ -3,13 +3,13 @@
 
 #include <QGraphicsObject>
 
-class MinefieldData;
+class Minefield;
 
 class CellDisplay : public QGraphicsObject
 {
     Q_OBJECT
 public:
-    explicit CellDisplay(MinefieldData *mineData, int x, int y, QGraphicsItem *parent = 0);
+    explicit CellDisplay(Minefield *mineData, int x, int y, QGraphicsItem *parent = 0);
 
     static const int CellSize;
 
@@ -22,9 +22,9 @@ protected:
     void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *);
 
 private:
-    MinefieldData *mineData;
-    int x;
-    int y;
+    Minefield *minefield = nullptr;
+    int x = 0;
+    int y = 0;
     
 };
 

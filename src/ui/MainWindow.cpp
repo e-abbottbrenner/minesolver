@@ -4,13 +4,13 @@
 #include <QGraphicsScene>
 #include <QDateTime>
 
-#include "MinefieldData.h"
+#include "Minefield.h"
 #include "MinefieldDisplay.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    fieldData = new MinefieldData(100, 30, 30, QDateTime::currentMSecsSinceEpoch(), this);
+    fieldData = new Minefield(100, 30, 30, QDateTime::currentMSecsSinceEpoch(), this);
     fieldDisplay = new MinefieldDisplay(fieldData);
 
     QGraphicsView *view = new QGraphicsView(this);

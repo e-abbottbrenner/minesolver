@@ -1,5 +1,7 @@
-#ifndef MINEFIELDDATA_H
-#define MINEFIELDDATA_H
+#ifndef MINEFIELD_H
+#define MINEFIELD_H
+
+#include "TraversableGrid.h"
 
 #include <QObject>
 #include <functional>
@@ -14,30 +16,21 @@ namespace SpecialStatus
     const MineStatus GuessClear = -4;
 }
 
-class MinefieldData : public QObject
+class Minefield : public QObject, public TraversableGrid
 {
     Q_OBJECT
 public:
-    explicit MinefieldData(int numMines, int width, int height, int seed, QObject *parent = 0);
+    explicit Minefield(int numMines, int width, int height, int seed, QObject *parent = 0);
 
     void revealAdjacents(int x, int y);
     void revealCell(int x, int y);
     void toggleCellFlag(int x, int y);
 
-    bool checkBounds(int x, int y) const;
-
     MineStatus getCell(int x, int y) const;
 
     QByteArray getRevealedMinefield() const;
 
-    // no const on these as we might want to make changes in the passed func
-    void traverseAdacentCells(int x, int y, std::function<void (int, int)> func);
-    void traverseCells(std::function<void (int, int)> func);
-
-    int getWidth() const;
-    int getHeight() const;
-
-    ~MinefieldData();
+    ~Minefield();
     
 signals:
     void cellRevealed(int x, int y);
@@ -50,15 +43,13 @@ private:
 
     int map(int x, int y) const;
 
-    int numMines;
-    int width;
-    int height;
-    int seed;
+    int numMines = 0;
+    int seed = 0;
 
-    bool populated;
+    bool populated = false;
 
     QByteArray underlyingMinefield;
     QByteArray revealedMinefield;
 };
 
-#endif // MINEFIELDDATA_H
+#endif // MINEFIELD_H

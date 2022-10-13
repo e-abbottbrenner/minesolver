@@ -3,14 +3,14 @@
 
 #include <QGraphicsObject>
 
-class MinefieldData;
+class Minefield;
 class CellDisplay;
 
 class MinefieldDisplay : public QGraphicsObject
 {
     Q_OBJECT
 public:
-    explicit MinefieldDisplay(MinefieldData *fieldData, QGraphicsItem *parent = 0);
+    explicit MinefieldDisplay(Minefield *fieldData, QGraphicsItem *parent = 0);
 
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
@@ -22,7 +22,7 @@ private slots:
     void onCellRevealed(int x, int y);
 
 private:
-    MinefieldData *mineData;
+    Minefield *mineData;
 
     int pixelWidth;
     int pixelHeight;

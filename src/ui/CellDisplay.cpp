@@ -3,12 +3,12 @@
 #include <QPainter>
 #include <QGraphicsSceneMouseEvent>
 
-#include "MinefieldData.h"
+#include "Minefield.h"
 
 const int CellDisplay::CellSize = 20;
 
-CellDisplay::CellDisplay(MinefieldData *mineData, int x, int y, QGraphicsItem *parent) :
-    QGraphicsObject(parent), x(x), y(y), mineData(mineData)
+CellDisplay::CellDisplay(Minefield *mineData, int x, int y, QGraphicsItem *parent) :
+    QGraphicsObject(parent), minefield(mineData), x(x), y(y)
 {
     setX(x * CellSize);
     setY(y * CellSize);
@@ -23,7 +23,7 @@ void CellDisplay::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWi
 {
     painter->save();
 
-    MineStatus status = mineData->getCell(x, y);
+    MineStatus status = minefield->getCell(x, y);
 
     if(status == SpecialStatus::Unknown)
     {
@@ -87,18 +87,18 @@ void CellDisplay::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     if(event->button() == Qt::LeftButton)
     {
-        if(mineData->getCell(x, y) != SpecialStatus::GuessMine)
+        if(minefield->getCell(x, y) != SpecialStatus::GuessMine)
         {
-            mineData->revealCell(x, y);
+            minefield->revealCell(x, y);
         }
     }
     else if(event->button() == Qt::RightButton)
     {
-        mineData->toggleCellFlag(x, y);
+        minefield->toggleCellFlag(x, y);
     }
 }
 
 void CellDisplay::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *)
 {
-    mineData->revealAdjacents(x, y);
+    minefield->revealAdjacents(x, y);
 }

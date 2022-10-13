@@ -1,7 +1,9 @@
 INCLUDEPATH += $$PWD
 
 SOURCES += \
-    src/game/MinefieldData.cpp
+    $$PWD/Minefield.cpp \
+    $$PWD/TraversableGrid.cpp
 
 HEADERS += \
-    src/game/MinefieldData.h
+    $$PWD/Minefield.h \
+    $$PWD/TraversableGrid.h

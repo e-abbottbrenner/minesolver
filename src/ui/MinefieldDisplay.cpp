@@ -1,9 +1,9 @@
 #include "MinefieldDisplay.h"
 
-#include "MinefieldData.h"
+#include "Minefield.h"
 #include "CellDisplay.h"
 
-MinefieldDisplay::MinefieldDisplay(MinefieldData *fieldData, QGraphicsItem *parent) :
+MinefieldDisplay::MinefieldDisplay(Minefield *fieldData, QGraphicsItem *parent) :
     QGraphicsObject(parent), mineData(fieldData)
 {
     fieldWidth = mineData->getWidth();

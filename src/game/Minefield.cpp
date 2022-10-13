@@ -1,9 +1,9 @@
-#include "MinefieldData.h"
+#include "Minefield.h"
 
 #include "RandomNumbers.h"
 
-MinefieldData::MinefieldData(int numMines, int width, int height, int seed, QObject *parent) :
-    QObject(parent), numMines(numMines), width(width), height(height), seed(seed)
+Minefield::Minefield(int numMines, int width, int height, int seed, QObject *parent) :
+    QObject(parent), TraversableGrid(width, height), numMines(numMines), seed(seed)
 {
     populated = false;
 
@@ -19,7 +19,7 @@ MinefieldData::MinefieldData(int numMines, int width, int height, int seed, QObj
     }
 }
 
-void MinefieldData::populateMinefield(int originX, int originY)
+void Minefield::populateMinefield(int originX, int originY)
 {
     RandomNumbers random(seed);
 
@@ -30,7 +30,7 @@ void MinefieldData::populateMinefield(int originX, int originY)
     // count the number of cells within bounds that aren't allowed to be mines
     traverseAdacentCells(originX, originY, [&] (int, int) {++bannedCells;});
 
-    int freeCells = width * height - bannedCells;
+    int freeCells = getWidth() * getHeight() - bannedCells;
 
     for(int mineCount = 0; mineCount < numMines && freeCells > 0; ++mineCount, --freeCells)
     {
@@ -85,12 +85,7 @@ void MinefieldData::populateMinefield(int originX, int originY)
     populated = true;
 }
 
-bool MinefieldData::checkBounds(int x, int y) const
-{
-    return x >= 0 && y >= 0 && x < width && y < height;
-}
-
-void MinefieldData::revealAdjacents(int x, int y)
+void Minefield::revealAdjacents(int x, int y)
 {
     int guessCount = 0;
 
@@ -118,7 +113,7 @@ void MinefieldData::revealAdjacents(int x, int y)
     }
 }
 
-void MinefieldData::revealCell(int x, int y)
+void Minefield::revealCell(int x, int y)
 {
     if(!populated)
     {
@@ -139,7 +134,7 @@ void MinefieldData::revealCell(int x, int y)
     }
 }
 
-void MinefieldData::toggleCellFlag(int x, int y)
+void Minefield::toggleCellFlag(int x, int y)
 {
     if(revealedMinefield[map(x, y)] == SpecialStatus::Unknown)
     {
@@ -153,7 +148,7 @@ void MinefieldData::toggleCellFlag(int x, int y)
     emit cellRevealed(x, y);
 }
 
-void MinefieldData::recursiveReveal(int x, int y)
+void Minefield::recursiveReveal(int x, int y)
 {
     if(underlyingMinefield[map(x, y)] != revealedMinefield[map(x, y)])
     {
@@ -168,7 +163,7 @@ void MinefieldData::recursiveReveal(int x, int y)
     }
 }
 
-void MinefieldData::revealAll()
+void Minefield::revealAll()
 {
     auto reveal = [&] (int x, int y)
     {
@@ -179,56 +174,21 @@ void MinefieldData::revealAll()
     traverseCells(reveal);
 }
 
-int MinefieldData::map(int x, int y) const
+int Minefield::map(int x, int y) const
 {
-    return x + y * width;
+    return x + y * getWidth();
 }
 
-MineStatus MinefieldData::getCell(int x, int y) const
+MineStatus Minefield::getCell(int x, int y) const
 {
     return revealedMinefield[map(x, y)];
 }
 
-QByteArray MinefieldData::getRevealedMinefield() const
+QByteArray Minefield::getRevealedMinefield() const
 {
     return revealedMinefield;
 }
 
-void MinefieldData::traverseAdacentCells(int x, int y, std::function<void (int, int)> func)
-{
-    for(int i = -1; i <= 1; ++i)
-    {
-        for(int j = -1; j <= 1; ++j)
-        {
-            if(checkBounds(x + i, y + j))
-            {
-                func(x + i, y + j);
-            }
-        }
-    }
-}
-
-void MinefieldData::traverseCells(std::function<void (int, int)> func)
-{
-    for(int x = 0; x < width; ++x)
-    {
-        for(int y = 0; y < height; ++y)
-        {
-            func(x, y);
-        }
-    }
-}
-
-int MinefieldData::getWidth() const
-{
-    return width;
-}
-
-int MinefieldData::getHeight() const
-{
-    return height;
-}
-
-MinefieldData::~MinefieldData()
+Minefield::~Minefield()
 {
 }

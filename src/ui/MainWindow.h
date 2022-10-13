@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 
-class MinefieldData;
+class Minefield;
 class MinefieldDisplay;
 
 class MainWindow : public QMainWindow
@@ -15,7 +15,7 @@ public:
     ~MainWindow();
 
 private:
-    MinefieldData *fieldData;
+    Minefield *fieldData;
     MinefieldDisplay *fieldDisplay;
 };
 
