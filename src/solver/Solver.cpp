@@ -5,6 +5,7 @@
 #include "Minefield.h"
 #include "PathChooser.h"
 
+#include <algorithm>
 #include <QDebug>
 
 Solver::Solver(Minefield *minefield)
@@ -61,8 +62,6 @@ void Solver::buildSolutionGraph()
         auto currentColumn = choiceColumns[i];
         auto nextColumn = choiceColumns[i + 1];
 
-        qDebug() << "processing column with" << currentColumn->getChoiceNodes().size() << "nodes";
-
         // we traverse each state in the current column and generate the successor states in the next column
         for(auto choiceNode : currentColumn->getChoiceNodes())
         {
@@ -70,12 +69,27 @@ void Solver::buildSolutionGraph()
         }
     }
 
+    qsizetype maxColumnSize = 0;
+
+    for(auto column : choiceColumns)
+    {
+        maxColumnSize = std::max(maxColumnSize, column->getChoiceNodes().size());
+    }
+
+    qDebug() << "largest column has" << maxColumnSize << "nodes";
     qDebug() << "last column has" << choiceColumns.last()->getChoiceNodes().size() << "nodes";
 }
 
 void Solver::analyzeSolutionGraph()
 {
     qDebug() << "Analyzing...";
+
+    for(const QSharedPointer<ChoiceColumn> &column : {choiceColumns.first(), choiceColumns.last()})
+    {// the final two columns are endpoints
+        assert(column->getChoiceNodes().size() == 1);
+
+        column->getChoiceNodes().first()->setEndpoint(true);
+    }
 
     for(auto column : choiceColumns)
     {// we start from the beginning and move forward to precompute paths in reverse since each column depends on the previous
@@ -95,9 +109,9 @@ void Solver::analyzeSolutionGraph()
         {// the final column has -1, -1
             column->calculateWaysToBe(minefield->getNumMines());
 
-            std::cout << column->getX() << " " << column->getY() << " " << column->getWaysToBeMine() << " " << column->getWaysToBeClear() << " " << column->getPercentChanceToBeMine() << std::endl;
-
             chancesToBeMine.insert({column->getX(), column->getY()}, column->getPercentChanceToBeMine());
         }
     }
+
+    qDebug() << "analysis complete";
 }

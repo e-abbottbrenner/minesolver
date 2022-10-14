@@ -7,6 +7,8 @@
 #include "Minefield.h"
 #include "Solver.h"
 
+static QSharedPointer<Solver> solver;
+
 const int CellDisplay::CellSize = 20;
 
 CellDisplay::CellDisplay(Minefield *mineData, int x, int y, QGraphicsItem *parent) :
@@ -14,6 +16,14 @@ CellDisplay::CellDisplay(Minefield *mineData, int x, int y, QGraphicsItem *paren
 {
     setX(x * CellSize);
     setY(y * CellSize);
+    setToolTip(QString::number(x) + ", " + QString::number(y));
+
+    if(!solver)
+    {
+        solver = solver.create(minefield);
+    }
+
+    setAcceptHoverEvents(true);
 }
 
 QRectF CellDisplay::boundingRect() const
@@ -95,9 +105,9 @@ void CellDisplay::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
             QTimer::singleShot(0, this, [&] ()
             {
-                Solver solver(minefield);
+                solver.reset(new Solver(minefield));
 
-                solver.computeSolution();
+                solver->computeSolution();
             });
         }
     }
@@ -110,4 +120,11 @@ void CellDisplay::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 void CellDisplay::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *)
 {
     minefield->revealAdjacents(x, y);
+}
+
+void CellDisplay::hoverEnterEvent(QGraphicsSceneHoverEvent *)
+{
+    double mineChance = solver->getChancesToBeMine().value({x, y}, 0);
+
+    setToolTip(QString::number(x) + ", " + QString::number(y) + " mine chance: " + QString::number(mineChance));
 }

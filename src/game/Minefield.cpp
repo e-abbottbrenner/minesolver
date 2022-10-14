@@ -2,6 +2,13 @@
 
 #include "RandomNumbers.h"
 
+#include <QTimer>
+
+#include <QPair>
+#include <QStack>
+
+typedef QPair<int, int> Coordinate;
+
 Minefield::Minefield(int numMines, int width, int height, int seed, QObject *parent) :
     QObject(parent), TraversableGrid(width, height), numMines(numMines), seed(seed)
 {
@@ -150,15 +157,30 @@ void Minefield::toggleCellFlag(int x, int y)
 
 void Minefield::recursiveReveal(int x, int y)
 {
-    if(underlyingMinefield[mapToArray(x, y)] != revealedMinefield[mapToArray(x, y)])
+    QStack<Coordinate> revealStack;
+
+    revealStack.push({x, y});
+
+    while(!revealStack.isEmpty())
     {
-        revealedMinefield[mapToArray(x, y)] = underlyingMinefield[mapToArray(x, y)];
+        Coordinate coord = revealStack.pop();
 
-        emit cellRevealed(x, y);
+        int x = coord.first;
+        int y = coord.second;
 
-        if(underlyingMinefield[mapToArray(x, y)] == 0)
-        {// no nearby mines, do the recursive reveal
-            traverseAdjacentCells(x, y, [this] (int x, int y) {recursiveReveal(x, y);});
+        if(underlyingMinefield[mapToArray(x, y)] != revealedMinefield[mapToArray(x, y)])
+        {
+            revealedMinefield[mapToArray(x, y)] = underlyingMinefield[mapToArray(x, y)];
+
+            emit cellRevealed(x, y);
+
+            if(underlyingMinefield[mapToArray(x, y)] == 0)
+            {// no nearby mines, do the recursive reveal
+                traverseAdjacentCells(x, y, [&] (int x, int y)
+                {
+                    revealStack.push({x, y});
+                });
+            }
         }
     }
 }

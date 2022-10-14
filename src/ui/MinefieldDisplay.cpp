@@ -24,7 +24,7 @@ MinefieldDisplay::MinefieldDisplay(Minefield *fieldData, QGraphicsItem *parent) 
         }
     }
 
-    connect(mineData, SIGNAL(cellRevealed(int,int)), this, SLOT(onCellRevealed(int,int)));
+    connect(mineData, SIGNAL(cellRevealed(int,int)), this, SLOT(onCellRevealed(int,int)), Qt::QueuedConnection);
 }
 
 QRectF MinefieldDisplay::boundingRect() const

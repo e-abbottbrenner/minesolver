@@ -26,6 +26,10 @@ private:
     int x = 0;
     int y = 0;
     
+
+    // QGraphicsItem interface
+protected:
+    void hoverEnterEvent(QGraphicsSceneHoverEvent *);
 };
 
 #endif // CELLDISPLAY_H

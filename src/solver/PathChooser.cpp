@@ -70,7 +70,6 @@ Coordinate PathChooser::nextCoord()
                     if(newInfluencerCount == 0)
                     {// this cell can no longer be influenced by future decisions on the path, remove it
                         newPathInfluence.remove({x, y});
-                        qDebug() << "removing influencer";
                     }
                 }
                 else
@@ -99,8 +98,6 @@ Coordinate PathChooser::nextCoord()
 
     // update path influence to the new best
     pathInfluence = bestPathInfluence;
-
-    qDebug() << "best influence path size" << bestPathInfluence.size();
 
     return pathSources.takeAt(bestCoordinateIndex);
 }

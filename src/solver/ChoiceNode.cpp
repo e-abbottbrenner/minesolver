@@ -123,6 +123,16 @@ cpp_int ChoiceNode::getWaysToBeClear() const
     return waysToBeClear;
 }
 
+bool ChoiceNode::isEndpoint() const
+{
+    return endpoint;
+}
+
+void ChoiceNode::setEndpoint(bool newEndpoint)
+{
+    endpoint = newEndpoint;
+}
+
 cpp_int ChoiceNode::findPathsForward(int mineCount) const
 {
     return findPaths(mineCount, true);
@@ -135,6 +145,7 @@ cpp_int ChoiceNode::findPathsReverse(int mineCount) const
 
 cpp_int ChoiceNode::findPaths(int mineCount, bool forward) const
 {
+    // TODO: this ALSO has to reach one of the valid end states!!!
     if(mineCount < 0)
     {// no valid path, used too much cost
         return 0;
@@ -142,8 +153,8 @@ cpp_int ChoiceNode::findPaths(int mineCount, bool forward) const
 
     if((forward && edgesForward.isEmpty())
             || (!forward && edgesReverse.isEmpty()))
-    {// no more edges to proceed through, only report a path if we're at exactly 0 mines
-        return mineCount == 0? 1 : 0;
+    {// no more edges to proceed through, only report a path if we're at exactly 0 mines and have reached an endpoint
+        return mineCount == 0 && isEndpoint()? 1 : 0;
     }
 
     cpp_int sumOfEdges = 0;

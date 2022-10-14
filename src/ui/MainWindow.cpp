@@ -16,6 +16,8 @@ MainWindow::MainWindow(QWidget *parent)
     QGraphicsView *view = new QGraphicsView(this);
     setCentralWidget(view);
 
+    view->setAttribute(Qt::WA_AlwaysShowToolTips, true);
+
     QGraphicsScene *scene = new QGraphicsScene(this);
     view->setScene(scene);
 

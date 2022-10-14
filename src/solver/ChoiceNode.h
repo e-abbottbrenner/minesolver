@@ -44,6 +44,9 @@ public:
 
     cpp_int getWaysToBeClear() const;
 
+    bool isEndpoint() const;
+    void setEndpoint(bool newEndpoint);
+
 private:
     PotentialMinefield minefield;
 
@@ -61,6 +64,8 @@ private:
 
     cpp_int waysToBeMine = 0;
     cpp_int waysToBeClear = 0;
+
+    bool endpoint = false;
 
     void tryAddEdge(QSharedPointer<ChoiceColumn> column, const PotentialMinefield& minefield, int cost);
     void linkTarget(QSharedPointer<ChoiceNode> edgeTarget, int cost);
