@@ -5,6 +5,10 @@
 #include <QHash>
 #include <QSharedPointer>
 
+#include <boost/multiprecision/cpp_int.hpp>
+
+using boost::multiprecision::cpp_int;
+
 class ChoiceNode;
 
 class ChoiceColumn
@@ -26,9 +30,9 @@ public:
 
     double getPercentChanceToBeMine() const;
 
-    qint64 getWaysToBeMine() const;
+    cpp_int getWaysToBeMine() const;
 
-    qint64 getWaysToBeClear() const;
+    cpp_int getWaysToBeClear() const;
 
 private:
     QHash<QByteArray, QSharedPointer<ChoiceNode>> choicesInColumn;
@@ -36,8 +40,8 @@ private:
     int x = 0;
     int y = 0;
 
-    qint64 waysToBeMine = 0;
-    qint64 waysToBeClear = 0;
+    cpp_int waysToBeMine = 0;
+    cpp_int waysToBeClear = 0;
 };
 
 #endif // CHOICECOLUMN_H

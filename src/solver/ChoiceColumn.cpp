@@ -2,6 +2,8 @@
 
 #include "ChoiceNode.h"
 
+using boost::multiprecision::cpp_rational;
+
 ChoiceColumn::ChoiceColumn(int x, int y)
     : x(x), y(y)
 {
@@ -68,17 +70,15 @@ void ChoiceColumn::calculateWaysToBe(int mineCount)
 
 double ChoiceColumn::getPercentChanceToBeMine() const
 {
-    // TODO: this is definitely not sufficient, qint64 isn't sufficient either
-    // hopefully double is enough to store the ways it can be a mine... Might need to change data types around eventually
-    return static_cast<double>(waysToBeMine) / (waysToBeMine + waysToBeClear);
+    return static_cast<double>(static_cast<cpp_rational>(waysToBeMine) / (waysToBeMine + waysToBeClear));
 }
 
-qint64 ChoiceColumn::getWaysToBeMine() const
+cpp_int ChoiceColumn::getWaysToBeMine() const
 {
     return waysToBeMine;
 }
 
-qint64 ChoiceColumn::getWaysToBeClear() const
+cpp_int ChoiceColumn::getWaysToBeClear() const
 {
     return waysToBeClear;
 }

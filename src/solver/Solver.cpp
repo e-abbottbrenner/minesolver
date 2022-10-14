@@ -95,7 +95,7 @@ void Solver::analyzeSolutionGraph()
         {// the final column has -1, -1
             column->calculateWaysToBe(minefield->getNumMines());
 
-            qDebug() << column->getX() << column->getY() << column->getWaysToBeMine() << column->getWaysToBeClear() << column->getPercentChanceToBeMine();
+            std::cout << column->getX() << " " << column->getY() << " " << column->getWaysToBeMine() << " " << column->getWaysToBeClear() << " " << column->getPercentChanceToBeMine() << std::endl;
 
             chancesToBeMine.insert({column->getX(), column->getY()}, column->getPercentChanceToBeMine());
         }

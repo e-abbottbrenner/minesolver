@@ -20,6 +20,8 @@ include(src/game/game.pri)
 include(src/solver/solver.pri)
 include(src/utils/utils.pri)
 
+INCLUDEPATH += include
+
 CONFIG(test) {
 LIBS += -lgtest
 include(test/test.pri)
