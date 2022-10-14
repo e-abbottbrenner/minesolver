@@ -68,6 +68,7 @@ void ChoiceColumn::calculateWaysToBe(int mineCount)
 
 double ChoiceColumn::getPercentChanceToBeMine() const
 {
+    // TODO: this is definitely not sufficient, qint64 isn't sufficient either
     // hopefully double is enough to store the ways it can be a mine... Might need to change data types around eventually
     return static_cast<double>(waysToBeMine) / (waysToBeMine + waysToBeClear);
 }

@@ -2,6 +2,8 @@
 
 #include "Minefield.h"
 
+#include <QDebug>
+
 PathChooser::PathChooser(Minefield *minefield)
     : fieldData(minefield)
 {
@@ -61,11 +63,14 @@ Coordinate PathChooser::nextCoord()
             {// adjacent count cell, may to go in the influence list
                 if(newPathInfluence.contains({x, y}))
                 {// coordinate is already influenced
-                    int newInfluencerCount = newPathInfluence[{x, y}]--;
+                    int newInfluencerCount = newPathInfluence[{x, y}] - 1;
+                    // -- operator doesn't work here
+                    newPathInfluence[{x, y}] = newInfluencerCount;
 
                     if(newInfluencerCount == 0)
                     {// this cell can no longer be influenced by future decisions on the path, remove it
                         newPathInfluence.remove({x, y});
+                        qDebug() << "removing influencer";
                     }
                 }
                 else
@@ -94,6 +99,8 @@ Coordinate PathChooser::nextCoord()
 
     // update path influence to the new best
     pathInfluence = bestPathInfluence;
+
+    qDebug() << "best influence path size" << bestPathInfluence.size();
 
     return pathSources.takeAt(bestCoordinateIndex);
 }
