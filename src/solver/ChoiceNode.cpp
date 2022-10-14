@@ -167,11 +167,11 @@ void ChoiceNode::precomputePaths(int mineCount, bool forward)
     {
         if(forward)
         {
-            pathsForward.append(findPaths(mineCount, forward));
+            pathsForward.append(findPaths(i, forward));
         }
         else
         {
-            pathsReverse.append(findPaths(mineCount, forward));
+            pathsReverse.append(findPaths(i, forward));
         }
     }
 }

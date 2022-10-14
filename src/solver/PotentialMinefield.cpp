@@ -25,6 +25,7 @@ PotentialMinefield PotentialMinefield::chooseMine(int x, int y) const
         }
     };
 
+    // TODO: refactor common logic for these update methods for mine and clear - mine logic is same as clear but with extra steps
     auto updateForMine = [&] (int i, int j)
     {
         int cellAddress = mapToArray(i, j);

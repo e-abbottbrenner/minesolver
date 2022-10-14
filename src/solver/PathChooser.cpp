@@ -18,6 +18,7 @@ PathChooser::PathChooser(Minefield *minefield)
  */
 void PathChooser::decidePath()
 {
+    // TODO: this can still blow up the state graph with some formations, seems related to multiple isolated areas?
     // need to fix this, a good path is critical for controlling the size of the solution space
     // let's just do a greedy algorithm that finds the next cell that minimizes the number of count cells that can still be influenced
     for(int x = 0; x < width; ++x)

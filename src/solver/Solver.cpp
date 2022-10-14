@@ -32,8 +32,6 @@ void Solver::decidePath()
     chooser.decidePath();
 
     path = chooser.getPath();
-
-    qDebug() << path;
 }
 
 void Solver::buildSolutionGraph()
@@ -54,17 +52,6 @@ void Solver::buildSolutionGraph()
                                                                               minefield->getWidth(), minefield->getHeight()),
                                                            initialChoiceColumn->getX(), initialChoiceColumn->getY()));
 
-    PotentialMinefield pathTester = startingNode->getMinefield();
-
-    for(Coordinate coord: path)
-    {
-        pathTester = pathTester.chooseMine(coord.first, coord.second);
-
-        qDebug() << pathTester.isLegal();
-
-        qDebug() << pathTester.toString();
-    }
-
     // adding the initial node gives us a starting point for the graph
     initialChoiceColumn->addChoiceNode(startingNode);
 
@@ -84,11 +71,6 @@ void Solver::buildSolutionGraph()
     }
 
     qDebug() << "last column has" << choiceColumns.last()->getChoiceNodes().size() << "nodes";
-
-    for(auto choiceNode : choiceColumns.last()->getChoiceNodes())
-    {
-        qDebug() << choiceNode->getMinefield().toString();
-    }
 }
 
 void Solver::analyzeSolutionGraph()
@@ -109,7 +91,7 @@ void Solver::analyzeSolutionGraph()
 
     for(auto column : choiceColumns)
     {// calculate all the ways to be
-        if(column->getX() > 0 && column->getY() > 0)
+        if(column->getX() >= 0 && column->getY() >= 0)
         {// the final column has -1, -1
             column->calculateWaysToBe(minefield->getNumMines());
 
