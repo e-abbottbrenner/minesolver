@@ -107,7 +107,7 @@ void ChoiceNode::calculateWaysToBe(int mineCount)
         totalWaysToBeClearForForwardMineCount.append(waysToBeClear);
     }
 
-    auto sum = [] (const QList<cpp_int>& list) { cpp_int result = 0; for(cpp_int i : list) result += i; return result; };
+    auto sum = [] (const QList<cpp_int>& list) { cpp_int result = 0; for(const cpp_int &i : list) result += i; return result; };
 
     waysToBeMine = sum(totalWaysToBeMineForForwardMineCount);
     waysToBeClear = sum(totalWaysToBeClearForForwardMineCount);
@@ -145,7 +145,6 @@ cpp_int ChoiceNode::findPathsReverse(int mineCount) const
 
 cpp_int ChoiceNode::findPaths(int mineCount, bool forward) const
 {
-    // TODO: this ALSO has to reach one of the valid end states!!!
     if(mineCount < 0)
     {// no valid path, used too much cost
         return 0;
