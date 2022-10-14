@@ -4,6 +4,7 @@
 #include "TraversableGrid.h"
 
 #include <QByteArray>
+#include <QString>
 
 // represents a potential minefield in the set of all possible states
 class PotentialMinefield : public TraversableGrid
@@ -15,6 +16,8 @@ public:
     PotentialMinefield chooseClear(int x, int y) const;
 
     bool isLegal() const;
+
+    QString toString() const;
 
     const QByteArray &getMinefieldBytes() const;
 

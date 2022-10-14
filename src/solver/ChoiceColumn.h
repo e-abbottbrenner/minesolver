@@ -20,6 +20,8 @@ public:
     int getX() const;
     int getY() const;
 
+    void precomputePathsForward(int mineCount);
+    void precomputePathsReverse(int mineCount);
     void calculateWaysToBe(int mineCount);
 
     double getPercentChanceToBeMine() const;

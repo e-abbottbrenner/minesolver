@@ -32,6 +32,8 @@ void Solver::decidePath()
     chooser.decidePath();
 
     path = chooser.getPath();
+
+    qDebug() << path;
 }
 
 void Solver::buildSolutionGraph()
@@ -42,11 +44,26 @@ void Solver::buildSolutionGraph()
         choiceColumns.append(QSharedPointer<ChoiceColumn>::create(coord.first, coord.second));
     }
 
+    // the final column doesn't have a choice anymore and is just the end state where all choices have been made and the board is done
+    choiceColumns.append(QSharedPointer<ChoiceColumn>::create(-1, -1));
+
     auto initialChoiceColumn = choiceColumns.first();
 
     // the starting node is the current state of the revealed minefield, with a choice pending for the first cell that we will visit
     QSharedPointer<ChoiceNode> startingNode(new ChoiceNode(PotentialMinefield(minefield->getRevealedMinefield(),
-                                                                              minefield->getWidth(), minefield->getHeight())));
+                                                                              minefield->getWidth(), minefield->getHeight()),
+                                                           initialChoiceColumn->getX(), initialChoiceColumn->getY()));
+
+    PotentialMinefield pathTester = startingNode->getMinefield();
+
+    for(Coordinate coord: path)
+    {
+        pathTester = pathTester.chooseMine(coord.first, coord.second);
+
+        qDebug() << pathTester.isLegal();
+
+        qDebug() << pathTester.toString();
+    }
 
     // adding the initial node gives us a starting point for the graph
     initialChoiceColumn->addChoiceNode(startingNode);
@@ -62,8 +79,15 @@ void Solver::buildSolutionGraph()
         // we traverse each state in the current column and generate the successor states in the next column
         for(auto choiceNode : currentColumn->getChoiceNodes())
         {
-            choiceNode->addSuccessorsToColumn(nextColumn);
+            choiceNode->addSuccessorsToNextColumn(nextColumn);
         }
+    }
+
+    qDebug() << "last column has" << choiceColumns.last()->getChoiceNodes().size() << "nodes";
+
+    for(auto choiceNode : choiceColumns.last()->getChoiceNodes())
+    {
+        qDebug() << choiceNode->getMinefield().toString();
     }
 }
 
@@ -72,11 +96,26 @@ void Solver::analyzeSolutionGraph()
     qDebug() << "Analyzing...";
 
     for(auto column : choiceColumns)
+    {// we start from the beginning and move forward to precompute paths in reverse since each column depends on the previous
+        column->precomputePathsReverse(minefield->getNumMines());
+    }
+
+    for(auto iter = choiceColumns.rbegin(); iter != choiceColumns.rend(); ++iter)
+    {// we start from the end of the columns to precompute the paths forward since each column depends on the next
+        (*iter)->precomputePathsForward(minefield->getNumMines());
+    }
+
+    qDebug() << "path count precompution complete";
+
+    for(auto column : choiceColumns)
     {// calculate all the ways to be
-        column->calculateWaysToBe(minefield->getNumMines());
+        if(column->getX() > 0 && column->getY() > 0)
+        {// the final column has -1, -1
+            column->calculateWaysToBe(minefield->getNumMines());
 
-        qDebug() << column->getX() << column->getY() << column->getPercentChanceToBeMine();
+            qDebug() << column->getX() << column->getY() << column->getWaysToBeMine() << column->getWaysToBeClear() << column->getPercentChanceToBeMine();
 
-        chancesToBeMine.insert({column->getX(), column->getY()}, column->getPercentChanceToBeMine());
+            chancesToBeMine.insert({column->getX(), column->getY()}, column->getPercentChanceToBeMine());
+        }
     }
 }

@@ -15,7 +15,7 @@ class ChoiceColumn;
 class ChoiceNode : public QEnableSharedFromThis<ChoiceNode>
 {
 public:
-    ChoiceNode(PotentialMinefield minefield);
+    ChoiceNode(PotentialMinefield minefield, int x, int y);
 
     struct Edge
     {
@@ -29,7 +29,10 @@ public:
     const QList<Edge> &getEdgesReverse() const;
 
     // adds the successor choices (mine or clear) to the next column
-    void addSuccessorsToColumn(QSharedPointer<ChoiceColumn> column);
+    void addSuccessorsToNextColumn(QSharedPointer<ChoiceColumn> nextColumn);
+
+    void precomputePathsForward(int mineCount);
+    void precomputePathsReverse(int mineCount);
 
     void calculateWaysToBe(int mineCount);
 
@@ -40,11 +43,17 @@ public:
 private:
     PotentialMinefield minefield;
 
+    int x = -1;
+    int y = -1;
+
     QList<Edge> edgesForward;
     QList<Edge> edgesReverse;
 
     QSharedPointer<ChoiceNode> mineForwardEdge;
     QSharedPointer<ChoiceNode> clearForwardEdge;
+
+    QList<qint64> pathsForward;
+    QList<qint64> pathsReverse;
 
     qint64 waysToBeMine = 0;
     qint64 waysToBeClear = 0;
@@ -54,7 +63,9 @@ private:
 
     int findPathsForward(int mineCount) const;
     int findPathsReverse(int mineCount) const;
-    int findPaths(int mineCount, bool forward = true) const;
+    int findPaths(int mineCount, bool forward) const;
+
+    void precomputePaths(int mineCount, bool forward);
 };
 
 #endif // CHOICENODE_H

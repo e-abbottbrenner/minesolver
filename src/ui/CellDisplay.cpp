@@ -2,8 +2,10 @@
 
 #include <QPainter>
 #include <QGraphicsSceneMouseEvent>
+#include <QTimer>
 
 #include "Minefield.h"
+#include "Solver.h"
 
 const int CellDisplay::CellSize = 20;
 
@@ -90,6 +92,13 @@ void CellDisplay::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
         if(minefield->getCell(x, y) != SpecialStatus::GuessMine)
         {
             minefield->revealCell(x, y);
+
+            QTimer::singleShot(0, this, [&] ()
+            {
+                Solver solver(minefield);
+
+                solver.computeSolution();
+            });
         }
     }
     else if(event->button() == Qt::RightButton)

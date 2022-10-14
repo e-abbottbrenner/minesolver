@@ -1,9 +1,10 @@
 #include "ChoiceNode.h"
 
 #include "ChoiceColumn.h"
+#include "qdebug.h"
 
-ChoiceNode::ChoiceNode(PotentialMinefield minefield)
-    : minefield(minefield)
+ChoiceNode::ChoiceNode(PotentialMinefield minefield, int x, int y)
+    : minefield(minefield), x(x), y(y)
 {
 
 }
@@ -23,15 +24,25 @@ const QList<ChoiceNode::Edge> &ChoiceNode::getEdgesReverse() const
     return edgesReverse;
 }
 
-void ChoiceNode::addSuccessorsToColumn(QSharedPointer<ChoiceColumn> column)
+void ChoiceNode::addSuccessorsToNextColumn(QSharedPointer<ChoiceColumn> nextColumn)
 {
     // these are what the minefields look like if the column's x/y is clear or a mine
-    PotentialMinefield fieldIfMine = minefield.chooseMine(column->getX(), column->getY());
-    PotentialMinefield fieldIfClear = minefield.chooseClear(column->getX(), column->getY());
+    PotentialMinefield fieldIfMine = minefield.chooseMine(x, y);
+    PotentialMinefield fieldIfClear = minefield.chooseClear(x, y);
 
-    // we try to add edges to the graph, it can fail because the state may be illegal
-    tryAddEdge(column, fieldIfMine, 1);
-    tryAddEdge(column, fieldIfClear, 0);
+    // we try to add edges to the next column, it can fail because the state may be illegal
+    tryAddEdge(nextColumn, fieldIfMine, 1);
+    tryAddEdge(nextColumn, fieldIfClear, 0);
+}
+
+void ChoiceNode::precomputePathsForward(int mineCount)
+{
+    precomputePaths(mineCount, true);
+}
+
+void ChoiceNode::precomputePathsReverse(int mineCount)
+{
+    precomputePaths(mineCount, false);
 }
 
 void ChoiceNode::tryAddEdge(QSharedPointer<ChoiceColumn> column, const PotentialMinefield &minefield, int cost)
@@ -44,7 +55,7 @@ void ChoiceNode::tryAddEdge(QSharedPointer<ChoiceColumn> column, const Potential
 
         if(edgeTargetNode.isNull())
         {// no existing target, so need to create one
-            edgeTargetNode = edgeTargetNode.create(minefield);
+            edgeTargetNode = edgeTargetNode.create(minefield, column->getX(), column->getY());
             // we add it to the column so it can be reused
             column->addChoiceNode(edgeTargetNode);
         }
@@ -82,8 +93,8 @@ void ChoiceNode::calculateWaysToBe(int mineCount)
     {
         // first we find the paths using mines forward
         // if i == 0, this will be fine because the function will see there are no paths forward
-        qint64 pathsForwardIfMine = mineForwardEdge->findPathsForward(i - 1);
-        qint64 pathsForwardIfClear = clearForwardEdge->findPathsForward(i);
+        qint64 pathsForwardIfMine = mineForwardEdge? mineForwardEdge->findPathsForward(i - 1) : 0;
+        qint64 pathsForwardIfClear = clearForwardEdge? clearForwardEdge->findPathsForward(i) : 0;
 
         // then we find the opposite count of paths using mines that go back to the start node
         qint64 pathsReverse = findPathsReverse(mineCount - i);
@@ -124,7 +135,6 @@ int ChoiceNode::findPathsReverse(int mineCount) const
 
 int ChoiceNode::findPaths(int mineCount, bool forward) const
 {
-    // TODO??? this has a lot of room for optimization, memoization, nonrecursive impl, etc.
     if(mineCount < 0)
     {// no valid path, used too much cost
         return 0;
@@ -140,9 +150,28 @@ int ChoiceNode::findPaths(int mineCount, bool forward) const
 
     for(const Edge &edge : forward? edgesForward : edgesReverse)
     {
-        // some the paths from all the edges in the same direction
-        sumOfEdges += edge.nextNode->findPaths(mineCount - edge.cost, forward);
+        // rely on the assumption that the next node has already built the data
+        int countAtNext = mineCount - edge.cost;
+        if(countAtNext >= 0)
+        {
+            sumOfEdges += forward? edge.nextNode->pathsForward[countAtNext] : edge.nextNode->pathsReverse[countAtNext];
+        }
     }
 
     return sumOfEdges;
+}
+
+void ChoiceNode::precomputePaths(int mineCount, bool forward)
+{
+    for(int i = 0; i <= mineCount; ++i)
+    {
+        if(forward)
+        {
+            pathsForward.append(findPaths(mineCount, forward));
+        }
+        else
+        {
+            pathsReverse.append(findPaths(mineCount, forward));
+        }
+    }
 }

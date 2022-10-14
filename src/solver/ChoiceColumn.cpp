@@ -36,6 +36,22 @@ int ChoiceColumn::getY() const
     return y;
 }
 
+void ChoiceColumn::precomputePathsForward(int mineCount)
+{
+    for(auto choiceNode : getChoiceNodes())
+    {
+        choiceNode->precomputePathsForward(mineCount);
+    }
+}
+
+void ChoiceColumn::precomputePathsReverse(int mineCount)
+{
+    for(auto choiceNode : getChoiceNodes())
+    {
+        choiceNode->precomputePathsReverse(mineCount);
+    }
+}
+
 void ChoiceColumn::calculateWaysToBe(int mineCount)
 {
     waysToBeMine = 0;
