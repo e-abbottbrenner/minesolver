@@ -26,7 +26,6 @@ target_include_directories(Minesolver PRIVATE
 
 add_subdirectory(src)
 add_subdirectory(test)
-#add_subdirectory(lib/googletest)
 
 install(TARGETS Minesolver
     BUNDLE DESTINATION .

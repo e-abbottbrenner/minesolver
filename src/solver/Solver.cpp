@@ -33,10 +33,18 @@ void Solver::decidePath()
     chooser.decidePath();
 
     path = chooser.getPath();
+
+    if(logProgress)
+    {
+        qDebug() << "path length" << path.size();
+    }
 }
 
 void Solver::buildSolutionGraph()
 {
+    choiceColumns.clear();
+    chancesToBeMine.clear();
+
     for(Coordinate coord: path)
     {
         // build the choice columns
@@ -76,13 +84,19 @@ void Solver::buildSolutionGraph()
         maxColumnSize = std::max(maxColumnSize, column->getChoiceNodes().size());
     }
 
-    qDebug() << "largest column has" << maxColumnSize << "nodes";
-    qDebug() << "last column has" << choiceColumns.last()->getChoiceNodes().size() << "nodes";
+    if(logProgress)
+    {
+        qDebug() << "largest column has" << maxColumnSize << "nodes";
+        qDebug() << "last column has" << choiceColumns.last()->getChoiceNodes().size() << "nodes";
+    }
 }
 
 void Solver::analyzeSolutionGraph()
 {
-    qDebug() << "Analyzing...";
+    if(logProgress)
+    {
+        qDebug() << "Analyzing...";
+    }
 
     for(const QSharedPointer<ChoiceColumn> &column : {choiceColumns.first(), choiceColumns.last()})
     {// the final two columns are endpoints
@@ -101,7 +115,10 @@ void Solver::analyzeSolutionGraph()
         (*iter)->precomputePathsForward(minefield->getNumMines());
     }
 
-    qDebug() << "path count precompution complete";
+    if(logProgress)
+    {
+        qDebug() << "path count precompution complete";
+    }
 
     for(auto column : choiceColumns)
     {// calculate all the ways to be
@@ -113,5 +130,14 @@ void Solver::analyzeSolutionGraph()
         }
     }
 
-    qDebug() << "analysis complete";
+    if(logProgress)
+    {
+        qDebug() << "processed" << choiceColumns.size();
+        qDebug() << "analysis complete";
+    }
+}
+
+void Solver::setLogProgress(bool newLogProgress)
+{
+    logProgress = newLogProgress;
 }

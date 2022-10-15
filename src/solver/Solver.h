@@ -22,6 +22,8 @@ public:
 
     const QHash<Coordinate, double> &getChancesToBeMine() const;
 
+    void setLogProgress(bool newLogProgress);
+
 private:
     CoordVector path;
     QList<QSharedPointer<ChoiceColumn>> choiceColumns;
@@ -33,6 +35,8 @@ private:
     void analyzeSolutionGraph();
 
     Minefield* minefield;
+
+    bool logProgress = true;
 };
 
 #endif // SOLVER_H

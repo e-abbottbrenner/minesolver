@@ -19,6 +19,7 @@ public:
     void toggleCellFlag(int x, int y);
 
     MineStatus getCell(int x, int y) const;
+    MineStatus getUnderlyingCell(int x, int y) const;
 
     int getNumMines() const;
 
@@ -33,6 +34,7 @@ signals:
 private:
     void populateMinefield(int originX, int originY);
     void recursiveReveal(int x, int y);
+
     void revealAll();
 
     int numMines = 0;

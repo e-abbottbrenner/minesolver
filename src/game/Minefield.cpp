@@ -3,7 +3,7 @@
 #include "RandomNumbers.h"
 
 #include <QTimer>
-
+#include <QDebug>
 #include <QPair>
 #include <QStack>
 
@@ -204,6 +204,11 @@ int Minefield::getNumMines() const
 MineStatus Minefield::getCell(int x, int y) const
 {
     return revealedMinefield[mapToArray(x, y)];
+}
+
+MineStatus Minefield::getUnderlyingCell(int x, int y) const
+{
+    return underlyingMinefield[mapToArray(x, y)];
 }
 
 QByteArray Minefield::getRevealedMinefield() const
