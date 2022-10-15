@@ -113,7 +113,7 @@ protected:
 
     void evaluateProbabilityBuckets()
     {
-        for(int bucket = 0; bucket <= 1000; bucket += 5)
+        for(int bucket = 0; bucket <= 100; bucket += 5)
         {// for each bucket
             int mineCount = probabilityBucketsSampledAsMine[bucket];
             int clearCount = probabilityBucketsSampledAsClear[bucket];
@@ -144,7 +144,7 @@ protected:
 
 TEST_F(SolverTest, testSolverProbabilities)
 {
-    for(int i = 0; i < 100; ++i)
+    for(int i = 0; i < 1000; ++i)
     {
         std::cout << "playing game " << i << std::endl;
 

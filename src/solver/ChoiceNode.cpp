@@ -1,7 +1,6 @@
 #include "ChoiceNode.h"
 
 #include "ChoiceColumn.h"
-#include "qdebug.h"
 
 ChoiceNode::ChoiceNode(PotentialMinefield minefield, int x, int y)
     : minefield(minefield), x(x), y(y)
@@ -92,7 +91,7 @@ void ChoiceNode::calculateWaysToBe(int mineCount)
     for(int i = 0; i <= mineCount; ++i)
     {
         // first we find the paths using mines forward
-        // if i == 0, this will be fine because the function will see there are no paths forward
+        // if i == 0, this will be fine because the function will see there are no paths forward      
         cpp_int pathsForwardIfMine = mineForwardEdge? mineForwardEdge->findPathsForward(i - 1) : 0;
         cpp_int pathsForwardIfClear = clearForwardEdge? clearForwardEdge->findPathsForward(i) : 0;
 
@@ -164,7 +163,12 @@ cpp_int ChoiceNode::findPaths(int mineCount, bool forward) const
         int countAtNext = mineCount - edge.cost;
         if(countAtNext >= 0)
         {
-            sumOfEdges += forward? edge.nextNode->pathsForward[countAtNext] : edge.nextNode->pathsReverse[countAtNext];
+            auto nextNodeStrong = edge.nextNode.toStrongRef();
+
+            if(nextNodeStrong)
+            {
+                sumOfEdges += forward? nextNodeStrong->pathsForward[countAtNext] : nextNodeStrong->pathsReverse[countAtNext];
+            }
         }
     }
 

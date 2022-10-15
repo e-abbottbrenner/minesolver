@@ -23,7 +23,8 @@ public:
 
     struct Edge
     {
-        QSharedPointer<ChoiceNode> nextNode;
+        // this needs to be a weak pointer because we store reverse edges and shared pointers with looping references equal memory leaks
+        QWeakPointer<ChoiceNode> nextNode;
         int cost = 0;
     };
 
