@@ -1,12 +1,12 @@
 import QtQuick
 
 Window {
-    width: 640
-    height: 480
+    width: 800
+    height: 600
     visible: true
     title: qsTr("MineSolver")
 
     GameView {
-
+        anchors.fill: parent
     }
 }
