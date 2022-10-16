@@ -9,10 +9,6 @@ ChoiceColumn::ChoiceColumn(int x, int y)
 {
 }
 
-ChoiceColumn::~ChoiceColumn()
-{
-}
-
 QSharedPointer<ChoiceNode> ChoiceColumn::getChoiceNode(const QByteArray &minefieldBytes) const
 {
     // we use the state as a key to get the choice node that corresponds to that state
