@@ -7,18 +7,14 @@
 
 #include <QDebug>
 #include <QElapsedTimer>
+#include <QMutex>
+#include <QMutexLocker>
 #include <QRandomGenerator>
+#include <QtConcurrent/QtConcurrent>
 
 class SolverTest : public ::testing::Test
 {
 protected:
-    void resetMinefield(int seed)
-    {
-        minefield = minefield.create(120, 20, 20, seed);
-        solver = solver.create(minefield.data());
-        solver->setLogProgress(false);
-    }
-
     int probabilityBucket(double probability) const
     {
         for(int i = 0; i <= 100; i += 5)
@@ -33,11 +29,14 @@ protected:
         return 0;
     }
 
-    void logProbabilityBuckets()
+    void logProbabilityBuckets(QSharedPointer<Solver> solver, QSharedPointer<Minefield> minefield)
     {
         auto mineChances = solver->getChancesToBeMine();
 
         auto coords = mineChances.keys();
+
+        QMutexLocker probabilityLocker(&probabilityMutex);
+
         for(Coordinate coord : coords)
         {
             double probability = mineChances[coord];
@@ -67,8 +66,12 @@ protected:
         }
     }
 
-    void revealAndTest()
+    void analyzeNewMinefield(int seed)
     {
+        QSharedPointer<Minefield> minefield(new Minefield(120, 20, 20, seed));
+        QSharedPointer<Solver> solver(new Solver(minefield.data()));
+        solver->setLogProgress(false);
+
         QList<Coordinate> clearCoords;
 
         for(int x = 0; x < minefield->getWidth(); x++)
@@ -92,7 +95,7 @@ protected:
 
         solver->computeSolution();
 
-        logProbabilityBuckets();
+        logProbabilityBuckets(solver, minefield);
     }
 
     void evaluateProbabilityBuckets()
@@ -131,40 +134,47 @@ protected:
 
     void testSolverProbabilities(const int ITERATIONS = 1000)
     {
+        QMutex outputMutex;
+
         int lastPercentCompletion = 0;
 
         QElapsedTimer timeSpent;
 
         timeSpent.start();
 
+        QFutureSynchronizer<void> synchronizer;
+
         for(int i = 0; i < ITERATIONS; ++i)
         {
-            resetMinefield(QRandomGenerator::global()->generate());
-
-            // play 100 random games
-            revealAndTest();
-
-            solver.clear();
-
-            // verify the solver destructor deconstructs all its data structures
-            ASSERT_EQ(0, ChoiceNode::getChoiceNodesConstructed());
-            ASSERT_EQ(0, ChoiceColumn::getChoiceColumnsConstructed());
-
-            int percentCompletion = i / (ITERATIONS / 100);
-
-            if(percentCompletion != lastPercentCompletion)
+            QFuture<void> analyzeFuture = QtConcurrent::run([this, i, ITERATIONS, &timeSpent, &lastPercentCompletion, &outputMutex] ()
             {
-                qint64 elapsedMS = timeSpent.elapsed();
-                double velocityMS = static_cast<double>(i) / elapsedMS;
+                analyzeNewMinefield(QRandomGenerator::global()->generate());
 
-                int remainingMS = (ITERATIONS - i) / velocityMS;
-                int remainingSeconds = remainingMS / 1000;
-                int remainingMinutes = remainingSeconds / 60;
+                int percentCompletion = i / (ITERATIONS / 100);
 
-                std::cout << percentCompletion << "% Complete. Estimated time to completion is " << remainingMinutes << " minutes and " << (remainingSeconds % 60) << " seconds." << std::endl;
-                lastPercentCompletion = percentCompletion;
-            }
+                // don't have race conditions aruond the percent completion output
+                QMutexLocker outputLocker(&outputMutex);
+
+                if(percentCompletion > lastPercentCompletion)
+                {
+                    qint64 elapsedMS = timeSpent.elapsed();
+                    double velocityMS = static_cast<double>(i) / elapsedMS;
+
+                    int remainingMS = (ITERATIONS - i) / velocityMS;
+                    int remainingSeconds = remainingMS / 1000;
+                    int remainingMinutes = remainingSeconds / 60;
+
+                    std::cout << percentCompletion << "% Complete. Estimated time to completion is " << remainingMinutes << " minutes and " << (remainingSeconds % 60) << " seconds." << std::endl;
+                    lastPercentCompletion = percentCompletion;
+                }
+            });
+
+            synchronizer.addFuture(analyzeFuture);
         }
+
+        synchronizer.waitForFinished();
+
+        std::cout << "100% Complete." << std::endl;
 
         // evaluate the bucket results
         evaluateProbabilityBuckets();
@@ -174,8 +184,7 @@ protected:
     QHash<int, int> probabilityBucketsSampledAsClear;
     QHash<int, double> probabilityBucketAverageMineChance;
 
-    QSharedPointer<Solver> solver;
-    QSharedPointer<Minefield> minefield;
+    QMutex probabilityMutex;
 };
 
 TEST_F(SolverTest, testSolverProbabilitiesQuick)
