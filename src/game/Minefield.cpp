@@ -1,11 +1,10 @@
 #include "Minefield.h"
 
-#include "RandomNumbers.h"
-
-#include <QTimer>
 #include <QDebug>
 #include <QPair>
+#include <QRandomGenerator>
 #include <QStack>
+#include <QTimer>
 
 typedef QPair<int, int> Coordinate;
 
@@ -28,7 +27,8 @@ Minefield::Minefield(int numMines, int width, int height, int seed, QObject *par
 
 void Minefield::populateMinefield(int originX, int originY)
 {
-    RandomNumbers random(seed);
+    QRandomGenerator random;
+    random.seed(seed);
 
     // this is slow, but it's guaranteed to work and I like that
     // I also doubt it's slow enough to notice
@@ -41,7 +41,7 @@ void Minefield::populateMinefield(int originX, int originY)
 
     for(int mineCount = 0; mineCount < numMines && freeCells > 0; ++mineCount, --freeCells)
     {
-        int mineLoc = random.nextRand(freeCells);
+        int mineLoc = random.bounded(freeCells);
 
         auto placeMines = [&] (int x, int y)
         {
