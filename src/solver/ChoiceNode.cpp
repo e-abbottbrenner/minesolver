@@ -17,9 +17,9 @@ const QList<ChoiceNode::Edge> &ChoiceNode::getEdgesForward() const
     return edgesForward;
 }
 
-const QList<ChoiceNode::Edge> &ChoiceNode::getEdgesReverse() const
+const QList<ChoiceNode::Edge> &ChoiceNode::getEdgesBack() const
 {
-    return edgesReverse;
+    return edgesBack;
 }
 
 void ChoiceNode::addSuccessorsToNextColumn(QSharedPointer<ChoiceColumn> nextColumn)
@@ -38,7 +38,7 @@ void ChoiceNode::precomputePathsForward(int mineCount)
     precomputePaths(mineCount, true);
 }
 
-void ChoiceNode::precomputePathsReverse(int mineCount)
+void ChoiceNode::precomputePathsBack(int mineCount)
 {
     precomputePaths(mineCount, false);
 }
@@ -75,8 +75,8 @@ void ChoiceNode::linkTarget(QSharedPointer<ChoiceNode> edgeTarget, int cost)
 
     // add the target to our forward edges
     edgesForward.append({edgeTarget, cost});
-    // add ourself to the target's reverse edges
-    edgeTarget->edgesReverse.append({sharedFromThis(), cost});
+    // add ourself to the target's back edges
+    edgeTarget->edgesBack.append({sharedFromThis(), cost});
 }
 
 void ChoiceNode::calculateWaysToBe(int mineCount)
@@ -98,11 +98,11 @@ void ChoiceNode::calculateWaysToBe(int mineCount)
         cpp_int pathsForwardIfClear = clearFowardEdgeStrong? clearFowardEdgeStrong->findPathsForward(i) : 0;
 
         // then we find the opposite count of paths using mines that go back to the start node
-        cpp_int pathsReverse = findPathsReverse(mineCount - i);
+        cpp_int pathsBack = findPathsBack(mineCount - i);
 
         // these paths combine multiplicatively
-        cpp_int waysToBeMine = pathsReverse * pathsForwardIfMine;
-        cpp_int waysToBeClear = pathsReverse * pathsForwardIfClear;
+        cpp_int waysToBeMine = pathsBack * pathsForwardIfMine;
+        cpp_int waysToBeClear = pathsBack * pathsForwardIfClear;
 
         totalWaysToBeMineForForwardMineCount.append(waysToBeMine);
         totalWaysToBeClearForForwardMineCount.append(waysToBeClear);
@@ -139,7 +139,7 @@ cpp_int ChoiceNode::findPathsForward(int mineCount) const
     return findPaths(mineCount, true);
 }
 
-cpp_int ChoiceNode::findPathsReverse(int mineCount) const
+cpp_int ChoiceNode::findPathsBack(int mineCount) const
 {
     return findPaths(mineCount, false);
 }
@@ -152,14 +152,14 @@ cpp_int ChoiceNode::findPaths(int mineCount, bool forward) const
     }
 
     if((forward && edgesForward.isEmpty())
-            || (!forward && edgesReverse.isEmpty()))
+            || (!forward && edgesBack.isEmpty()))
     {// no more edges to proceed through, only report a path if we're at exactly 0 mines and have reached an endpoint
         return mineCount == 0 && isEndpoint()? 1 : 0;
     }
 
     cpp_int sumOfEdges = 0;
 
-    for(const Edge &edge : forward? edgesForward : edgesReverse)
+    for(const Edge &edge : forward? edgesForward : edgesBack)
     {
         // rely on the assumption that the next node has already built the data
         int countAtNext = mineCount - edge.cost;
@@ -169,7 +169,7 @@ cpp_int ChoiceNode::findPaths(int mineCount, bool forward) const
 
             if(nextNodeStrong)
             {
-                sumOfEdges += forward? nextNodeStrong->pathsForward[countAtNext] : nextNodeStrong->pathsReverse[countAtNext];
+                sumOfEdges += forward? nextNodeStrong->pathsForward[countAtNext] : nextNodeStrong->pathsBack[countAtNext];
             }
         }
     }
@@ -187,7 +187,7 @@ void ChoiceNode::precomputePaths(int mineCount, bool forward)
         }
         else
         {
-            pathsReverse.append(findPaths(i, forward));
+            pathsBack.append(findPaths(i, forward));
         }
     }
 }

@@ -45,11 +45,11 @@ void ChoiceColumn::precomputePathsForward(int mineCount)
     }
 }
 
-void ChoiceColumn::precomputePathsReverse(int mineCount)
+void ChoiceColumn::precomputePathsBack(int mineCount)
 {
     for(auto choiceNode : getChoiceNodes())
     {
-        choiceNode->precomputePathsReverse(mineCount);
+        choiceNode->precomputePathsBack(mineCount);
     }
 }
 

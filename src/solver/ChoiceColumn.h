@@ -25,13 +25,12 @@ public:
     int getY() const;
 
     void precomputePathsForward(int mineCount);
-    void precomputePathsReverse(int mineCount);
+    void precomputePathsBack(int mineCount);
+
     void calculateWaysToBe(int mineCount);
 
     double getPercentChanceToBeMine() const;
-
     cpp_int getWaysToBeMine() const;
-
     cpp_int getWaysToBeClear() const;
 
 private:

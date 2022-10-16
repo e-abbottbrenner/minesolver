@@ -105,13 +105,17 @@ void Solver::analyzeSolutionGraph()
         column->getChoiceNodes().first()->setEndpoint(true);
     }
 
+    // ultimately we want to calculate for each column, the ways it could be a mine and the ways it could be clear
+    // this requires counting paths through the columns
+    // in order to avoid recursion, we precalculate these path counts for each column
+
     for(auto column : choiceColumns)
-    {// we start from the beginning and move forward to precompute paths in reverse since each column depends on the previous
-        column->precomputePathsReverse(minefield->getNumMines());
+    {// we start from the beginning and move forward to precompute the paths back since each column depends on the previous
+        column->precomputePathsBack(minefield->getNumMines());
     }
 
     for(auto iter = choiceColumns.rbegin(); iter != choiceColumns.rend(); ++iter)
-    {// we start from the end of the columns to precompute the paths forward since each column depends on the next
+    {// we start from the end of the columns and move backward to precompute the paths forward since each column depends on the next
         (*iter)->precomputePathsForward(minefield->getNumMines());
     }
 
