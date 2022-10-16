@@ -20,9 +20,10 @@ PathChooser::PathChooser(Minefield *minefield)
  */
 void PathChooser::decidePath()
 {
-    // TODO: this can still blow up the state graph with some formations, seems related to multiple isolated areas?
-    // need to fix this, a good path is critical for controlling the size of the solution space
     // let's just do a greedy algorithm that finds the next cell that minimizes the number of count cells that can still be influenced
+    // NOTE: this does work pretty well, but there are topographical features that can occur that cause the number of influencable count cells to increase and the possible states to explode
+    // there are probably flaws in the greedy algorithm that prevent it from being a true minimization
+    // TODO: better algorithm? Is it really needed?
     for(int x = 0; x < width; ++x)
     {
         for(int y = 0; y < height; ++y)

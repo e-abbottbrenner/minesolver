@@ -22,6 +22,8 @@ public:
     const QByteArray &getMinefieldBytes() const;
 
 private:
+    PotentialMinefield chooseCellState(int x, int y, bool mine) const;
+
     bool legal = true;
 
     QByteArray minefieldBytes;
