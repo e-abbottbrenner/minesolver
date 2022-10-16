@@ -8,6 +8,9 @@
 
 #include <functional>
 #include <QList>
+#include <QPair>
+
+typedef QPair<int, int> Coordinate;
 
 class Minefield : public QObject, public TraversableGrid
 {
@@ -15,8 +18,8 @@ class Minefield : public QObject, public TraversableGrid
 public:
     explicit Minefield(int numMines, int width, int height, int seed, QObject *parent = 0);
 
-    void revealAdjacents(int x, int y);
-    void revealCell(int x, int y);
+    QList<Coordinate> revealAdjacents(int x, int y);
+    QList<Coordinate> revealCell(int x, int y);
     void toggleGuessMine(int x, int y);
 
     MineStatus getCell(int x, int y) const;
@@ -34,9 +37,9 @@ signals:
 
 private:
     void populateMinefield(int originX, int originY);
-    void recursiveReveal(int x, int y);
+    QList<Coordinate> recursiveReveal(int x, int y);
 
-    void revealAll();
+    QList<Coordinate> revealAll();
 
     int numMines = 0;
     int seed = 0;

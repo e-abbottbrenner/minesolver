@@ -71,22 +71,16 @@ QHash<int, QByteArray> MinefieldTableModel::roleNames() const
 
 void MinefieldTableModel::reveal(int row, int col)
 {
-    // if we want animations we need to do individual data change signals dor revealed indices
-    beginResetModel();
+    auto coordsRevealed = minefield->revealCell(col, row);
 
-    minefield->revealCell(col, row);
-
-    endResetModel();
+    emitUpdateSignalForCoords(coordsRevealed);
 }
 
 void MinefieldTableModel::revealAdjacent(int row, int col)
 {
-    // if we want animations we need to do individual data change signals dor revealed indices
-    beginResetModel();
+    auto coordsRevealed = minefield->revealAdjacents(col, row);
 
-    minefield->revealAdjacents(col, row);
-
-    endResetModel();
+    emitUpdateSignalForCoords(coordsRevealed);
 }
 
 void MinefieldTableModel::toggleGuessMine(int row, int col)
@@ -94,4 +88,13 @@ void MinefieldTableModel::toggleGuessMine(int row, int col)
     minefield->toggleGuessMine(col, row);
 
     emit dataChanged(index(row, col), index(row, col));
+}
+
+void MinefieldTableModel::emitUpdateSignalForCoords(QList<Coordinate> coords)
+{
+    for(Coordinate coord: coords)
+    {
+        QModelIndex coordIndex = index(coord.second, coord.first);
+        emit dataChanged(coordIndex, coordIndex);
+    }
 }

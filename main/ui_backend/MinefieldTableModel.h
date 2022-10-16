@@ -2,11 +2,14 @@
 #define MINEFIELDTABLEMODEL_H
 
 #include <QAbstractTableModel>
+#include <QPair>
 #include <QSharedPointer>
 #include <QtQml/QtQml>
 
 class Minefield;
 class Solver;
+
+typedef QPair<int, int> Coordinate;
 
 class MinefieldTableModel : public QAbstractTableModel
 {
@@ -42,6 +45,8 @@ public slots:
 private:
     QSharedPointer<Minefield> minefield;
     QSharedPointer<Solver> solver;
+
+    void emitUpdateSignalForCoords(QList<Coordinate> coords);
 };
 
 Q_DECLARE_METATYPE(MinefieldTableModel)
