@@ -20,6 +20,7 @@ class ChoiceNode : public QEnableSharedFromThis<ChoiceNode>
 {
 public:
     ChoiceNode(PotentialMinefield minefield, int x, int y);
+    virtual ~ChoiceNode();
 
     struct Edge
     {
@@ -47,6 +48,8 @@ public:
 
     bool isEndpoint() const;
     void setEndpoint(bool newEndpoint);
+
+    static int getChoiceNodesConstructed();
 
 private:
     PotentialMinefield minefield;
@@ -76,6 +79,8 @@ private:
     cpp_int findPaths(int mineCount, bool forward) const;
 
     void precomputePaths(int mineCount, bool forward);
+
+    static int choiceNodesConstructed;
 };
 
 #endif // CHOICENODE_H

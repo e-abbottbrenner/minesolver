@@ -2,10 +2,18 @@
 
 #include "ChoiceColumn.h"
 
+int ChoiceNode::choiceNodesConstructed = 0;
+
 ChoiceNode::ChoiceNode(PotentialMinefield minefield, int x, int y)
     : minefield(minefield), x(x), y(y)
 {
+    // tracking for tests to verify no leaks
+    ++choiceNodesConstructed;
+}
 
+ChoiceNode::~ChoiceNode()
+{
+    --choiceNodesConstructed;
 }
 
 const PotentialMinefield &ChoiceNode::getMinefield() const
@@ -188,4 +196,9 @@ void ChoiceNode::precomputePaths(int mineCount, bool forward)
             pathsReverse.append(findPaths(i, forward));
         }
     }
+}
+
+int ChoiceNode::getChoiceNodesConstructed()
+{
+    return choiceNodesConstructed;
 }

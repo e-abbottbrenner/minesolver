@@ -18,6 +18,10 @@ file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false *.h *.cpp)
 add_executable(Minesolver_test
     ${TEST_SOURCES})
 
+target_include_directories(Minesolver_test PRIVATE
+    ../include
+)
+
 target_link_libraries(Minesolver_test PUBLIC
     Minesolver_src
     GTest::gtest_main

@@ -1,9 +1,12 @@
 #include <gtest/gtest.h>
 
+#include "ChoiceColumn.h"
+#include "ChoiceNode.h"
 #include "Minefield.h"
 #include "Solver.h"
 
 #include <QDebug>
+#include <QElapsedTimer>
 #include <QRandomGenerator>
 
 class SolverTest : public ::testing::Test
@@ -11,7 +14,7 @@ class SolverTest : public ::testing::Test
 protected:
     void resetMinefield(int seed)
     {
-        minefield = minefield.create(100, 30, 30, seed);
+        minefield = minefield.create(120, 20, 20, seed);
         solver = solver.create(minefield.data());
         solver->setLogProgress(false);
     }
@@ -64,55 +67,38 @@ protected:
         }
     }
 
-    void playField()
+    void revealAndTest()
     {
-        minefield->revealCell(QRandomGenerator::global()->bounded(minefield->getWidth()),
-                              QRandomGenerator::global()->bounded(minefield->getHeight()));
+        QList<Coordinate> clearCoords;
+
+        for(int x = 0; x < minefield->getWidth(); x++)
+        {
+            for(int y = 0; y < minefield->getHeight(); ++y)
+            {
+                if(minefield->getUnderlyingCell(x, y) != SpecialStatus::Mine)
+                {
+                    clearCoords.append({x, y});
+                }
+            }
+        }
+
+        int loops = QRandomGenerator::global()->bounded(1, 10);
+
+        for(int i = 1; i <= loops; ++i)
+        {// reveal some random clear cells to start, this should create more variety in the states than just revealing one
+            Coordinate coord = clearCoords.takeAt(QRandomGenerator::global()->bounded(clearCoords.size()));
+            minefield->revealCell(coord.first, coord.second);
+        }
 
         solver->computeSolution();
-        auto mineChances = solver->getChancesToBeMine();
 
-        // when the size is the same as the number of mines that means it's nothing but mines
-        while(mineChances.size() > minefield->getNumMines())
-        {
-            // log the probabilities
-            logProbabilityBuckets();
-
-            bool revealedSomething = false;
-
-            // click on something that isn't a mine
-            auto coords = mineChances.keys();
-            for(Coordinate coord : coords)
-            {
-                if(mineChances[coord] == 0)
-                {// reveal all of the cells with no chance of being a mine
-                    minefield->revealCell(coord.first, coord.second);
-                    revealedSomething = true;
-                }
-            }
-
-            if(!revealedSomething)
-            { // need to progress somehow, just pick the first option that isn't a mine
-                for(Coordinate coord: coords)
-                {
-                    // cheat so we can progress through the whole board
-                    if(minefield->getUnderlyingCell(coord.first, coord.second) != SpecialStatus::Mine)
-                    {
-                        qDebug() << "cheating to reveal cell" << coord;
-                        minefield->revealCell(coord.first, coord.second);
-                        break;
-                    }
-                }
-            }
-
-            // compute again
-            solver->computeSolution();
-            mineChances = solver->getChancesToBeMine();
-        }
+        logProbabilityBuckets();
     }
 
     void evaluateProbabilityBuckets()
     {
+        std::cout << std::endl;
+
         for(int bucket = 0; bucket <= 100; bucket += 5)
         {// for each bucket
             int mineCount = probabilityBucketsSampledAsMine[bucket];
@@ -126,12 +112,62 @@ protected:
                 double percentage = 100.0 * mineCount / (mineCount + clearCount);
                 double averageBucketPercentage = 100.0 * probabilityBucketAverageMineChance[bucket];
 
-                EXPECT_NEAR(averageBucketPercentage, percentage, tolerance)
-                        << "probability bucket " << bucket << " inconsistent with results "
-                        << mineCount << " mines and " << clearCount << " clear."
-                        << " Percentage is " << percentage << " vs " << averageBucketPercentage;
+                double difference = std::abs(percentage - averageBucketPercentage);
+                bool withinTolerance = difference <= tolerance;
+
+                std::cout << "Probability bucket " << bucket << " {" << std::endl;
+                std::cout << "Average bucket percentage: " << averageBucketPercentage << std::endl;
+                std::cout << "Sampled percentage: " << percentage << std::endl;
+                std::cout << "Difference: " << difference << std::endl;
+                std::cout << "Sample size: " << (mineCount + clearCount) << std::endl;
+                std::cout << "Tolerance: " << tolerance << std::endl;
+                std::cout << "Within tolerance: " << withinTolerance << std::endl;
+                std::cout << "}" << std::endl << std::endl;
+
+                EXPECT_TRUE(withinTolerance);
             }
         }
+    }
+
+    void testSolverProbabilities(const int ITERATIONS = 1000)
+    {
+        int lastPercentCompletion = 0;
+
+        QElapsedTimer timeSpent;
+
+        timeSpent.start();
+
+        for(int i = 0; i < ITERATIONS; ++i)
+        {
+            resetMinefield(QRandomGenerator::global()->generate());
+
+            // play 100 random games
+            revealAndTest();
+
+            solver.clear();
+
+            // verify the solver destructor deconstructs all its data structures
+            ASSERT_EQ(0, ChoiceNode::getChoiceNodesConstructed());
+            ASSERT_EQ(0, ChoiceColumn::getChoiceColumnsConstructed());
+
+            int percentCompletion = i / (ITERATIONS / 100);
+
+            if(percentCompletion != lastPercentCompletion)
+            {
+                qint64 elapsedMS = timeSpent.elapsed();
+                double velocityMS = static_cast<double>(i) / elapsedMS;
+
+                int remainingMS = (ITERATIONS - i) / velocityMS;
+                int remainingSeconds = remainingMS / 1000;
+                int remainingMinutes = remainingSeconds / 60;
+
+                std::cout << percentCompletion << "% Complete. Estimated time to completion is " << remainingMinutes << " minutes and " << (remainingSeconds % 60) << " seconds." << std::endl;
+                lastPercentCompletion = percentCompletion;
+            }
+        }
+
+        // evaluate the bucket results
+        evaluateProbabilityBuckets();
     }
 
     QHash<int, int> probabilityBucketsSampledAsMine;
@@ -142,18 +178,12 @@ protected:
     QSharedPointer<Minefield> minefield;
 };
 
-TEST_F(SolverTest, testSolverProbabilities)
+TEST_F(SolverTest, testSolverProbabilitiesQuick)
 {
-    for(int i = 0; i < 1000; ++i)
-    {
-        std::cout << "playing game " << i << std::endl;
+    testSolverProbabilities(1000);
+}
 
-        resetMinefield(QRandomGenerator::global()->bounded(1000));
-
-        // play 100 random games
-        playField();
-    }
-
-    // evaluate the bucket results
-    evaluateProbabilityBuckets();
+TEST_F(SolverTest, testSolverProbabilitiesLong)
+{
+    testSolverProbabilities(100000);
 }

@@ -15,6 +15,7 @@ class ChoiceColumn
 {
 public:
     ChoiceColumn(int x, int y);
+    virtual ~ChoiceColumn();
 
     QSharedPointer<ChoiceNode> getChoiceNode(const QByteArray& minefieldBytes) const;
     void addChoiceNode(QSharedPointer<ChoiceNode> node);
@@ -34,6 +35,8 @@ public:
 
     cpp_int getWaysToBeClear() const;
 
+    static int getChoiceColumnsConstructed();
+
 private:
     QHash<QByteArray, QSharedPointer<ChoiceNode>> choicesInColumn;
 
@@ -42,6 +45,8 @@ private:
 
     cpp_int waysToBeMine = 0;
     cpp_int waysToBeClear = 0;
+
+    static int choiceColumnsConstructed;
 };
 
 #endif // CHOICECOLUMN_H
