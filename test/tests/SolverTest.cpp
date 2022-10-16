@@ -102,13 +102,15 @@ protected:
     {
         std::cout << std::endl;
 
+        int totalOutOfTolerance = 0;
+
         for(int bucket = 0; bucket <= 100; bucket += 5)
         {// for each bucket
             int mineCount = probabilityBucketsSampledAsMine[bucket];
             int clearCount = probabilityBucketsSampledAsClear[bucket];
 
-            // simple margin of error formula for 99% confidence taken from online sources
-            double tolerance = 128.8 / std::sqrt(mineCount + clearCount);
+            // simple margin of error formula for 99.99% confidence taken from online sources
+            double tolerance = 194.5 / std::sqrt(mineCount + clearCount);
 
             if(mineCount > 0 || clearCount > 0)
             {
@@ -127,9 +129,14 @@ protected:
                 std::cout << "Within tolerance: " << withinTolerance << std::endl;
                 std::cout << "}" << std::endl << std::endl;
 
-                EXPECT_TRUE(withinTolerance);
+                if(!withinTolerance)
+                {
+                    totalOutOfTolerance++;
+                }
             }
         }
+
+        EXPECT_LT(totalOutOfTolerance, 2) << "Too many buckets out of tolerance. This many should only happen in 1/10000 runs";
     }
 
     void testSolverProbabilities(const int ITERATIONS = 1000)
