@@ -2,11 +2,12 @@
 #define MINEFIELD_H
 
 #include "TraversableGrid.h"
+#include <QObject>
 
 #include "MineStatus.h"
 
 #include <functional>
-#include <QObject>
+#include <QList>
 
 class Minefield : public QObject, public TraversableGrid
 {
@@ -16,7 +17,7 @@ public:
 
     void revealAdjacents(int x, int y);
     void revealCell(int x, int y);
-    void toggleCellFlag(int x, int y);
+    void toggleGuessMine(int x, int y);
 
     MineStatus getCell(int x, int y) const;
     MineStatus getUnderlyingCell(int x, int y) const;
@@ -28,7 +29,7 @@ public:
     ~Minefield();
 
 signals:
-    void cellRevealed(int x, int y);
+    void cellUpdated(int x, int y);
     void mineHit();
 
 private:

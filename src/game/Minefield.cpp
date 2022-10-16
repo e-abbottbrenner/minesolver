@@ -127,6 +127,11 @@ void Minefield::revealCell(int x, int y)
         populateMinefield(x, y);
     }
 
+    if(revealedMinefield[mapToArray(x, y)] == SpecialStatus::GuessMine)
+    {// not allowed to reveal guesses
+        return;
+    }
+
     bool clear = underlyingMinefield[mapToArray(x, y)] != SpecialStatus::Mine;
 
     if(clear)
@@ -141,7 +146,7 @@ void Minefield::revealCell(int x, int y)
     }
 }
 
-void Minefield::toggleCellFlag(int x, int y)
+void Minefield::toggleGuessMine(int x, int y)
 {
     if(revealedMinefield[mapToArray(x, y)] == SpecialStatus::Unknown)
     {
@@ -152,7 +157,7 @@ void Minefield::toggleCellFlag(int x, int y)
         revealedMinefield[mapToArray(x, y)] = SpecialStatus::Unknown;
     }
 
-    emit cellRevealed(x, y);
+    emit cellUpdated(x, y);
 }
 
 void Minefield::recursiveReveal(int x, int y)
@@ -172,7 +177,7 @@ void Minefield::recursiveReveal(int x, int y)
         {
             revealedMinefield[mapToArray(x, y)] = underlyingMinefield[mapToArray(x, y)];
 
-            emit cellRevealed(x, y);
+            emit cellUpdated(x, y);
 
             if(underlyingMinefield[mapToArray(x, y)] == 0)
             {// no nearby mines, do the recursive reveal
@@ -190,7 +195,7 @@ void Minefield::revealAll()
     auto reveal = [&] (int x, int y)
     {
         revealedMinefield[mapToArray(x, y)] = underlyingMinefield[mapToArray(x, y)];
-        emit cellRevealed(x, y);
+        emit cellUpdated(x, y);
     };
 
     traverseCells(reveal);
