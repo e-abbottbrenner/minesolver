@@ -1,6 +1,6 @@
 #include "AppState.h"
 
-#include "MinefieldTableModel.h"
+#include "Minefield.h"
 
 #include <QRandomGenerator>
 

@@ -12,6 +12,15 @@ qt_add_executable(Minesolver WIN32 MACOSX_BUNDLE
     main/SolverMain.cpp
 )
 
+file(GLOB QML_SOURCES LIST_DIRECTORIES false RELATIVE ${CMAKE_CURRENT_LIST_DIR} qml/**.qml)
+
+qt_add_qml_module(Minesolver
+    URI Minesolver
+    VERSION 1.0
+    QML_FILES
+    ${QML_SOURCES}
+)
+
 target_link_libraries(Minesolver PRIVATE
     Minesolver_src
 )

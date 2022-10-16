@@ -39,4 +39,6 @@ private:
     QSharedPointer<Solver> solver;
 };
 
+Q_DECLARE_METATYPE(MinefieldTableModel)
+
 #endif // MINEFIELDTABLEMODEL_H

@@ -4,7 +4,9 @@
 #include <QObject>
 #include <QtQml/QtQml>
 
-class MinefieldTableModel;
+// needed for Q_PROPERTY DECLARATION BELOW
+#include "MinefieldTableModel.h"
+
 class Minefield;
 
 class AppState : public QObject
@@ -13,7 +15,7 @@ class AppState : public QObject
     QML_ELEMENT
     QML_SINGLETON
 
-    Q_PROPERTY(MinefieldTableModel* minefieldModel READ getMinefieldModel)
+    Q_PROPERTY(MinefieldTableModel* minefieldModel READ getMinefieldModel CONSTANT)
 
 public:
     AppState();
