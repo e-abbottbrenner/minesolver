@@ -136,7 +136,7 @@ protected:
             }
         }
 
-        EXPECT_LT(totalOutOfTolerance, 2) << "Too many buckets out of tolerance. This many should only happen in 1/10000 runs";
+        EXPECT_LT(totalOutOfTolerance, 1) << "Too many buckets out of tolerance. This many should only happen in 1/10000 runs";
     }
 
     void testSolverProbabilities(const int ITERATIONS = 1000)
