@@ -4,18 +4,13 @@
 
 using boost::multiprecision::cpp_rational;
 
-int ChoiceColumn::choiceColumnsConstructed = 0;
-
 ChoiceColumn::ChoiceColumn(int x, int y)
     : x(x), y(y)
 {
-    // tracking for tests to verify no leaks
-    ++choiceColumnsConstructed;
 }
 
 ChoiceColumn::~ChoiceColumn()
 {
-    --choiceColumnsConstructed;
 }
 
 QSharedPointer<ChoiceNode> ChoiceColumn::getChoiceNode(const QByteArray &minefieldBytes) const
@@ -89,9 +84,4 @@ cpp_int ChoiceColumn::getWaysToBeMine() const
 cpp_int ChoiceColumn::getWaysToBeClear() const
 {
     return waysToBeClear;
-}
-
-int ChoiceColumn::getChoiceColumnsConstructed()
-{
-    return choiceColumnsConstructed;
 }

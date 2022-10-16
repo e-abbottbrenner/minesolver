@@ -2,18 +2,9 @@
 
 #include "ChoiceColumn.h"
 
-int ChoiceNode::choiceNodesConstructed = 0;
-
 ChoiceNode::ChoiceNode(PotentialMinefield minefield, int x, int y)
     : minefield(minefield), x(x), y(y)
 {
-    // tracking for tests to verify no leaks
-    ++choiceNodesConstructed;
-}
-
-ChoiceNode::~ChoiceNode()
-{
-    --choiceNodesConstructed;
 }
 
 const PotentialMinefield &ChoiceNode::getMinefield() const
@@ -98,10 +89,13 @@ void ChoiceNode::calculateWaysToBe(int mineCount)
     // since we have to distribute them before and after this choice, so we need to loop across all possible distributions
     for(int i = 0; i <= mineCount; ++i)
     {
+        auto mineForwardEdgeStrong = mineForwardEdge.toStrongRef();
+        auto clearFowardEdgeStrong = clearForwardEdge.toStrongRef();
+
         // first we find the paths using mines forward
         // if i == 0, this will be fine because the function will see there are no paths forward      
-        cpp_int pathsForwardIfMine = mineForwardEdge? mineForwardEdge->findPathsForward(i - 1) : 0;
-        cpp_int pathsForwardIfClear = clearForwardEdge? clearForwardEdge->findPathsForward(i) : 0;
+        cpp_int pathsForwardIfMine = mineForwardEdgeStrong? mineForwardEdgeStrong->findPathsForward(i - 1) : 0;
+        cpp_int pathsForwardIfClear = clearFowardEdgeStrong? clearFowardEdgeStrong->findPathsForward(i) : 0;
 
         // then we find the opposite count of paths using mines that go back to the start node
         cpp_int pathsReverse = findPathsReverse(mineCount - i);
@@ -196,9 +190,4 @@ void ChoiceNode::precomputePaths(int mineCount, bool forward)
             pathsReverse.append(findPaths(i, forward));
         }
     }
-}
-
-int ChoiceNode::getChoiceNodesConstructed()
-{
-    return choiceNodesConstructed;
 }
