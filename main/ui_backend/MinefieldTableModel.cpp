@@ -37,27 +37,16 @@ QVariant MinefieldTableModel::data(const QModelIndex &index, int role) const
 
     MineStatus mineStatus = minefield->getCell(x, y);
 
-    // TODO: icons instead of colors
-    QColor decoration;
-
-    switch(mineStatus)
-    {
-    case SpecialStatus::Mine:
-        decoration = Qt::red;
-    case SpecialStatus::GuessMine:
-        decoration = Qt::yellow;
-    default:
-        break;
-    }
-
     switch(role)
     {
-    case Qt::DisplayRole:
-        return mineStatus > 0? QVariant(QString::number(minefield->getCell(x, y))) : QVariant();
+    case CountRole:
+        return mineStatus;
         break;
-    case Qt::DecorationRole:
-        return decoration.isValid()? QVariant(decoration) : QVariant();
+    case MineRole:
+        return SpecialStatus::Mine == mineStatus;
         break;
+    case GuessMineRole:
+        return SpecialStatus::GuessMine == mineStatus;
     case ChanceToBeMineRole:
         return solver->getChancesToBeMine()[{x, y}];
         break;
@@ -68,29 +57,41 @@ QVariant MinefieldTableModel::data(const QModelIndex &index, int role) const
     return {};
 }
 
-void MinefieldTableModel::reveal(const QModelIndex &index)
+QHash<int, QByteArray> MinefieldTableModel::roleNames() const
+{
+    QHash<int, QByteArray> roles;
+
+    roles[CountRole] = "count";
+    roles[GuessMineRole] = "guessMine";
+    roles[MineRole] = "isMine";
+    roles[ChanceToBeMineRole] = "chanceMine";
+
+    return roles;
+}
+
+void MinefieldTableModel::reveal(int row, int col)
 {
     // if we want animations we need to do individual data change signals dor revealed indices
     beginResetModel();
 
-    minefield->revealCell(index.row(), index.column());
+    minefield->revealCell(col, row);
 
     endResetModel();
 }
 
-void MinefieldTableModel::revealAdjacent(const QModelIndex &index)
+void MinefieldTableModel::revealAdjacent(int row, int col)
 {
     // if we want animations we need to do individual data change signals dor revealed indices
     beginResetModel();
 
-    minefield->revealAdjacents(index.row(), index.column());
+    minefield->revealAdjacents(col, row);
 
     endResetModel();
 }
 
-void MinefieldTableModel::toggleGuessMine(const QModelIndex &index)
+void MinefieldTableModel::toggleGuessMine(int row, int col)
 {
-    minefield->toggleGuessMine(index.row(), index.column());
+    minefield->toggleGuessMine(col, row);
 
-    emit dataChanged(index, index, {Qt::DecorationRole});
+    emit dataChanged(index(row, col), index(row, col));
 }

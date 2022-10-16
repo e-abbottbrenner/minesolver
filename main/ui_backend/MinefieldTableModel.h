@@ -17,22 +17,27 @@ class MinefieldTableModel : public QAbstractTableModel
 public:
     enum DataRoles
     {
-        ChanceToBeMineRole = Qt::UserRole
+        CountRole = Qt::UserRole,
+        GuessMineRole,
+        MineRole,
+        ChanceToBeMineRole
     };
 
     explicit MinefieldTableModel(QObject *parent = nullptr);
 
     void setMinefield(QSharedPointer<Minefield> minefield);
 
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
+    int rowCount(const QModelIndex &parent) const override;
+    int columnCount(const QModelIndex &parent) const override;
 
-    QVariant data(const QModelIndex &index, int role) const;
+    QVariant data(const QModelIndex &index, int role) const override;
+
+    QHash<int, QByteArray> roleNames() const override;
 
 public slots:
-    void reveal(const QModelIndex& index);
-    void revealAdjacent(const QModelIndex& index);
-    void toggleGuessMine(const QModelIndex& index);
+    void reveal(int row, int col);
+    void revealAdjacent(int row, int col);
+    void toggleGuessMine(int row, int col);
 
 private:
     QSharedPointer<Minefield> minefield;

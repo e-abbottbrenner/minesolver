@@ -8,8 +8,14 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Gui Widgets Quick)
 
 qt_standard_project_setup()
 
+file(GLOB MAIN_SOURCES LIST_DIRECTORIES false RELATIVE ${CMAKE_CURRENT_LIST_DIR} main/**.h main/**.cpp)
+
 qt_add_executable(Minesolver WIN32 MACOSX_BUNDLE
     main/SolverMain.cpp
+    main/ui_backend/AppState.h
+    main/ui_backend/AppState.cpp
+    main/ui_backend/MinefieldTableModel.h
+    main/ui_backend/MinefieldTableModel.cpp
 )
 
 file(GLOB QML_SOURCES LIST_DIRECTORIES false RELATIVE ${CMAKE_CURRENT_LIST_DIR} qml/**.qml)
@@ -31,6 +37,7 @@ target_sources(Minesolver PUBLIC
 
 target_include_directories(Minesolver PRIVATE
     main
+    main/ui_backend
 )
 
 add_subdirectory(src)
