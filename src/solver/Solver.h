@@ -16,7 +16,7 @@ class Minefield;
 class Solver
 {
 public:
-    explicit Solver(Minefield *minefield);
+    explicit Solver(QSharedPointer<Minefield> minefield);
 
     void computeSolution();
 
@@ -34,7 +34,7 @@ private:
     void buildSolutionGraph();
     void analyzeSolutionGraph();
 
-    Minefield* minefield;
+    QSharedPointer<Minefield> minefield;
 
     bool logProgress = true;
 };

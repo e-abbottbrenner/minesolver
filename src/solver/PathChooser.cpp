@@ -4,11 +4,11 @@
 
 #include <QDebug>
 
-PathChooser::PathChooser(Minefield *minefield)
-    : fieldData(minefield)
+PathChooser::PathChooser(QSharedPointer<Minefield> minefield)
+    : minefield(minefield)
 {
-    width = fieldData->getWidth();
-    height = fieldData->getHeight();
+    width = minefield->getWidth();
+    height = minefield->getHeight();
 }
 
 /*
@@ -28,7 +28,7 @@ void PathChooser::decidePath()
     {
         for(int y = 0; y < height; ++y)
         {
-            if(fieldData->getCell(x, y) < 0)
+            if(minefield->getCell(x, y) < 0)
             {
                 pathSources.append({x, y});
             }
@@ -60,7 +60,7 @@ Coordinate PathChooser::nextCoord()
 
         auto addInfluenceFromAdjacent = [&] (int x, int y)
         {
-            if(fieldData->getCell(x, y) >= 0)
+            if(minefield->getCell(x, y) >= 0)
             {// adjacent count cell, may to go in the influence list
                 if(newPathInfluence.contains({x, y}))
                 {// coordinate is already influenced
@@ -88,7 +88,7 @@ Coordinate PathChooser::nextCoord()
         };
 
         // update newPathInfluence
-        fieldData->traverseAdjacentCells(pathSources[i].first, pathSources[i].second, addInfluenceFromAdjacent);
+        minefield->traverseAdjacentCells(pathSources[i].first, pathSources[i].second, addInfluenceFromAdjacent);
 
         if(bestCoordinateIndex < 0 || newPathInfluence.size() < bestPathInfluence.size())
         {// find the next coordinate that minimizes the size of the path influence
@@ -107,7 +107,7 @@ int PathChooser::countAdjacentUnknowns(int x, int y) const
 {
     int influencers = 0;
 
-    fieldData->traverseAdjacentCells(x, y, [&] (int x, int y) -> void {fieldData->getCell(x, y) < 0? ++influencers : 0;});
+    minefield->traverseAdjacentCells(x, y, [&] (int x, int y) -> void {minefield->getCell(x, y) < 0? ++influencers : 0;});
 
     return influencers;
 }

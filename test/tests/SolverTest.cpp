@@ -69,7 +69,7 @@ protected:
     void analyzeNewMinefield(int seed)
     {
         QSharedPointer<Minefield> minefield(new Minefield(120, 20, 20, seed));
-        QSharedPointer<Solver> solver(new Solver(minefield.data()));
+        QSharedPointer<Solver> solver(new Solver(minefield));
         solver->setLogProgress(false);
 
         QList<Coordinate> clearCoords;

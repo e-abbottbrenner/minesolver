@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <QDebug>
 
-Solver::Solver(Minefield *minefield)
+Solver::Solver(QSharedPointer<Minefield> minefield)
     : minefield(minefield)
 {
 
