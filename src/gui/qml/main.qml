@@ -1,12 +1,23 @@
 import QtQuick
+import QtQuick.Layouts
 
 Window {
-    width: 800
-    height: 600
+    width: 1200
+    height: 800
     visible: true
+
+    color: "light grey"
+
     title: qsTr("MineSolver")
 
-    GameView {
-        anchors.fill: parent
+    StackLayout
+    {
+        anchors.centerIn: parent
+
+        id: itemStack
+
+        GameView {
+            id: view
+        }
     }
 }

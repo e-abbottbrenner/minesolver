@@ -2,23 +2,41 @@ import QtQuick
 import Minesolver
 
 TableView {
+    id: minefieldTable
+
     keyNavigationEnabled: false
     pointerNavigationEnabled: false
     selectionBehavior: TableView.SelectionDisabled
 
     model: AppState.minefieldModel
 
+    property int hoveredRow: -1
+    property int hoveredColumn: -1
+    property int hoveredPercentMine: -1
+
+    readonly property int cellSize: 30
+
+    implicitWidth: rows * cellSize
+    implicitHeight: columns * cellSize
+
     delegate: Rectangle {
         color: "gray"
         border.color: "black"
 
-        implicitWidth: 30
-        implicitHeight: 30
+        implicitWidth: cellSize
+        implicitHeight: cellSize
 
         MouseArea {
             id: clickCatcher
+            hoverEnabled: true
             acceptedButtons: Qt.LeftButton | Qt.RightButton
             anchors.fill: parent
+
+            onEntered: {
+                minefieldTable.hoveredRow = row
+                minefieldTable.hoveredColumn = column
+                minefieldTable.hoveredPercentMine = 100 * chanceMine
+            }
         }
 
         Rectangle {

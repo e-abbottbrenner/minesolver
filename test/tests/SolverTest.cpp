@@ -1,7 +1,5 @@
 #include <gtest/gtest.h>
 
-#include "ChoiceColumn.h"
-#include "ChoiceNode.h"
 #include "Minefield.h"
 #include "Solver.h"
 
