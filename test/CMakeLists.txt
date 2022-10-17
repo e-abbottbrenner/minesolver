@@ -1,3 +1,6 @@
+# This CMakeLists is for building the testing executable so the core functions can be tested
+# I hesitate to call it unit testing as the only tests currently verify the Solver as a whole
+
 cmake_minimum_required(VERSION 3.14)
 
 # GoogleTest requires at least C++14

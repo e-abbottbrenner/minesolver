@@ -1,3 +1,6 @@
+# This CMakeLists sets up a target to build the core non-gui functionality as a library
+# for inclusion in the gui and testing executables
+
 file(GLOB_RECURSE SRC_SOURCES LIST_DIRECTORIES false *.h *.cpp)
 
 add_library(Minesolver_src ${SRC_SOURCES})
