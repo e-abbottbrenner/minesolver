@@ -4,7 +4,7 @@
 
 #include <QDebug>
 
-PathChooser::PathChooser(QSharedPointer<Minefield> minefield)
+PathChooser::PathChooser(QSharedPointer<const Minefield> minefield)
     : minefield(minefield)
 {
     width = minefield->getWidth();

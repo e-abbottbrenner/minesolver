@@ -11,7 +11,7 @@ bool TraversableGrid::checkBounds(int x, int y) const
     return x >= 0 && y >= 0 && x < width && y < height;
 }
 
-void TraversableGrid::traverseAdjacentCells(int x, int y, std::function<void (int, int)> func)
+void TraversableGrid::traverseAdjacentCells(int x, int y, std::function<void (int, int)> func) const
 {
     for(int i = -1; i <= 1; ++i)
     {
@@ -25,7 +25,7 @@ void TraversableGrid::traverseAdjacentCells(int x, int y, std::function<void (in
     }
 }
 
-void TraversableGrid::traverseCells(std::function<void (int, int)> func)
+void TraversableGrid::traverseCells(std::function<void (int, int)> func) const
 {
     for(int x = 0; x < width; ++x)
     {

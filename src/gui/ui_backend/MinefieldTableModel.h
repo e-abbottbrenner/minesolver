@@ -2,6 +2,7 @@
 #define MINEFIELDTABLEMODEL_H
 
 #include <QAbstractTableModel>
+#include <QFutureWatcher>
 #include <QPair>
 #include <QSharedPointer>
 #include <QtQml/QtQml>
@@ -44,9 +45,16 @@ public slots:
 
 private:
     QSharedPointer<Minefield> minefield;
-    QSharedPointer<Solver> solver;
+
+    QHash<Coordinate, double> chancesToBeMine;
+
+    QSharedPointer<QFutureWatcher<QHash<Coordinate, double>>> mineChancesCalculationWatcher;
+
+    void calculateChances();
 
     void emitUpdateSignalForCoords(QList<Coordinate> coords);
+
+    void applyCalculationResults();
 };
 
 Q_DECLARE_METATYPE(MinefieldTableModel)

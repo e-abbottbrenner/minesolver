@@ -15,14 +15,14 @@ typedef QVector<Coordinate> CoordVector;
 class PathChooser
 {
 public:
-    PathChooser(QSharedPointer<Minefield> minefield);
+    PathChooser(QSharedPointer<Minefield const> minefield);
 
     void decidePath();
 
     const CoordVector &getPath() const;
 
 private:
-    QSharedPointer<Minefield> minefield;
+    QSharedPointer<Minefield const> minefield;
 
     CoordVector path;
 

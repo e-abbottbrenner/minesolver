@@ -8,8 +8,9 @@
 #include <algorithm>
 #include <QDebug>
 
-Solver::Solver(QSharedPointer<Minefield> minefield)
-    : minefield(minefield)
+Solver::Solver(QSharedPointer<Minefield const> minefield)
+    : minefield(minefield->clone())
+    // clone the passed in minefield so this is thread safe with multiple solves vs the same field
 {
 
 }

@@ -29,6 +29,8 @@ public:
 
     QByteArray getRevealedMinefield() const;
 
+    QSharedPointer<Minefield> clone() const;
+
     ~Minefield();
 
 signals:

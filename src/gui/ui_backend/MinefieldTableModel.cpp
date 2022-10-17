@@ -4,6 +4,7 @@
 #include "Solver.h"
 
 #include <QColor>
+#include <QtConcurrent/QtConcurrent>
 
 MinefieldTableModel::MinefieldTableModel(QObject *parent)
     : QAbstractTableModel(parent)
@@ -15,7 +16,6 @@ void MinefieldTableModel::setMinefield(QSharedPointer<Minefield> minefield)
     beginResetModel();
 
     this->minefield = minefield;
-    solver = solver.create(minefield);
 
     endResetModel();
 }
@@ -48,7 +48,7 @@ QVariant MinefieldTableModel::data(const QModelIndex &index, int role) const
     case GuessMineRole:
         return SpecialStatus::GuessMine == mineStatus;
     case ChanceToBeMineRole:
-        return solver->getChancesToBeMine()[{x, y}];
+        return chancesToBeMine.value({x, y}, 0);
         break;
     default:
         break;
@@ -73,12 +73,16 @@ void MinefieldTableModel::reveal(int row, int col)
 {
     auto coordsRevealed = minefield->revealCell(col, row);
 
+    calculateChances();
+
     emitUpdateSignalForCoords(coordsRevealed);
 }
 
 void MinefieldTableModel::revealAdjacent(int row, int col)
 {
     auto coordsRevealed = minefield->revealAdjacents(col, row);
+
+    calculateChances();
 
     emitUpdateSignalForCoords(coordsRevealed);
 }
@@ -90,6 +94,26 @@ void MinefieldTableModel::toggleGuessMine(int row, int col)
     emit dataChanged(index(row, col), index(row, col));
 }
 
+void MinefieldTableModel::calculateChances()
+{
+    Solver solver(minefield);
+
+    QFuture<QHash<Coordinate, double>> mineChancesFuture = QtConcurrent::run([solver] ()
+    {
+        // we captured a const copy of the original solver, make a copy of it so we can compute
+        // solvers are fine to copy like this
+        Solver solverCopy = solver;
+        solverCopy.computeSolution();
+        return solverCopy.getChancesToBeMine();
+    });
+
+    mineChancesCalculationWatcher = mineChancesCalculationWatcher.create();
+
+    connect(mineChancesCalculationWatcher.data(), &QFutureWatcher<QHash<Coordinate, double>>::finished, this, &MinefieldTableModel::applyCalculationResults);
+
+    mineChancesCalculationWatcher->setFuture(mineChancesFuture);
+}
+
 void MinefieldTableModel::emitUpdateSignalForCoords(QList<Coordinate> coords)
 {
     for(Coordinate coord: coords)
@@ -97,4 +121,11 @@ void MinefieldTableModel::emitUpdateSignalForCoords(QList<Coordinate> coords)
         QModelIndex coordIndex = index(coord.second, coord.first);
         emit dataChanged(coordIndex, coordIndex);
     }
+}
+
+void MinefieldTableModel::applyCalculationResults()
+{
+    chancesToBeMine = mineChancesCalculationWatcher->result();
+
+    emitUpdateSignalForCoords(chancesToBeMine.keys());
 }

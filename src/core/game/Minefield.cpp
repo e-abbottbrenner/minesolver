@@ -237,6 +237,16 @@ QByteArray Minefield::getRevealedMinefield() const
     return revealedMinefield;
 }
 
+QSharedPointer<Minefield> Minefield::clone() const
+{
+    QSharedPointer<Minefield> cloneField(new Minefield(numMines, getWidth(), getHeight(), seed));
+    cloneField->populated = populated;
+    cloneField->underlyingMinefield = underlyingMinefield;
+    cloneField->revealedMinefield = revealedMinefield;
+
+    return cloneField;
+}
+
 Minefield::~Minefield()
 {
 }

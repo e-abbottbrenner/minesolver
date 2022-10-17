@@ -38,6 +38,14 @@ TableView {
         }
 
         Rectangle {
+            color: Qt.rgba(1, 0.5, 0, chanceMine)
+            anchors.fill: parent
+
+            visible: true
+            anchors.margins: 10
+        }
+
+        Rectangle {
             color: "light gray"
 
             Text {
