@@ -6,11 +6,10 @@ target_link_libraries(Minesolver_src PUBLIC
     Qt::Core
     Qt::Gui
     Qt::Widgets
-    Qt::Quick
 )
 
 target_include_directories(Minesolver_src PRIVATE
-    ../include
+    ../../include
 )
 
 target_include_directories(Minesolver_src PUBLIC
