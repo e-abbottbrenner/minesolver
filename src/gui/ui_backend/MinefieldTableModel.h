@@ -30,7 +30,9 @@ public:
         CountRole = Qt::UserRole,
         GuessMineRole,
         MineRole,
-        ChanceToBeMineRole
+        ChanceToBeMineRole,
+        ChoiceColumnCountRole,
+        SolverPathIndexRole,
     };
 
     explicit MinefieldTableModel(QObject *parent = nullptr);
@@ -69,11 +71,9 @@ public slots:
 private:
     QSharedPointer<Minefield> minefield;
 
-    QHash<Coordinate, double> chancesToBeMine;
-    int logLegalFieldCount = 0;
-
     QSharedPointer<QFutureWatcher<void>> mineChancesCalculationWatcher;
     QSharedPointer<Solver> activeSolver;
+    QSharedPointer<Solver> finishedSolver;
 
     bool recalculationInProgress = false;
 

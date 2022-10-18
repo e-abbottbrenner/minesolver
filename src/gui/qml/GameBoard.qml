@@ -13,6 +13,8 @@ TableView {
     property int hoveredRow: -1
     property int hoveredColumn: -1
     property int hoveredPercentMine: -1
+    property int hoveredChoiceColumnCount: -1
+    property int hoveredSolverPathIndex: -1
 
     readonly property int cellSize: 30
 
@@ -36,7 +38,36 @@ TableView {
                 minefieldTable.hoveredRow = row
                 minefieldTable.hoveredColumn = column
                 minefieldTable.hoveredPercentMine = 100 * chanceMine
+                minefieldTable.hoveredChoiceColumnCount = choiceColumnCount
+                minefieldTable.hoveredSolverPathIndex = solverPathIndex
             }
+        }
+
+        Rectangle {
+            border.color: "blue"
+            border.width: 3
+            color: "transparent"
+            anchors.fill: parent
+
+            visible: hoveredRow === row && hoveredColumn === column
+        }
+
+        Rectangle {
+            border.color: "light green"
+            border.width: 3
+            color: "transparent"
+            anchors.fill: parent
+
+            visible: hoveredSolverPathIndex >= 0 && hoveredSolverPathIndex + 1 === solverPathIndex
+        }
+
+        Rectangle {
+            border.color: "light blue"
+            border.width: 3
+            color: "transparent"
+            anchors.fill: parent
+
+            visible: solverPathIndex >= 0 && hoveredSolverPathIndex - 1 === solverPathIndex
         }
 
         Rectangle {

@@ -17,8 +17,6 @@ void MinefieldTableModel::setMinefield(QSharedPointer<Minefield> minefield)
     beginResetModel();
 
     this->minefield = minefield;
-    // this is mathematically the initial value
-    logLegalFieldCount = minefield->getWidth() * minefield->getHeight();
 
     endResetModel();
 }
@@ -51,8 +49,12 @@ QVariant MinefieldTableModel::data(const QModelIndex &index, int role) const
     case GuessMineRole:
         return SpecialStatus::GuessMine == mineStatus;
     case ChanceToBeMineRole:
-        return chancesToBeMine.value({x, y}, 0);
+        return finishedSolver? finishedSolver->getChancesToBeMine().value({x, y}, 0) : 0;
         break;
+    case ChoiceColumnCountRole:
+        return finishedSolver? finishedSolver->getColumnCounts().value({x, y}, 0) : 0;
+    case SolverPathIndexRole:
+        return finishedSolver? finishedSolver->getPathIndex({x, y}) : -1;
     default:
         break;
     }
@@ -68,6 +70,8 @@ QHash<int, QByteArray> MinefieldTableModel::roleNames() const
     roles[GuessMineRole] = "guessMine";
     roles[MineRole] = "isMine";
     roles[ChanceToBeMineRole] = "chanceMine";
+    roles[ChoiceColumnCountRole] = "choiceColumnCount";
+    roles[SolverPathIndexRole] = "solverPathIndex";
 
     return roles;
 }
@@ -81,18 +85,18 @@ void MinefieldTableModel::reveal(int row, int col)
 {
     auto coordsRevealed = minefield->revealCell(col, row);
 
-    calculateChances();
-
     emitUpdateSignalForCoords(coordsRevealed);
+
+    calculateChances();
 }
 
 void MinefieldTableModel::revealAdjacent(int row, int col)
 {
     auto coordsRevealed = minefield->revealAdjacents(col, row);
 
-    calculateChances();
-
     emitUpdateSignalForCoords(coordsRevealed);
+
+    calculateChances();
 }
 
 void MinefieldTableModel::toggleGuessMine(int row, int col)
@@ -109,7 +113,8 @@ const QString &MinefieldTableModel::getRecalculationStep() const
 
 int MinefieldTableModel::getLogLegalFieldCount() const
 {
-    return logLegalFieldCount;
+    // no finished solver, default to the minefield width and height
+    return finishedSolver? finishedSolver->getLogLegalFieldCount() : minefield->getWidth() * minefield->getHeight();;
 }
 
 int MinefieldTableModel::getCurrentRecalculationProgress() const
@@ -161,12 +166,11 @@ void MinefieldTableModel::emitUpdateSignalForCoords(QList<Coordinate> coords)
 
 void MinefieldTableModel::applyCalculationResults()
 {
-    chancesToBeMine = activeSolver->getChancesToBeMine();
-    logLegalFieldCount = activeSolver->getLogLegalFieldCount();
+    finishedSolver = activeSolver;
 
-    emit logLegalFieldCountChanged(logLegalFieldCount);
+    emit logLegalFieldCountChanged(getLogLegalFieldCount());
 
-    emitUpdateSignalForCoords(chancesToBeMine.keys());
+    emitUpdateSignalForCoords(finishedSolver->getChancesToBeMine().keys());
 
     mineChancesCalculationWatcher.clear();
     activeSolver.clear();

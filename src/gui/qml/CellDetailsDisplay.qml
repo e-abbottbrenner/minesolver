@@ -11,6 +11,8 @@ Rectangle {
     property int row: -1
     property int column: -1
     property int percentMine: -1
+    property int choiceColumnCount: -1
+    property int solverPathIndex: -1
 
     Column{
         anchors.top: parent.top
@@ -58,13 +60,30 @@ Rectangle {
             }
         }
 
-        Text {
-            anchors.horizontalCenter: parent.horizontalCenter
+        Column {
+            anchors.left: parent.left
+            anchors.leftMargin: 10
 
-            color: "white"
-            text: row + ", " + column + "\n Mine Chance: " + percentMine + "%\nLegal minefield count: 2^" + AppState.minefieldModel.logLegalFieldCount
+            spacing: 20
 
-            visible: row >= 0 && column >= 0
+            Text {
+                anchors.left: parent.left
+
+                color: "white"
+                text: "Cell Info:\nPosition: " + row + ", " + column + "\nMine Chance: " + percentMine + "%\nLegal minefield count: 2^" + AppState.minefieldModel.logLegalFieldCount
+
+                visible: row >= 0 && column >= 0
+            }
+
+            Text {
+                anchors.left: parent.left
+
+                color: "white"
+
+                text: "Solver metrics:\nChoice columns: " + choiceColumnCount + "\nPath Index: " + solverPathIndex
+
+                visible: row >= 0 && column >= 0
+            }
         }
     }
 }

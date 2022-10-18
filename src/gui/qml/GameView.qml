@@ -23,5 +23,7 @@ Row
         row: gameBoard.hoveredRow
         column: gameBoard.hoveredColumn
         percentMine: gameBoard.hoveredPercentMine
+        choiceColumnCount: gameBoard.hoveredChoiceColumnCount
+        solverPathIndex: gameBoard.hoveredSolverPathIndex
     }
 }

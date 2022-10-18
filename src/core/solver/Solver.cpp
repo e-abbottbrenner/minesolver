@@ -34,9 +34,19 @@ const QHash<Coordinate, double> &Solver::getChancesToBeMine() const
     return chancesToBeMine;
 }
 
+const QHash<Coordinate, int> &Solver::getColumnCounts() const
+{
+    return columnCounts;
+}
+
 int Solver::getLogLegalFieldCount() const
 {
     return boost::multiprecision::log2(legalFieldCount.convert_to<boost::multiprecision::cpp_bin_float_100>()).convert_to<int>();
+}
+
+int Solver::getPathIndex(const Coordinate &coord) const
+{
+    return path.indexOf(coord);
 }
 
 QSharedPointer<ProgressProxy> Solver::getProgress() const
@@ -72,6 +82,7 @@ void Solver::buildSolutionGraph()
     progress->emitProgressStep("Building solution graph.");
 
     choiceColumns.clear();
+    columnCounts.clear();
     chancesToBeMine.clear();
     legalFieldCount = 0;
 
@@ -113,8 +124,9 @@ void Solver::buildSolutionGraph()
 
     qsizetype maxColumnSize = 0;
 
-    for(auto column : choiceColumns)
+    for(const auto &column : choiceColumns)
     {
+        columnCounts.insert({column->getX(), column->getY()}, column->getChoiceNodes().size());
         maxColumnSize = std::max(maxColumnSize, column->getChoiceNodes().size());
     }
 
