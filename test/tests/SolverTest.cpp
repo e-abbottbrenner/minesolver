@@ -66,7 +66,7 @@ protected:
 
     void analyzeNewMinefield(int seed)
     {
-        QSharedPointer<Minefield> minefield(new Minefield(120, 20, 20, seed));
+        QSharedPointer<Minefield> minefield(new Minefield(120, 40, 10, seed));
 
         QList<Coordinate> clearCoords;
 
