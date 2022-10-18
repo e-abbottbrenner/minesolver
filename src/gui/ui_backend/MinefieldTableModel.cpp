@@ -17,6 +17,7 @@ void MinefieldTableModel::setMinefield(QSharedPointer<Minefield> minefield)
     beginResetModel();
 
     this->minefield = minefield;
+    calculateChances();
 
     endResetModel();
 }
@@ -147,7 +148,7 @@ const QString &MinefieldTableModel::getRecalculationStep() const
 int MinefieldTableModel::getLogLegalFieldCount() const
 {
     // no finished solver, default to the minefield width and height
-    return finishedSolver? finishedSolver->getLogLegalFieldCount() : minefield->getWidth() * minefield->getHeight();;
+    return finishedSolver? finishedSolver->getLogLegalFieldCount() : -1;
 }
 
 int MinefieldTableModel::getCurrentRecalculationProgress() const

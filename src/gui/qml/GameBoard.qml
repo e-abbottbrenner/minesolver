@@ -18,8 +18,8 @@ TableView {
 
     readonly property int cellSize: 30
 
-    implicitWidth: rows * cellSize
-    implicitHeight: columns * cellSize
+    implicitWidth: columns * cellSize
+    implicitHeight: rows * cellSize
 
     delegate: Rectangle {
         color: "gray"
