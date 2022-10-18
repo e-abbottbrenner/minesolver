@@ -21,6 +21,7 @@ class Solver
 {
 public:
     explicit Solver(QSharedPointer<Minefield const> minefield);
+    ~Solver();
 
     void computeSolution();
 

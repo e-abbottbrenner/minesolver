@@ -18,14 +18,26 @@ Solver::Solver(QSharedPointer<Minefield const> minefield)
     progress = progress.create();
 }
 
+Solver::~Solver()
+{
+}
+
 void Solver::computeSolution()
 {
     progress->reset();
     cancelled = false;
 
+    choiceColumns.clear();
+    columnCounts.clear();
+    chancesToBeMine.clear();
+    legalFieldCount = 0;
+
     decidePath();
     buildSolutionGraph();
     analyzeSolutionGraph();
+
+    // no longer need the data structure now that we have the final results
+    choiceColumns.clear();
 }
 
 const QHash<Coordinate, double> &Solver::getChancesToBeMine() const
@@ -79,11 +91,6 @@ void Solver::buildSolutionGraph()
     CHECK_CANCELLED;
 
     progress->emitProgressStep("Building solution graph.");
-
-    choiceColumns.clear();
-    columnCounts.clear();
-    chancesToBeMine.clear();
-    legalFieldCount = 0;
 
     for(Coordinate coord: path)
     {
