@@ -106,6 +106,39 @@ void MinefieldTableModel::toggleGuessMine(int row, int col)
     emit dataChanged(index(row, col), index(row, col));
 }
 
+void MinefieldTableModel::revealOptimalCell()
+{
+    if(finishedSolver && !activeSolver)
+    {
+        auto chances = finishedSolver->getChancesToBeMine();
+
+        auto coords = chances.keys();
+
+        Coordinate bestCoord{0, 0};
+        double bestChance = 1;
+
+        for(const Coordinate &coord: coords)
+        {
+            if(chances[coord] == 0)
+            {
+                bestChance = 0;
+                reveal(coord.second, coord.first);
+            }
+
+            if(bestChance >= chances[coord])
+            {
+                bestChance = chances[coord];
+                bestCoord = coord;
+            }
+        }
+
+        if(bestChance > 0)
+        {
+            reveal(bestCoord.second, bestCoord.first);
+        }
+    }
+}
+
 const QString &MinefieldTableModel::getRecalculationStep() const
 {
     return recalculationStep;

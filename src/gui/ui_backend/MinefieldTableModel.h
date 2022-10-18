@@ -68,6 +68,8 @@ public slots:
     void revealAdjacent(int row, int col);
     void toggleGuessMine(int row, int col);
 
+    void revealOptimalCell();
+
 private:
     QSharedPointer<Minefield> minefield;
 

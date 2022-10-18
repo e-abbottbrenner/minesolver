@@ -14,7 +14,7 @@ Rectangle {
     property int choiceColumnCount: -1
     property int solverPathIndex: -1
 
-    Column{
+    Column {
         anchors.top: parent.top
         anchors.topMargin: 30
 
@@ -84,6 +84,14 @@ Rectangle {
 
                 visible: row >= 0 && column >= 0
             }
+        }
+
+        Button {
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            text: "Reveal optimal cell"
+
+            onClicked: { AppState.minefieldModel.revealOptimalCell() }
         }
     }
 }
