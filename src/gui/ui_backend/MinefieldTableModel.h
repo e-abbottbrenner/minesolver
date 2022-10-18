@@ -7,6 +7,9 @@
 #include <QSharedPointer>
 #include <QtQml/QtQml>
 
+#include <boost/multiprecision/cpp_int.hpp>
+using boost::multiprecision::cpp_int;
+
 class Minefield;
 class Solver;
 
@@ -22,6 +25,7 @@ class MinefieldTableModel : public QAbstractTableModel
     Q_PROPERTY(int maxRecalculationProgress READ getMaxRecalculationProgress NOTIFY maxRecalculationProgressChanged)
     Q_PROPERTY(int currentRecalculationProgress READ getCurrentRecalculationProgress NOTIFY currentRecalculationProgressChanged)
     Q_PROPERTY(QString recalculationStep READ getRecalculationStep NOTIFY recalculationStepChanged)
+    Q_PROPERTY(QString legalFieldCountLogString READ getLegalFieldCountLogString NOTIFY legalFieldCountLogStringChanged)
 
 public:
     enum DataRoles
@@ -51,11 +55,14 @@ public:
 
     const QString &getRecalculationStep() const;
 
+    const QString &getLegalFieldCountLogString() const;
+
 signals:
     void recalculationInProgressChanged(bool recalculating);
     void maxRecalculationProgressChanged(int max);
     void currentRecalculationProgressChanged(int progress);
     void recalculationStepChanged(const QString& step);
+    void legalFieldCountLogStringChanged(const QString& fieldCount);
 
 public slots:
     void reveal(int row, int col);
@@ -66,8 +73,10 @@ private:
     QSharedPointer<Minefield> minefield;
 
     QHash<Coordinate, double> chancesToBeMine;
+    cpp_int legalFieldCount;
+    QString legalFieldCountLogString;
 
-    QSharedPointer<QFutureWatcher<QHash<Coordinate, double>>> mineChancesCalculationWatcher;
+    QSharedPointer<QFutureWatcher<void>> mineChancesCalculationWatcher;
     QSharedPointer<Solver> activeSolver;
 
     bool recalculationInProgress = false;
@@ -88,6 +97,7 @@ private:
     void setMaxRecalculationProgress(int newMaxRecalculationProgress);
     void setCurrentRecalculationProgress(int newCurrentRecalculationProgress);
     void setRecalculationStep(const QString &newRecalculationStep);
+    void setLegalFieldCountString(const QString& newLegalFieldCountString);
 
     void setActiveSolver(QSharedPointer<Solver> solver);
 };

@@ -32,6 +32,11 @@ const QHash<Coordinate, double> &Solver::getChancesToBeMine() const
     return chancesToBeMine;
 }
 
+cpp_int Solver::getLegalFieldCount() const
+{
+    return legalFieldCount;
+}
+
 void Solver::decidePath()
 {
     CHECK_CANCELLED;
@@ -61,6 +66,7 @@ void Solver::buildSolutionGraph()
 
     choiceColumns.clear();
     chancesToBeMine.clear();
+    legalFieldCount = 0;
 
     for(Coordinate coord: path)
     {
@@ -170,6 +176,8 @@ void Solver::analyzeSolutionGraph()
 
         emit progressMade(progress++);
     }
+
+    legalFieldCount = choiceColumns.first()->getWaysToBeClear() + choiceColumns.first()->getWaysToBeMine();
 
     emit progressStep("Complete.");
 

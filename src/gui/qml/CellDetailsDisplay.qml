@@ -62,7 +62,7 @@ Rectangle {
             anchors.horizontalCenter: parent.horizontalCenter
 
             color: "white"
-            text: row + ", " + column + "\n Mine Chance: " + percentMine + "%"
+            text: row + ", " + column + "\n Mine Chance: " + percentMine + "%\nLegal minefield count: 2^" + AppState.minefieldModel.legalFieldCountLogString
 
             visible: row >= 0 && column >= 0
         }

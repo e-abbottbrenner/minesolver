@@ -6,7 +6,6 @@
 #include <QSharedPointer>
 
 #include <boost/multiprecision/cpp_int.hpp>
-
 using boost::multiprecision::cpp_int;
 
 class ChoiceNode;

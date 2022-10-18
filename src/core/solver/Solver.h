@@ -1,6 +1,8 @@
 #ifndef SOLVER_H
 #define SOLVER_H
 
+#include "ChoiceColumn.h"
+
 #include <QList>
 #include <QHash>
 #include <QPair>
@@ -24,6 +26,7 @@ public:
     void computeSolution();
 
     const QHash<Coordinate, double> &getChancesToBeMine() const;
+    cpp_int getLegalFieldCount() const;
 
     void setLogProgress(bool newLogProgress);
 
@@ -39,6 +42,7 @@ private:
     QList<QSharedPointer<ChoiceColumn>> choiceColumns;
 
     QHash<Coordinate, double> chancesToBeMine;
+    cpp_int legalFieldCount;
 
     void decidePath();
     void buildSolutionGraph();

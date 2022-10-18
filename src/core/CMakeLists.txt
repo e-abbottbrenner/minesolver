@@ -11,11 +11,8 @@ target_link_libraries(Minesolver_src PUBLIC
     Qt::Widgets
 )
 
-target_include_directories(Minesolver_src PRIVATE
-    ../../include
-)
-
 target_include_directories(Minesolver_src PUBLIC
+    ../../include
     game
     solver
     ui

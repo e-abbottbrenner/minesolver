@@ -6,6 +6,8 @@
 #include <QColor>
 #include <QtConcurrent/QtConcurrent>
 
+ #include <boost/multiprecision/cpp_bin_float.hpp>
+
 MinefieldTableModel::MinefieldTableModel(QObject *parent)
     : QAbstractTableModel(parent)
 {
@@ -104,37 +106,9 @@ const QString &MinefieldTableModel::getRecalculationStep() const
     return recalculationStep;
 }
 
-void MinefieldTableModel::setRecalculationStep(const QString &newRecalculationStep)
+const QString &MinefieldTableModel::getLegalFieldCountLogString() const
 {
-    if(recalculationStep != newRecalculationStep)
-    {
-        recalculationStep = newRecalculationStep;
-        emit recalculationStepChanged(newRecalculationStep);
-    }
-}
-
-void MinefieldTableModel::setActiveSolver(QSharedPointer<Solver> solver)
-{
-    if(activeSolver)
-    {// cancel in progress solver so they don't stack up with lots of hard calculations
-        activeSolver->cancel();
-    }
-
-    // disconnect the old solver
-    for(auto connection: recalcProgressConnections)
-    {
-        disconnect(connection);
-    }
-
-    setCurrentRecalculationProgress(0);
-    setMaxRecalculationProgress(0);
-
-    activeSolver = solver;
-
-    // connect the new solver
-    recalcProgressConnections << connect(activeSolver.data(), &Solver::progressMade, this, &MinefieldTableModel::setCurrentRecalculationProgress);
-    recalcProgressConnections << connect(activeSolver.data(), &Solver::progressMaximum, this, &MinefieldTableModel::setMaxRecalculationProgress);
-    recalcProgressConnections << connect(activeSolver.data(), &Solver::progressStep, this, &MinefieldTableModel::setRecalculationStep);
+    return legalFieldCountLogString;
 }
 
 int MinefieldTableModel::getCurrentRecalculationProgress() const
@@ -156,25 +130,15 @@ int MinefieldTableModel::getMaxRecalculationProgress() const
     return maxRecalculationProgress;
 }
 
-void MinefieldTableModel::setMaxRecalculationProgress(int newMaxRecalculationProgress)
-{
-    if(newMaxRecalculationProgress != maxRecalculationProgress)
-    {
-        maxRecalculationProgress = newMaxRecalculationProgress;
-        emit maxRecalculationProgressChanged(newMaxRecalculationProgress);
-    }
-}
-
 void MinefieldTableModel::calculateChances()
 {
     QSharedPointer<Solver> solver(new Solver(minefield));
 
     setActiveSolver(solver);
 
-    QFuture<QHash<Coordinate, double>> mineChancesFuture = QtConcurrent::run([solver] ()
+    QFuture<void> mineChancesFuture = QtConcurrent::run([solver] ()
     {
         solver->computeSolution();
-        return solver->getChancesToBeMine();
     });
 
     mineChancesCalculationWatcher = mineChancesCalculationWatcher.create();
@@ -196,13 +160,36 @@ void MinefieldTableModel::emitUpdateSignalForCoords(QList<Coordinate> coords)
 
 void MinefieldTableModel::applyCalculationResults()
 {
-    chancesToBeMine = mineChancesCalculationWatcher->result();
+    chancesToBeMine = activeSolver->getChancesToBeMine();
+    legalFieldCount = activeSolver->getLegalFieldCount();
+
+    auto legalFieldCountFloat = legalFieldCount.convert_to<boost::multiprecision::cpp_bin_float_100>();
+
+    setLegalFieldCountString(QString::fromStdString(boost::multiprecision::log2(legalFieldCountFloat).str(5)));
 
     emitUpdateSignalForCoords(chancesToBeMine.keys());
 
     mineChancesCalculationWatcher.clear();
     activeSolver.clear();
     setRecalculationInProgress(false);
+}
+
+void MinefieldTableModel::setRecalculationStep(const QString &newRecalculationStep)
+{
+    if(recalculationStep != newRecalculationStep)
+    {
+        recalculationStep = newRecalculationStep;
+        emit recalculationStepChanged(newRecalculationStep);
+    }
+}
+
+void MinefieldTableModel::setMaxRecalculationProgress(int newMaxRecalculationProgress)
+{
+    if(newMaxRecalculationProgress != maxRecalculationProgress)
+    {
+        maxRecalculationProgress = newMaxRecalculationProgress;
+        emit maxRecalculationProgressChanged(newMaxRecalculationProgress);
+    }
 }
 
 void MinefieldTableModel::setRecalculationInProgress(bool recalculation)
@@ -213,4 +200,37 @@ void MinefieldTableModel::setRecalculationInProgress(bool recalculation)
 
         emit recalculationInProgressChanged(recalculation);
     }
+}
+
+void MinefieldTableModel::setLegalFieldCountString(const QString &newLegalFieldCountString)
+{
+    if(newLegalFieldCountString != legalFieldCountLogString)
+    {
+        legalFieldCountLogString = newLegalFieldCountString;
+        emit legalFieldCountLogStringChanged(newLegalFieldCountString);
+    }
+}
+
+void MinefieldTableModel::setActiveSolver(QSharedPointer<Solver> solver)
+{
+    if(activeSolver)
+    {// cancel in progress solver so they don't stack up with lots of hard calculations
+        activeSolver->cancel();
+    }
+
+    // disconnect the old solver
+    for(const auto &connection: recalcProgressConnections)
+    {
+        disconnect(connection);
+    }
+
+    setCurrentRecalculationProgress(0);
+    setMaxRecalculationProgress(0);
+
+    activeSolver = solver;
+
+    // connect the new solver
+    recalcProgressConnections << connect(activeSolver.data(), &Solver::progressMade, this, &MinefieldTableModel::setCurrentRecalculationProgress);
+    recalcProgressConnections << connect(activeSolver.data(), &Solver::progressMaximum, this, &MinefieldTableModel::setMaxRecalculationProgress);
+    recalcProgressConnections << connect(activeSolver.data(), &Solver::progressStep, this, &MinefieldTableModel::setRecalculationStep);
 }
