@@ -1,12 +1,11 @@
 #include "MinefieldTableModel.h"
 
 #include "Minefield.h"
+#include "ProgressProxy.h"
 #include "Solver.h"
 
 #include <QColor>
 #include <QtConcurrent/QtConcurrent>
-
- #include <boost/multiprecision/cpp_bin_float.hpp>
 
 MinefieldTableModel::MinefieldTableModel(QObject *parent)
     : QAbstractTableModel(parent)
@@ -221,7 +220,7 @@ void MinefieldTableModel::setActiveSolver(QSharedPointer<Solver> solver)
     activeSolver = solver;
 
     // connect the new solver
-    recalcProgressConnections << connect(activeSolver.data(), &Solver::progressMade, this, &MinefieldTableModel::setCurrentRecalculationProgress);
-    recalcProgressConnections << connect(activeSolver.data(), &Solver::progressMaximum, this, &MinefieldTableModel::setMaxRecalculationProgress);
-    recalcProgressConnections << connect(activeSolver.data(), &Solver::progressStep, this, &MinefieldTableModel::setRecalculationStep);
+    recalcProgressConnections << connect(activeSolver->getProgress().data(), &ProgressProxy::progressMade, this, &MinefieldTableModel::setCurrentRecalculationProgress);
+    recalcProgressConnections << connect(activeSolver->getProgress().data(), &ProgressProxy::progressMaximum, this, &MinefieldTableModel::setMaxRecalculationProgress);
+    recalcProgressConnections << connect(activeSolver->getProgress().data(), &ProgressProxy::progressStep, this, &MinefieldTableModel::setRecalculationStep);
 }

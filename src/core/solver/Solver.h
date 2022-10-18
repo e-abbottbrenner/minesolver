@@ -15,11 +15,10 @@ typedef QVector<Coordinate> CoordVector;
 
 class ChoiceColumn;
 class Minefield;
+class ProgressProxy;
 
-class Solver : public QObject
+class Solver
 {
-    Q_OBJECT
-
 public:
     explicit Solver(QSharedPointer<Minefield const> minefield);
 
@@ -32,10 +31,7 @@ public:
 
     void cancel();
 
-signals:
-    void progressMaximum(int max);
-    void progressMade(int progress);
-    void progressStep(const QString& progressStep);
+    QSharedPointer<ProgressProxy> getProgress() const;
 
 private:
     CoordVector path;
@@ -54,7 +50,7 @@ private:
 
     bool cancelled = false;
 
-    int progress = 0;
+    QSharedPointer<ProgressProxy> progress;
 };
 
 #endif // SOLVER_H

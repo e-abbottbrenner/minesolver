@@ -4,6 +4,7 @@
 #include "ChoiceNode.h"
 #include "Minefield.h"
 #include "PathChooser.h"
+#include "ProgressProxy.h"
 
 #include <algorithm>
 #include <boost/multiprecision/cpp_bin_float.hpp>
@@ -15,12 +16,12 @@ Solver::Solver(QSharedPointer<Minefield const> minefield)
     : minefield(minefield->clone())
     // clone the passed in minefield so this is thread safe with multiple solves vs the same field
 {
-
+    progress = progress.create();
 }
 
 void Solver::computeSolution()
 {
-    progress = 0;
+    progress->reset();
     cancelled = false;
 
     decidePath();
@@ -38,11 +39,16 @@ int Solver::getLogLegalFieldCount() const
     return boost::multiprecision::log2(legalFieldCount.convert_to<boost::multiprecision::cpp_bin_float_100>()).convert_to<int>();
 }
 
+QSharedPointer<ProgressProxy> Solver::getProgress() const
+{
+    return progress;
+}
+
 void Solver::decidePath()
 {
     CHECK_CANCELLED;
 
-    emit progressStep("Deciding path.");
+    progress->emitProgressStep("Deciding path.");
 
     PathChooser chooser(minefield);
 
@@ -51,7 +57,7 @@ void Solver::decidePath()
     path = chooser.getPath();
 
     // there are four computational loops that go over the path size
-    emit progressMaximum(4 * path.size());
+    progress->emitProgressMaximum(4 * path.size());
 
     if(logProgress)
     {
@@ -63,7 +69,7 @@ void Solver::buildSolutionGraph()
 {
     CHECK_CANCELLED;
 
-    emit progressStep("Building solution graph.");
+    progress->emitProgressStep("Building solution graph.");
 
     choiceColumns.clear();
     chancesToBeMine.clear();
@@ -102,7 +108,7 @@ void Solver::buildSolutionGraph()
             choiceNode->addSuccessorsToNextColumn(nextColumn);
         }
 
-        emit progressMade(progress++);
+        progress->incrementProgress();
     }
 
     qsizetype maxColumnSize = 0;
@@ -123,7 +129,7 @@ void Solver::analyzeSolutionGraph()
 {
     CHECK_CANCELLED;
 
-    emit progressStep("Analyzing solution graph.");
+    progress->emitProgressStep("Analyzing solution graph.");
 
     if(logProgress)
     {
@@ -147,7 +153,7 @@ void Solver::analyzeSolutionGraph()
 
         column->precomputePathsBack(minefield->getNumMines());
 
-        emit progressMade(progress++);
+        progress->incrementProgress();
     }
 
     for(auto iter = choiceColumns.rbegin(); iter != choiceColumns.rend(); ++iter)
@@ -156,7 +162,7 @@ void Solver::analyzeSolutionGraph()
 
         (*iter)->precomputePathsForward(minefield->getNumMines());
 
-        emit progressMade(progress++);
+        progress->incrementProgress();
     }
 
     if(logProgress)
@@ -175,12 +181,12 @@ void Solver::analyzeSolutionGraph()
             chancesToBeMine.insert({column->getX(), column->getY()}, column->getPercentChanceToBeMine());
         }
 
-        emit progressMade(progress++);
+        progress->incrementProgress();
     }
 
     legalFieldCount = choiceColumns.first()->getWaysToBeClear() + choiceColumns.first()->getWaysToBeMine();
 
-    emit progressStep("Complete.");
+    progress->emitProgressStep("Complete.");
 
     if(logProgress)
     {
