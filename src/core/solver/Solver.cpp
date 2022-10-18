@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <QDebug>
 
+#define CHECK_CANCELLED if(cancelled) return;
+
 Solver::Solver(QSharedPointer<Minefield const> minefield)
     : minefield(minefield->clone())
     // clone the passed in minefield so this is thread safe with multiple solves vs the same field
@@ -29,6 +31,8 @@ const QHash<Coordinate, double> &Solver::getChancesToBeMine() const
 
 void Solver::decidePath()
 {
+    CHECK_CANCELLED;
+
     PathChooser chooser(minefield);
 
     chooser.decidePath();
@@ -43,6 +47,8 @@ void Solver::decidePath()
 
 void Solver::buildSolutionGraph()
 {
+    CHECK_CANCELLED;
+
     choiceColumns.clear();
     chancesToBeMine.clear();
 
@@ -68,6 +74,8 @@ void Solver::buildSolutionGraph()
     // we skip the last one because there's nothing for it to connect to
     for(int i = 0; i < choiceColumns.size() - 1; ++i)
     {
+        CHECK_CANCELLED;
+
         auto currentColumn = choiceColumns[i];
         auto nextColumn = choiceColumns[i + 1];
 
@@ -94,6 +102,8 @@ void Solver::buildSolutionGraph()
 
 void Solver::analyzeSolutionGraph()
 {
+    CHECK_CANCELLED;
+
     if(logProgress)
     {
         qDebug() << "Analyzing...";
@@ -112,11 +122,15 @@ void Solver::analyzeSolutionGraph()
 
     for(auto column : choiceColumns)
     {// we start from the beginning and move forward to precompute the paths back since each column depends on the previous
+        CHECK_CANCELLED;
+
         column->precomputePathsBack(minefield->getNumMines());
     }
 
     for(auto iter = choiceColumns.rbegin(); iter != choiceColumns.rend(); ++iter)
     {// we start from the end of the columns and move backward to precompute the paths forward since each column depends on the next
+        CHECK_CANCELLED;
+
         (*iter)->precomputePathsForward(minefield->getNumMines());
     }
 
@@ -127,6 +141,8 @@ void Solver::analyzeSolutionGraph()
 
     for(auto column : choiceColumns)
     {// calculate all the ways to be
+        CHECK_CANCELLED;
+
         if(column->getX() >= 0 && column->getY() >= 0)
         {// the final column has -1, -1
             column->calculateWaysToBe(minefield->getNumMines());
@@ -145,4 +161,9 @@ void Solver::analyzeSolutionGraph()
 void Solver::setLogProgress(bool newLogProgress)
 {
     logProgress = newLogProgress;
+}
+
+void Solver::cancel()
+{
+    cancelled = true;
 }

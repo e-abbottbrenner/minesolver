@@ -24,6 +24,8 @@ public:
 
     void setLogProgress(bool newLogProgress);
 
+    void cancel();
+
 private:
     CoordVector path;
     QList<QSharedPointer<ChoiceColumn>> choiceColumns;
@@ -36,7 +38,9 @@ private:
 
     QSharedPointer<Minefield const> minefield;
 
-    bool logProgress = true;
+    bool logProgress = false;
+
+    bool cancelled = false;
 };
 
 #endif // SOLVER_H

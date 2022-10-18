@@ -69,6 +69,11 @@ QHash<int, QByteArray> MinefieldTableModel::roleNames() const
     return roles;
 }
 
+bool MinefieldTableModel::isRecalculationInProgress() const
+{
+    return recalculationInProgress;
+}
+
 void MinefieldTableModel::reveal(int row, int col)
 {
     auto coordsRevealed = minefield->revealCell(col, row);
@@ -96,22 +101,27 @@ void MinefieldTableModel::toggleGuessMine(int row, int col)
 
 void MinefieldTableModel::calculateChances()
 {
-    Solver solver(minefield);
+    QSharedPointer<Solver> solver(new Solver(minefield));
 
     QFuture<QHash<Coordinate, double>> mineChancesFuture = QtConcurrent::run([solver] ()
     {
-        // we captured a const copy of the original solver, make a copy of it so we can compute
-        // solvers are fine to copy like this
-        Solver solverCopy = solver;
-        solverCopy.computeSolution();
-        return solverCopy.getChancesToBeMine();
+        solver->computeSolution();
+        return solver->getChancesToBeMine();
     });
+
+    if(activeSolver)
+    {// cancel in progress solver so they don't stack up with lots of hard calculations
+        activeSolver->cancel();
+    }
 
     mineChancesCalculationWatcher = mineChancesCalculationWatcher.create();
 
-    connect(mineChancesCalculationWatcher.data(), &QFutureWatcher<QHash<Coordinate, double>>::finished, this, &MinefieldTableModel::applyCalculationResults);
+    activeSolver = solver;
 
+    connect(mineChancesCalculationWatcher.data(), &QFutureWatcher<QHash<Coordinate, double>>::finished, this, &MinefieldTableModel::applyCalculationResults);
     mineChancesCalculationWatcher->setFuture(mineChancesFuture);
+
+    setRecalculationInProgress(true);
 }
 
 void MinefieldTableModel::emitUpdateSignalForCoords(QList<Coordinate> coords)
@@ -128,4 +138,18 @@ void MinefieldTableModel::applyCalculationResults()
     chancesToBeMine = mineChancesCalculationWatcher->result();
 
     emitUpdateSignalForCoords(chancesToBeMine.keys());
+
+    mineChancesCalculationWatcher.clear();
+    activeSolver.clear();
+    setRecalculationInProgress(false);
+}
+
+void MinefieldTableModel::setRecalculationInProgress(bool recalculation)
+{
+    if(recalculationInProgress != recalculation)
+    {
+        recalculationInProgress = recalculation;
+
+        emit recalculationInProgressChanged(recalculation);
+    }
 }

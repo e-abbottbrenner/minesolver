@@ -18,6 +18,8 @@ class MinefieldTableModel : public QAbstractTableModel
     QML_ELEMENT
     QML_UNCREATABLE("QML Cannot invoke constructor")
 
+    Q_PROPERTY(bool recalculationInProgress READ isRecalculationInProgress NOTIFY recalculationInProgressChanged)
+
 public:
     enum DataRoles
     {
@@ -38,6 +40,11 @@ public:
 
     QHash<int, QByteArray> roleNames() const override;
 
+    bool isRecalculationInProgress() const;
+
+signals:
+    void recalculationInProgressChanged(bool recalculating);
+
 public slots:
     void reveal(int row, int col);
     void revealAdjacent(int row, int col);
@@ -49,12 +56,17 @@ private:
     QHash<Coordinate, double> chancesToBeMine;
 
     QSharedPointer<QFutureWatcher<QHash<Coordinate, double>>> mineChancesCalculationWatcher;
+    QSharedPointer<Solver> activeSolver;
+
+    bool recalculationInProgress = false;
 
     void calculateChances();
 
     void emitUpdateSignalForCoords(QList<Coordinate> coords);
 
     void applyCalculationResults();
+
+    void setRecalculationInProgress(bool recalculation);
 };
 
 Q_DECLARE_METATYPE(MinefieldTableModel)
