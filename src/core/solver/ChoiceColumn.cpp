@@ -67,7 +67,7 @@ void ChoiceColumn::calculateWaysToBe(int mineCount)
 
 double ChoiceColumn::getPercentChanceToBeMine() const
 {
-    return static_cast<double>(waysToBeMine / (waysToBeMine + waysToBeClear));
+    return waysToBeMine / (waysToBeMine + waysToBeClear);
 }
 
 double ChoiceColumn::getWaysToBeMine() const

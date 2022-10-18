@@ -183,7 +183,7 @@ void MinefieldTableModel::calculateChances()
 
     mineChancesCalculationWatcher = mineChancesCalculationWatcher.create();
 
-    connect(mineChancesCalculationWatcher.data(), &QFutureWatcher<QHash<Coordinate, double>>::finished, this, &MinefieldTableModel::applyCalculationResults);
+    connect(mineChancesCalculationWatcher.data(), &QFutureWatcher<void>::finished, this, &MinefieldTableModel::applyCalculationResults);
     mineChancesCalculationWatcher->setFuture(mineChancesFuture);
 
     setRecalculationInProgress(true);
