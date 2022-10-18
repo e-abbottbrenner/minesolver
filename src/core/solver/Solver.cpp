@@ -6,6 +6,7 @@
 #include "PathChooser.h"
 
 #include <algorithm>
+#include <boost/multiprecision/cpp_bin_float.hpp>
 #include <QDebug>
 
 #define CHECK_CANCELLED if(cancelled) return;
@@ -32,9 +33,9 @@ const QHash<Coordinate, double> &Solver::getChancesToBeMine() const
     return chancesToBeMine;
 }
 
-cpp_int Solver::getLegalFieldCount() const
+int Solver::getLogLegalFieldCount() const
 {
-    return legalFieldCount;
+    return boost::multiprecision::log2(legalFieldCount.convert_to<boost::multiprecision::cpp_bin_float_100>()).convert_to<int>();
 }
 
 void Solver::decidePath()

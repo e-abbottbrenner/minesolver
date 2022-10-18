@@ -18,6 +18,8 @@ void MinefieldTableModel::setMinefield(QSharedPointer<Minefield> minefield)
     beginResetModel();
 
     this->minefield = minefield;
+    // this is mathematically the initial value
+    logLegalFieldCount = minefield->getWidth() * minefield->getHeight();
 
     endResetModel();
 }
@@ -106,9 +108,9 @@ const QString &MinefieldTableModel::getRecalculationStep() const
     return recalculationStep;
 }
 
-const QString &MinefieldTableModel::getLegalFieldCountLogString() const
+int MinefieldTableModel::getLogLegalFieldCount() const
 {
-    return legalFieldCountLogString;
+    return logLegalFieldCount;
 }
 
 int MinefieldTableModel::getCurrentRecalculationProgress() const
@@ -161,11 +163,9 @@ void MinefieldTableModel::emitUpdateSignalForCoords(QList<Coordinate> coords)
 void MinefieldTableModel::applyCalculationResults()
 {
     chancesToBeMine = activeSolver->getChancesToBeMine();
-    legalFieldCount = activeSolver->getLegalFieldCount();
+    logLegalFieldCount = activeSolver->getLogLegalFieldCount();
 
-    auto legalFieldCountFloat = legalFieldCount.convert_to<boost::multiprecision::cpp_bin_float_100>();
-
-    setLegalFieldCountString(QString::fromStdString(boost::multiprecision::log2(legalFieldCountFloat).str(5)));
+    emit logLegalFieldCountChanged(logLegalFieldCount);
 
     emitUpdateSignalForCoords(chancesToBeMine.keys());
 
@@ -199,15 +199,6 @@ void MinefieldTableModel::setRecalculationInProgress(bool recalculation)
         recalculationInProgress = recalculation;
 
         emit recalculationInProgressChanged(recalculation);
-    }
-}
-
-void MinefieldTableModel::setLegalFieldCountString(const QString &newLegalFieldCountString)
-{
-    if(newLegalFieldCountString != legalFieldCountLogString)
-    {
-        legalFieldCountLogString = newLegalFieldCountString;
-        emit legalFieldCountLogStringChanged(newLegalFieldCountString);
     }
 }
 

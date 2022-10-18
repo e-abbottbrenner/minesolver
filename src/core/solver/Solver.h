@@ -26,7 +26,7 @@ public:
     void computeSolution();
 
     const QHash<Coordinate, double> &getChancesToBeMine() const;
-    cpp_int getLegalFieldCount() const;
+    int getLogLegalFieldCount() const;
 
     void setLogProgress(bool newLogProgress);
 
@@ -42,7 +42,7 @@ private:
     QList<QSharedPointer<ChoiceColumn>> choiceColumns;
 
     QHash<Coordinate, double> chancesToBeMine;
-    cpp_int legalFieldCount;
+    uint512_t legalFieldCount;
 
     void decidePath();
     void buildSolutionGraph();

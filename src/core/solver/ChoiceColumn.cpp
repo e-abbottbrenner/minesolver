@@ -72,12 +72,12 @@ double ChoiceColumn::getPercentChanceToBeMine() const
     return static_cast<double>(static_cast<cpp_rational>(waysToBeMine) / (waysToBeMine + waysToBeClear));
 }
 
-cpp_int ChoiceColumn::getWaysToBeMine() const
+uint512_t ChoiceColumn::getWaysToBeMine() const
 {
     return waysToBeMine;
 }
 
-cpp_int ChoiceColumn::getWaysToBeClear() const
+uint512_t ChoiceColumn::getWaysToBeClear() const
 {
     return waysToBeClear;
 }

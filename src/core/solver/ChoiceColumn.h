@@ -6,7 +6,7 @@
 #include <QSharedPointer>
 
 #include <boost/multiprecision/cpp_int.hpp>
-using boost::multiprecision::cpp_int;
+using boost::multiprecision::uint512_t;
 
 class ChoiceNode;
 
@@ -29,8 +29,8 @@ public:
     void calculateWaysToBe(int mineCount);
 
     double getPercentChanceToBeMine() const;
-    cpp_int getWaysToBeMine() const;
-    cpp_int getWaysToBeClear() const;
+    uint512_t getWaysToBeMine() const;
+    uint512_t getWaysToBeClear() const;
 
 private:
     QHash<QByteArray, QSharedPointer<ChoiceNode>> choicesInColumn;
@@ -38,8 +38,8 @@ private:
     int x = 0;
     int y = 0;
 
-    cpp_int waysToBeMine = 0;
-    cpp_int waysToBeClear = 0;
+    uint512_t waysToBeMine = 0;
+    uint512_t waysToBeClear = 0;
 };
 
 #endif // CHOICECOLUMN_H
