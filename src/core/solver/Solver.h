@@ -38,7 +38,7 @@ private:
     QList<QSharedPointer<ChoiceColumn>> choiceColumns;
 
     QHash<Coordinate, double> chancesToBeMine;
-    uint512_t legalFieldCount;
+    cpp_int legalFieldCount;
 
     void decidePath();
     void buildSolutionGraph();
