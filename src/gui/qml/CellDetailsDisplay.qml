@@ -37,16 +37,23 @@ Rectangle {
                     text: AppState.minefieldModel.recalculationInProgress? "Calculating chances..." : "Calculation complete."
                 }
 
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+
+                    color: "white"
+                    text: AppState.minefieldModel.recalculationStep
+                }
+
                 ProgressBar {
                     width: 150
 
                     anchors.horizontalCenter: parent.horizontalCenter
 
-                    indeterminate: AppState.minefieldModel.recalculationInProgress
+                    indeterminate: AppState.minefieldModel.recalculationInProgress && AppState.minefieldModel.maxRecalculationProgress === 0
 
                     from: 0
-                    to: 1
-                    value: AppState.minefieldModel.recalculationInProgress? 0 : 1
+                    to: AppState.minefieldModel.maxRecalculationProgress
+                    value: AppState.minefieldModel.currentRecalculationProgress
                 }
             }
         }

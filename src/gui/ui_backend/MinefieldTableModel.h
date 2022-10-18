@@ -19,6 +19,9 @@ class MinefieldTableModel : public QAbstractTableModel
     QML_UNCREATABLE("QML Cannot invoke constructor")
 
     Q_PROPERTY(bool recalculationInProgress READ isRecalculationInProgress NOTIFY recalculationInProgressChanged)
+    Q_PROPERTY(int maxRecalculationProgress READ getMaxRecalculationProgress NOTIFY maxRecalculationProgressChanged)
+    Q_PROPERTY(int currentRecalculationProgress READ getCurrentRecalculationProgress NOTIFY currentRecalculationProgressChanged)
+    Q_PROPERTY(QString recalculationStep READ getRecalculationStep NOTIFY recalculationStepChanged)
 
 public:
     enum DataRoles
@@ -42,8 +45,17 @@ public:
 
     bool isRecalculationInProgress() const;
 
+    int getMaxRecalculationProgress() const;
+
+    int getCurrentRecalculationProgress() const;
+
+    const QString &getRecalculationStep() const;
+
 signals:
     void recalculationInProgressChanged(bool recalculating);
+    void maxRecalculationProgressChanged(int max);
+    void currentRecalculationProgressChanged(int progress);
+    void recalculationStepChanged(const QString& step);
 
 public slots:
     void reveal(int row, int col);
@@ -60,6 +72,12 @@ private:
 
     bool recalculationInProgress = false;
 
+    int maxRecalculationProgress = 0;
+    int currentRecalculationProgress = 0;
+    QString recalculationStep;
+
+    QList<QMetaObject::Connection> recalcProgressConnections;
+
     void calculateChances();
 
     void emitUpdateSignalForCoords(QList<Coordinate> coords);
@@ -67,6 +85,11 @@ private:
     void applyCalculationResults();
 
     void setRecalculationInProgress(bool recalculation);
+    void setMaxRecalculationProgress(int newMaxRecalculationProgress);
+    void setCurrentRecalculationProgress(int newCurrentRecalculationProgress);
+    void setRecalculationStep(const QString &newRecalculationStep);
+
+    void setActiveSolver(QSharedPointer<Solver> solver);
 };
 
 Q_DECLARE_METATYPE(MinefieldTableModel)

@@ -99,9 +99,77 @@ void MinefieldTableModel::toggleGuessMine(int row, int col)
     emit dataChanged(index(row, col), index(row, col));
 }
 
+const QString &MinefieldTableModel::getRecalculationStep() const
+{
+    return recalculationStep;
+}
+
+void MinefieldTableModel::setRecalculationStep(const QString &newRecalculationStep)
+{
+    if(recalculationStep != newRecalculationStep)
+    {
+        recalculationStep = newRecalculationStep;
+        emit recalculationStepChanged(newRecalculationStep);
+    }
+}
+
+void MinefieldTableModel::setActiveSolver(QSharedPointer<Solver> solver)
+{
+    if(activeSolver)
+    {// cancel in progress solver so they don't stack up with lots of hard calculations
+        activeSolver->cancel();
+    }
+
+    // disconnect the old solver
+    for(auto connection: recalcProgressConnections)
+    {
+        disconnect(connection);
+    }
+
+    setCurrentRecalculationProgress(0);
+    setMaxRecalculationProgress(0);
+
+    activeSolver = solver;
+
+    // connect the new solver
+    recalcProgressConnections << connect(activeSolver.data(), &Solver::progressMade, this, &MinefieldTableModel::setCurrentRecalculationProgress);
+    recalcProgressConnections << connect(activeSolver.data(), &Solver::progressMaximum, this, &MinefieldTableModel::setMaxRecalculationProgress);
+    recalcProgressConnections << connect(activeSolver.data(), &Solver::progressStep, this, &MinefieldTableModel::setRecalculationStep);
+}
+
+int MinefieldTableModel::getCurrentRecalculationProgress() const
+{
+    return currentRecalculationProgress;
+}
+
+void MinefieldTableModel::setCurrentRecalculationProgress(int newCurrentRecalculationProgress)
+{
+    if(newCurrentRecalculationProgress != currentRecalculationProgress)
+    {
+        currentRecalculationProgress = newCurrentRecalculationProgress;
+        emit currentRecalculationProgressChanged(newCurrentRecalculationProgress);
+    }
+}
+
+int MinefieldTableModel::getMaxRecalculationProgress() const
+{
+    return maxRecalculationProgress;
+}
+
+void MinefieldTableModel::setMaxRecalculationProgress(int newMaxRecalculationProgress)
+{
+    if(newMaxRecalculationProgress != maxRecalculationProgress)
+    {
+        maxRecalculationProgress = newMaxRecalculationProgress;
+        emit maxRecalculationProgressChanged(newMaxRecalculationProgress);
+    }
+}
+
 void MinefieldTableModel::calculateChances()
 {
     QSharedPointer<Solver> solver(new Solver(minefield));
+
+    setActiveSolver(solver);
 
     QFuture<QHash<Coordinate, double>> mineChancesFuture = QtConcurrent::run([solver] ()
     {
@@ -109,14 +177,7 @@ void MinefieldTableModel::calculateChances()
         return solver->getChancesToBeMine();
     });
 
-    if(activeSolver)
-    {// cancel in progress solver so they don't stack up with lots of hard calculations
-        activeSolver->cancel();
-    }
-
     mineChancesCalculationWatcher = mineChancesCalculationWatcher.create();
-
-    activeSolver = solver;
 
     connect(mineChancesCalculationWatcher.data(), &QFutureWatcher<QHash<Coordinate, double>>::finished, this, &MinefieldTableModel::applyCalculationResults);
     mineChancesCalculationWatcher->setFuture(mineChancesFuture);

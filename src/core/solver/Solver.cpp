@@ -19,6 +19,9 @@ Solver::Solver(QSharedPointer<Minefield const> minefield)
 
 void Solver::computeSolution()
 {
+    progress = 0;
+    cancelled = false;
+
     decidePath();
     buildSolutionGraph();
     analyzeSolutionGraph();
@@ -33,11 +36,16 @@ void Solver::decidePath()
 {
     CHECK_CANCELLED;
 
+    emit progressStep("Deciding path.");
+
     PathChooser chooser(minefield);
 
     chooser.decidePath();
 
     path = chooser.getPath();
+
+    // there are four computational loops that go over the path size
+    emit progressMaximum(4 * path.size());
 
     if(logProgress)
     {
@@ -48,6 +56,8 @@ void Solver::decidePath()
 void Solver::buildSolutionGraph()
 {
     CHECK_CANCELLED;
+
+    emit progressStep("Building solution graph.");
 
     choiceColumns.clear();
     chancesToBeMine.clear();
@@ -84,6 +94,8 @@ void Solver::buildSolutionGraph()
         {
             choiceNode->addSuccessorsToNextColumn(nextColumn);
         }
+
+        emit progressMade(progress++);
     }
 
     qsizetype maxColumnSize = 0;
@@ -103,6 +115,8 @@ void Solver::buildSolutionGraph()
 void Solver::analyzeSolutionGraph()
 {
     CHECK_CANCELLED;
+
+    emit progressStep("Analyzing solution graph.");
 
     if(logProgress)
     {
@@ -125,6 +139,8 @@ void Solver::analyzeSolutionGraph()
         CHECK_CANCELLED;
 
         column->precomputePathsBack(minefield->getNumMines());
+
+        emit progressMade(progress++);
     }
 
     for(auto iter = choiceColumns.rbegin(); iter != choiceColumns.rend(); ++iter)
@@ -132,6 +148,8 @@ void Solver::analyzeSolutionGraph()
         CHECK_CANCELLED;
 
         (*iter)->precomputePathsForward(minefield->getNumMines());
+
+        emit progressMade(progress++);
     }
 
     if(logProgress)
@@ -149,7 +167,11 @@ void Solver::analyzeSolutionGraph()
 
             chancesToBeMine.insert({column->getX(), column->getY()}, column->getPercentChanceToBeMine());
         }
+
+        emit progressMade(progress++);
     }
+
+    emit progressStep("Complete.");
 
     if(logProgress)
     {
