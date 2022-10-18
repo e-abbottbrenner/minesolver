@@ -2,8 +2,6 @@
 
 #include "ChoiceNode.h"
 
-using boost::multiprecision::cpp_rational;
-
 ChoiceColumn::ChoiceColumn(int x, int y)
     : x(x), y(y)
 {
@@ -69,15 +67,15 @@ void ChoiceColumn::calculateWaysToBe(int mineCount)
 
 double ChoiceColumn::getPercentChanceToBeMine() const
 {
-    return static_cast<double>(static_cast<cpp_rational>(waysToBeMine) / (waysToBeMine + waysToBeClear));
+    return static_cast<double>(waysToBeMine / (waysToBeMine + waysToBeClear));
 }
 
-cpp_int ChoiceColumn::getWaysToBeMine() const
+double ChoiceColumn::getWaysToBeMine() const
 {
     return waysToBeMine;
 }
 
-cpp_int ChoiceColumn::getWaysToBeClear() const
+double ChoiceColumn::getWaysToBeClear() const
 {
     return waysToBeClear;
 }

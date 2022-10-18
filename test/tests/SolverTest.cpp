@@ -67,8 +67,6 @@ protected:
     void analyzeNewMinefield(int seed)
     {
         QSharedPointer<Minefield> minefield(new Minefield(120, 20, 20, seed));
-        QSharedPointer<Solver> solver(new Solver(minefield));
-        solver->setLogProgress(false);
 
         QList<Coordinate> clearCoords;
 
@@ -90,6 +88,9 @@ protected:
             Coordinate coord = clearCoords.takeAt(QRandomGenerator::global()->bounded(clearCoords.size()));
             minefield->revealCell(coord.first, coord.second);
         }
+
+        QSharedPointer<Solver> solver(new Solver(minefield));
+        solver->setLogProgress(false);
 
         solver->computeSolution();
 

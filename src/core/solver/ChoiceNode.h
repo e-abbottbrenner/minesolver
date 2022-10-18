@@ -7,13 +7,9 @@
 #include <QList>
 #include <QSharedPointer>
 
-#include <boost/multiprecision/cpp_int.hpp>
-
 #include "PotentialMinefield.h"
 
 class ChoiceColumn;
-
-using boost::multiprecision::cpp_int;
 
 // this class represents a node in the powerset DAG. It has a state and edges for the DAG and its reverse
 class ChoiceNode : public QEnableSharedFromThis<ChoiceNode>
@@ -41,9 +37,9 @@ public:
 
     void calculateWaysToBe(int mineCount);
 
-    cpp_int getWaysToBeMine() const;
+    double getWaysToBeMine() const;
 
-    cpp_int getWaysToBeClear() const;
+    double getWaysToBeClear() const;
 
     bool isEndpoint() const;
     void setEndpoint(bool newEndpoint);
@@ -60,20 +56,20 @@ private:
     QWeakPointer<ChoiceNode> mineForwardEdge;
     QWeakPointer<ChoiceNode> clearForwardEdge;
 
-    QList<cpp_int> pathsForward;
-    QList<cpp_int> pathsBack;
+    QList<double> pathsForward;
+    QList<double> pathsBack;
 
-    cpp_int waysToBeMine = 0;
-    cpp_int waysToBeClear = 0;
+    double waysToBeMine = 0;
+    double waysToBeClear = 0;
 
     bool endpoint = false;
 
     void tryAddEdge(QSharedPointer<ChoiceColumn> column, const PotentialMinefield& minefield, int cost);
     void linkTarget(QSharedPointer<ChoiceNode> edgeTarget, int cost);
 
-    cpp_int findPathsForward(int mineCount) const;
-    cpp_int findPathsBack(int mineCount) const;
-    cpp_int findPaths(int mineCount, bool forward) const;
+    double findPathsForward(int mineCount) const;
+    double findPathsBack(int mineCount) const;
+    double findPaths(int mineCount, bool forward) const;
 
     void precomputePaths(int mineCount, bool forward);
 };

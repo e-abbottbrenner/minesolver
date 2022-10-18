@@ -42,7 +42,7 @@ private:
 
     QHash<Coordinate, double> chancesToBeMine;
     QHash<Coordinate, int> columnCounts;
-    cpp_int legalFieldCount;
+    double legalFieldCount;
 
     void decidePath();
     void buildSolutionGraph();

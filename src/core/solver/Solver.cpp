@@ -7,7 +7,6 @@
 #include "ProgressProxy.h"
 
 #include <algorithm>
-#include <boost/multiprecision/cpp_bin_float.hpp>
 #include <QDebug>
 
 #define CHECK_CANCELLED if(cancelled) return;
@@ -41,7 +40,7 @@ const QHash<Coordinate, int> &Solver::getColumnCounts() const
 
 int Solver::getLogLegalFieldCount() const
 {
-    return boost::multiprecision::log2(legalFieldCount.convert_to<boost::multiprecision::cpp_bin_float_100>()).convert_to<int>();
+    return std::log2(legalFieldCount);
 }
 
 int Solver::getPathIndex(const Coordinate &coord) const
