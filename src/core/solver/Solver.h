@@ -59,6 +59,8 @@ private:
     int numMines = 0;
 
     QSharedPointer<ProgressProxy> progress;
+
+    void prepareStartingMinefield(const QHash<Coordinate, double> &previousMineChances);
 };
 
 #endif // SOLVER_H

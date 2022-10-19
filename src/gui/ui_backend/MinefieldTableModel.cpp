@@ -172,7 +172,7 @@ int MinefieldTableModel::getMaxRecalculationProgress() const
 
 void MinefieldTableModel::calculateChances()
 {
-    QSharedPointer<Solver> solver(new Solver(minefield));
+    QSharedPointer<Solver> solver(new Solver(minefield, finishedSolver? finishedSolver->getChancesToBeMine() : QHash<Coordinate, double>{}));
 
     setActiveSolver(solver);
 

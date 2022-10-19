@@ -11,12 +11,21 @@
 
 #define CHECK_CANCELLED if(cancelled) return;
 
-Solver::Solver(QSharedPointer<Minefield const> gameMinefield, QHash<Coordinate, double> /*previousMineChances*/)
+Solver::Solver(QSharedPointer<Minefield const> gameMinefield, QHash<Coordinate, double> previousMineChances)
     : startingMinefield(gameMinefield->getRevealedMinefield(), gameMinefield->getWidth(), gameMinefield->getHeight()),
       numMines(gameMinefield->getNumMines())
     // clone the passed in minefield so this is thread safe with multiple solves vs the same field
 {
+    cancelled = false;
+
+    choiceColumns.clear();
+    columnCounts.clear();
+    chancesToBeMine.clear();
+    legalFieldCount = 0;
+
     progress = progress.create();
+
+    prepareStartingMinefield(previousMineChances);
 }
 
 Solver::~Solver()
@@ -25,14 +34,6 @@ Solver::~Solver()
 
 void Solver::computeSolution()
 {
-    progress->reset();
-    cancelled = false;
-
-    choiceColumns.clear();
-    columnCounts.clear();
-    chancesToBeMine.clear();
-    legalFieldCount = 0;
-
     decidePath();
     buildSolutionGraph();
     analyzeSolutionGraph();
@@ -201,7 +202,8 @@ void Solver::analyzeSolutionGraph()
         progress->incrementProgress();
     }
 
-    legalFieldCount = choiceColumns.first()->getWaysToBeClear() + choiceColumns.first()->getWaysToBeMine();
+    // if all mines are known and passed in as previous state, it's possible for there to only be one choice column at (-1, -1)
+    legalFieldCount = std::max(1.0, choiceColumns.first()->getWaysToBeClear() + choiceColumns.first()->getWaysToBeMine());
 
     progress->emitProgressStep("Complete.");
 
@@ -209,6 +211,28 @@ void Solver::analyzeSolutionGraph()
     {
         qDebug() << "processed" << choiceColumns.size();
         qDebug() << "analysis complete";
+    }
+}
+
+void Solver::prepareStartingMinefield(const QHash<Coordinate, double>& previousMineChances)
+{
+    auto coords = previousMineChances.keys();
+
+    for(const auto& coord : coords)
+    {
+        // for clear cells, we only do this if they haven't already been eliminated by becoming count cells
+        if(previousMineChances[coord] == 0 && startingMinefield.getCell(coord.first, coord.second) < 0)
+        {
+            chancesToBeMine[coord] = 0;
+            startingMinefield = startingMinefield.chooseClear(coord.first, coord.second);
+        }
+
+        if(previousMineChances[coord] == 1)
+        {
+            chancesToBeMine[coord] = 1;
+            startingMinefield = startingMinefield.chooseMine(coord.first, coord.second);
+            numMines--;
+        }
     }
 }
 
