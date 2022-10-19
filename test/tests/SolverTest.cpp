@@ -69,27 +69,55 @@ protected:
         QSharedPointer<Minefield> minefield(new Minefield(120, 40, 10, seed));
 
         QList<Coordinate> clearCoords;
+        QList<Coordinate> mineCoords;
+
+        minefield->populateMinefield(QRandomGenerator::global()->bounded(minefield->getWidth()),
+                                     QRandomGenerator::global()->bounded(minefield->getHeight()));
 
         for(int x = 0; x < minefield->getWidth(); x++)
         {
             for(int y = 0; y < minefield->getHeight(); ++y)
             {
-                if(minefield->getUnderlyingCell(x, y) != SpecialStatus::Mine)
+                if(minefield->getUnderlyingCell(x, y) == SpecialStatus::Mine)
+                {
+                    mineCoords.append({x, y});
+                }
+                else
                 {
                     clearCoords.append({x, y});
                 }
             }
         }
 
-        int loops = QRandomGenerator::global()->bounded(1, 10);
+        QHash<Coordinate, double> previousChanceToBeMine;
 
-        for(int i = 1; i <= loops; ++i)
+        int revealIterations = QRandomGenerator::global()->bounded(0, 10);
+
+        for(int i = 0; i <= revealIterations; ++i)
         {// reveal some random clear cells to start, this should create more variety in the states than just revealing one
             Coordinate coord = clearCoords.takeAt(QRandomGenerator::global()->bounded(clearCoords.size()));
             minefield->revealCell(coord.first, coord.second);
+            // these should have no effect, but add them to confirm
+            previousChanceToBeMine.insert({coord.first, coord.second}, 0);
         }
 
-        QSharedPointer<Solver> solver(new Solver(minefield));
+        int previouslyClearIterations = QRandomGenerator::global()->bounded(0, 5);
+
+        for(int i = 0; i <= previouslyClearIterations; ++i)
+        {// reveal some random clear cells to start, this should create more variety in the states than just revealing one
+            Coordinate coord = clearCoords.takeAt(QRandomGenerator::global()->bounded(clearCoords.size()));
+            previousChanceToBeMine.insert({coord.first, coord.second}, 0);
+        }
+
+        int previouslyMineIterations = QRandomGenerator::global()->bounded(0, 5);
+
+        for(int i = 0; i <= previouslyMineIterations; ++i)
+        {// reveal some random clear cells to start, this should create more variety in the states than just revealing one
+            Coordinate coord = mineCoords.takeAt(QRandomGenerator::global()->bounded(mineCoords.size()));
+            previousChanceToBeMine.insert({coord.first, coord.second}, 1);
+        }
+
+        QSharedPointer<Solver> solver(new Solver(minefield, previousChanceToBeMine));
         solver->setLogProgress(false);
 
         solver->computeSolution();

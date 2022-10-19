@@ -18,6 +18,8 @@ class Minefield : public QObject, public TraversableGrid
 public:
     explicit Minefield(int numMines, int width, int height, int seed, QObject *parent = 0);
 
+    void populateMinefield(int originX, int originY);
+
     QList<Coordinate> revealAdjacents(int x, int y);
     QList<Coordinate> revealCell(int x, int y);
     void toggleGuessMine(int x, int y);
@@ -38,7 +40,6 @@ signals:
     void mineHit();
 
 private:
-    void populateMinefield(int originX, int originY);
     QList<Coordinate> recursiveReveal(int x, int y);
 
     QList<Coordinate> revealAll();
