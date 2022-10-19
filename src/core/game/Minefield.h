@@ -35,6 +35,8 @@ public:
 
     ~Minefield();
 
+    bool isPopulated() const;
+
 signals:
     void cellUpdated(int x, int y);
     void mineHit();

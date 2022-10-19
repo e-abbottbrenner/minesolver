@@ -217,6 +217,11 @@ QList<Coordinate> Minefield::revealAll()
     return coordsRevealed;
 }
 
+bool Minefield::isPopulated() const
+{
+    return populated;
+}
+
 int Minefield::getNumMines() const
 {
     return numMines;

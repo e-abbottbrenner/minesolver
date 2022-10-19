@@ -24,6 +24,8 @@ class MinefieldTableModel : public QAbstractTableModel
     Q_PROPERTY(QString recalculationStep READ getRecalculationStep NOTIFY recalculationStepChanged)
     Q_PROPERTY(int logLegalFieldCount READ getLogLegalFieldCount NOTIFY logLegalFieldCountChanged)
     Q_PROPERTY(double bestMineChance READ getBestMineChance NOTIFY bestMineChanceChanged)
+    Q_PROPERTY(bool autoSolve WRITE setAutoSolve)
+    Q_PROPERTY(double cumulativeRiskOfLoss READ getCumulativeRiskOfLoss NOTIFY cumulativeRiskOfLossChanged)
 
 public:
     enum DataRoles
@@ -61,6 +63,10 @@ public:
 
     double getBestMineChance() const;
 
+    void setAutoSolve(bool newAutoSolve);
+
+    double getCumulativeRiskOfLoss() const;
+
 signals:
     void recalculationInProgressChanged(bool recalculating);
     void maxRecalculationProgressChanged(int max);
@@ -68,6 +74,7 @@ signals:
     void recalculationStepChanged(const QString& step);
     void logLegalFieldCountChanged(int logFieldCount);
     void bestMineChanceChanged(double mineChance);
+    void cumulativeRiskOfLossChanged(double risk);
 
 public slots:
     void reveal(int row, int col);
@@ -91,6 +98,10 @@ private:
 
     double bestMineChance = 0;
 
+    double cumulativeRiskOfLoss = 0;
+
+    bool autoSolve = false;
+
     QList<QMetaObject::Connection> recalcProgressConnections;
 
     QList<Coordinate> getOptimalCells() const;
@@ -105,6 +116,7 @@ private:
     void setMaxRecalculationProgress(int newMaxRecalculationProgress);
     void setCurrentRecalculationProgress(int newCurrentRecalculationProgress);
     void setRecalculationStep(const QString &newRecalculationStep);
+    void setCumulativeRiskOfLoss(double risk);
 
     void setActiveSolver(QSharedPointer<Solver> solver);
 };

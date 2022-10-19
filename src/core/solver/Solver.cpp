@@ -13,7 +13,7 @@
 
 Solver::Solver(QSharedPointer<Minefield const> gameMinefield, QHash<Coordinate, double> previousMineChances)
     : startingMinefield(gameMinefield->getRevealedMinefield(), gameMinefield->getWidth(), gameMinefield->getHeight()),
-      numMines(gameMinefield->getNumMines())
+      numMines(gameMinefield->getNumMines()), minefieldPopulated(gameMinefield->isPopulated())
     // clone the passed in minefield so this is thread safe with multiple solves vs the same field
 {
     cancelled = false;
@@ -204,6 +204,11 @@ void Solver::analyzeSolutionGraph()
 
     // if all mines are known and passed in as previous state, it's possible for there to only be one choice column at (-1, -1)
     legalFieldCount = std::max(1.0, choiceColumns.first()->getWaysToBeClear() + choiceColumns.first()->getWaysToBeMine());
+
+    if(!minefieldPopulated)
+    {// if the minefield was unpopulated there's actually no chance to get a mine because the first click is guaranteed to be not a mine
+        chancesToBeMine.clear();
+    }
 
     progress->emitProgressStep("Complete.");
 

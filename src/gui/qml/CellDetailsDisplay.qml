@@ -111,6 +111,14 @@ Rectangle {
 
                 visible: AppState.showSolution
             }
+
+            Text {
+                anchors.left: parent.left
+
+                color: "white"
+
+                text: "Cumulative risk of loss: " + (AppState.minefieldModel.cumulativeRiskOfLoss * 100).toFixed(2) + "%"
+            }
         }
 
         Button {
@@ -119,6 +127,16 @@ Rectangle {
             text: "Reveal optimal cell"
 
             onClicked: { AppState.minefieldModel.revealOptimalCell() }
+
+            visible: AppState.showSolution
+        }
+
+        Button {
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            text: "Auto solve"
+
+            onClicked: { AppState.minefieldModel.autoSolve = true }
 
             visible: AppState.showSolution
         }

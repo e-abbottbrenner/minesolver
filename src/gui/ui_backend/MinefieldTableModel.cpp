@@ -84,6 +84,12 @@ bool MinefieldTableModel::isRecalculationInProgress() const
 
 void MinefieldTableModel::reveal(int row, int col)
 {
+    if(finishedSolver)
+    {
+        // 1 - chance to get past all the cells that were guesswork
+        setCumulativeRiskOfLoss(1 - (1 - cumulativeRiskOfLoss) * (1 - finishedSolver->getChancesToBeMine()[{col, row}]));
+    }
+
     auto coordsRevealed = minefield->revealCell(col, row);
 
     emitUpdateSignalForCoords(coordsRevealed);
@@ -109,7 +115,7 @@ void MinefieldTableModel::toggleGuessMine(int row, int col)
 
 void MinefieldTableModel::revealOptimalCell()
 {
-    if(finishedSolver && !activeSolver)
+    if(finishedSolver && !activeSolver && bestMineChance < 1)
     {
         for(const auto &bestCoord : getOptimalCells())
         {
@@ -183,6 +189,24 @@ double MinefieldTableModel::getBestMineChance() const
     return bestMineChance;
 }
 
+void MinefieldTableModel::setAutoSolve(bool newAutoSolve)
+{
+    if(newAutoSolve != autoSolve)
+    {
+        autoSolve = newAutoSolve;
+
+        if(autoSolve)
+        {
+            revealOptimalCell();
+        }
+    }
+}
+
+double MinefieldTableModel::getCumulativeRiskOfLoss() const
+{
+    return cumulativeRiskOfLoss;
+}
+
 int MinefieldTableModel::getCurrentRecalculationProgress() const
 {
     return currentRecalculationProgress;
@@ -244,6 +268,11 @@ void MinefieldTableModel::applyCalculationResults()
     mineChancesCalculationWatcher.clear();
     activeSolver.clear();
     setRecalculationInProgress(false);
+
+    if(autoSolve)
+    {
+        revealOptimalCell();
+    }
 }
 
 void MinefieldTableModel::setRecalculationStep(const QString &newRecalculationStep)
@@ -252,6 +281,16 @@ void MinefieldTableModel::setRecalculationStep(const QString &newRecalculationSt
     {
         recalculationStep = newRecalculationStep;
         emit recalculationStepChanged(newRecalculationStep);
+    }
+}
+
+void MinefieldTableModel::setCumulativeRiskOfLoss(double risk)
+{
+    if(risk != cumulativeRiskOfLoss)
+    {
+        cumulativeRiskOfLoss = risk;
+
+        emit cumulativeRiskOfLossChanged(risk);
     }
 }
 
