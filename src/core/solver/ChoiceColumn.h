@@ -1,6 +1,8 @@
 #ifndef CHOICECOLUMN_H
 #define CHOICECOLUMN_H
 
+#include "SolverFloat.h"
+
 #include <QByteArray>
 #include <QHash>
 #include <QSharedPointer>
@@ -26,8 +28,8 @@ public:
     void calculateWaysToBe(int mineCount);
 
     double getPercentChanceToBeMine() const;
-    double getWaysToBeMine() const;
-    double getWaysToBeClear() const;
+    SolverFloat getWaysToBeMine() const;
+    SolverFloat getWaysToBeClear() const;
 
 private:
     QHash<QByteArray, QSharedPointer<ChoiceNode>> choicesInColumn;
@@ -35,8 +37,8 @@ private:
     int x = 0;
     int y = 0;
 
-    double waysToBeMine = 0;
-    double waysToBeClear = 0;
+    SolverFloat waysToBeMine = 0;
+    SolverFloat waysToBeClear = 0;
 };
 
 #endif // CHOICECOLUMN_H

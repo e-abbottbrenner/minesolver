@@ -37,27 +37,30 @@ QVariant MinefieldTableModel::data(const QModelIndex &index, int role) const
     int x = index.column();
     int y = index.row();
 
-    MineStatus mineStatus = minefield->getCell(x, y);
-
-    switch(role)
+    if(x >= 0 && y >= 0 && x < minefield->getWidth() && y < minefield->getHeight())
     {
-    case CountRole:
-        return mineStatus;
-        break;
-    case MineRole:
-        return SpecialStatus::Mine == mineStatus;
-        break;
-    case GuessMineRole:
-        return SpecialStatus::GuessMine == mineStatus;
-    case ChanceToBeMineRole:
-        return finishedSolver? finishedSolver->getChancesToBeMine().value({x, y}, 0) : 0;
-        break;
-    case ChoiceColumnCountRole:
-        return finishedSolver? finishedSolver->getColumnCounts().value({x, y}, 0) : 0;
-    case SolverPathIndexRole:
-        return finishedSolver? finishedSolver->getPathIndex({x, y}) : -1;
-    default:
-        break;
+        MineStatus mineStatus = minefield->getCell(x, y);
+
+        switch(role)
+        {
+        case CountRole:
+            return mineStatus;
+            break;
+        case MineRole:
+            return SpecialStatus::Mine == mineStatus;
+            break;
+        case GuessMineRole:
+            return SpecialStatus::GuessMine == mineStatus;
+        case ChanceToBeMineRole:
+            return finishedSolver? finishedSolver->getChancesToBeMine().value({x, y}, 0) : 0;
+            break;
+        case ChoiceColumnCountRole:
+            return finishedSolver? finishedSolver->getColumnCounts().value({x, y}, 0) : 0;
+        case SolverPathIndexRole:
+            return finishedSolver? finishedSolver->getPathIndex({x, y}) : -1;
+        default:
+            break;
+        }
     }
 
     return {};
@@ -126,34 +129,40 @@ void MinefieldTableModel::revealOptimalCell()
 
 QList<Coordinate> MinefieldTableModel::getOptimalCells() const
 {
-    auto chances = finishedSolver->getChancesToBeMine();
-
-    auto coords = chances.keys();
-
-    Coordinate bestCoord{0, 0};
-    double bestChance = 1;
-
-    QList<Coordinate> zeroCoords;
-
-    for(const Coordinate &coord: coords)
+    if(minefield->isPopulated())
     {
-        if(chances[coord] == 0)
-        {// 0 is always best
-            zeroCoords.append(coord);
-        }
-        else if(bestChance >= chances[coord])
+        auto chances = finishedSolver->getChancesToBeMine();
+
+        // order is random, that's basically what we want though
+        auto coords = chances.keys();
+
+        QList<Coordinate> bestCoords;
+        double bestChance = 1;
+
+        for(const Coordinate &coord: coords)
         {
-            bestChance = chances[coord];
-            bestCoord = coord;
+            if(bestChance > chances[coord])
+            {
+                bestChance = chances[coord];
+                bestCoords = {coord};
+            }
+            else if(bestChance == chances[coord])
+            {
+                bestCoords.append(coord);
+            }
         }
-    }
 
-    if(zeroCoords.isEmpty())
-    {// pick one with the lowest odds if there aren't any zero odd cells
-        return {bestCoord};
-    }
+        if(bestChance > 0 && bestCoords.size() > 0)
+        {// pick a random one with the lowest odds if we didn't get to 0
+            return {bestCoords[QRandomGenerator::global()->bounded(bestCoords.size())]};
+        }
 
-    return zeroCoords;
+        return bestCoords;
+    }
+    else
+    {
+        return {{QRandomGenerator::global()->bounded(minefield->getWidth()), QRandomGenerator::global()->bounded(minefield->getHeight())}};
+    }
 }
 
 const QString &MinefieldTableModel::getRecalculationStep() const
@@ -258,8 +267,13 @@ void MinefieldTableModel::applyCalculationResults()
 {
     finishedSolver = activeSolver;
 
-    bestMineChance = finishedSolver->getChancesToBeMine()[getOptimalCells().constFirst()];
-    emit bestMineChanceChanged(bestMineChance);
+    auto optimalCells = getOptimalCells();
+
+    if(optimalCells.size() > 0)
+    {
+        bestMineChance = finishedSolver->getChancesToBeMine()[optimalCells.constFirst()];
+        emit bestMineChanceChanged(bestMineChance);
+    }
 
     emit logLegalFieldCountChanged(getLogLegalFieldCount());
 

@@ -54,7 +54,7 @@ const QHash<Coordinate, int> &Solver::getColumnCounts() const
 
 int Solver::getLogLegalFieldCount() const
 {
-    return std::log2(legalFieldCount);
+    return boost::multiprecision::log2(legalFieldCount).convert_to<int>();
 }
 
 int Solver::getPathIndex(const Coordinate &coord) const
@@ -203,7 +203,7 @@ void Solver::analyzeSolutionGraph()
     }
 
     // if all mines are known and passed in as previous state, it's possible for there to only be one choice column at (-1, -1)
-    legalFieldCount = std::max(1.0, choiceColumns.first()->getWaysToBeClear() + choiceColumns.first()->getWaysToBeMine());
+    legalFieldCount = std::max(static_cast<SolverFloat>(1), choiceColumns.first()->getWaysToBeClear() + choiceColumns.first()->getWaysToBeMine());
 
     if(!minefieldPopulated)
     {// if the minefield was unpopulated there's actually no chance to get a mine because the first click is guaranteed to be not a mine

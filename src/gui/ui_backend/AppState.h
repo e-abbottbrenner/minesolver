@@ -35,7 +35,7 @@ signals:
 private:
     QSharedPointer<Minefield> minefield;
 
-    bool showSolution = false;
+    bool showSolution = true;
 
     // exposed to QML so we use Qt's object ownership system instead of smart pointers
     MinefieldTableModel *minefieldModel = nullptr;

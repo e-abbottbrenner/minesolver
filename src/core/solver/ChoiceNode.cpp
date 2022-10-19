@@ -82,8 +82,8 @@ void ChoiceNode::linkTarget(QSharedPointer<ChoiceNode> edgeTarget, int cost)
 void ChoiceNode::calculateWaysToBe(int mineCount)
 {
     // we count paths in the graph with a fixed total cost to see how many ways this choice could be a mine in valid configurations of the minefield
-    QList<double> totalWaysToBeMineForForwardMineCount;
-    QList<double> totalWaysToBeClearForForwardMineCount;
+    QList<SolverFloat> totalWaysToBeMineForForwardMineCount;
+    QList<SolverFloat> totalWaysToBeClearForForwardMineCount;
 
     // the mineCount input is how many total mines will distribute throughout the graph
     // since we have to distribute them before and after this choice, so we need to loop across all possible distributions
@@ -94,32 +94,32 @@ void ChoiceNode::calculateWaysToBe(int mineCount)
 
         // first we find the paths using mines forward
         // if i == 0, this will be fine because the function will see there are no paths forward      
-        double pathsForwardIfMine = mineForwardEdgeStrong? mineForwardEdgeStrong->findPathsForward(i - 1) : 0;
-        double pathsForwardIfClear = clearFowardEdgeStrong? clearFowardEdgeStrong->findPathsForward(i) : 0;
+        SolverFloat pathsForwardIfMine = mineForwardEdgeStrong? mineForwardEdgeStrong->findPathsForward(i - 1) : 0;
+        SolverFloat pathsForwardIfClear = clearFowardEdgeStrong? clearFowardEdgeStrong->findPathsForward(i) : 0;
 
         // then we find the opposite count of paths using mines that go back to the start node
-        double pathsBack = findPathsBack(mineCount - i);
+        SolverFloat pathsBack = findPathsBack(mineCount - i);
 
         // these paths combine multiplicatively
-        double waysToBeMine = pathsBack * pathsForwardIfMine;
-        double waysToBeClear = pathsBack * pathsForwardIfClear;
+        SolverFloat waysToBeMine = pathsBack * pathsForwardIfMine;
+        SolverFloat waysToBeClear = pathsBack * pathsForwardIfClear;
 
         totalWaysToBeMineForForwardMineCount.append(waysToBeMine);
         totalWaysToBeClearForForwardMineCount.append(waysToBeClear);
     }
 
-    auto sum = [] (const QList<double>& list) { double result = 0; for(const double &i : list) result += i; return result; };
+    auto sum = [] (const QList<SolverFloat>& list) { SolverFloat result = 0; for(const SolverFloat &i : list) result += i; return result; };
 
     waysToBeMine = sum(totalWaysToBeMineForForwardMineCount);
     waysToBeClear = sum(totalWaysToBeClearForForwardMineCount);
 }
 
-double ChoiceNode::getWaysToBeMine() const
+SolverFloat ChoiceNode::getWaysToBeMine() const
 {
     return waysToBeMine;
 }
 
-double ChoiceNode::getWaysToBeClear() const
+SolverFloat ChoiceNode::getWaysToBeClear() const
 {
     return waysToBeClear;
 }
@@ -134,17 +134,17 @@ void ChoiceNode::setEndpoint(bool newEndpoint)
     endpoint = newEndpoint;
 }
 
-double ChoiceNode::findPathsForward(int mineCount) const
+SolverFloat ChoiceNode::findPathsForward(int mineCount) const
 {
     return findPaths(mineCount, true);
 }
 
-double ChoiceNode::findPathsBack(int mineCount) const
+SolverFloat ChoiceNode::findPathsBack(int mineCount) const
 {
     return findPaths(mineCount, false);
 }
 
-double ChoiceNode::findPaths(int mineCount, bool forward) const
+SolverFloat ChoiceNode::findPaths(int mineCount, bool forward) const
 {
     if(mineCount < 0)
     {// no valid path, used too much cost
@@ -157,7 +157,7 @@ double ChoiceNode::findPaths(int mineCount, bool forward) const
         return mineCount == 0 && isEndpoint()? 1 : 0;
     }
 
-    double sumOfEdges = 0;
+    SolverFloat sumOfEdges = 0;
 
     for(const Edge &edge : forward? edgesForward : edgesBack)
     {

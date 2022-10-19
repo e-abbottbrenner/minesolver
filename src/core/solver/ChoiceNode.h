@@ -7,6 +7,7 @@
 #include <QList>
 #include <QSharedPointer>
 
+#include "SolverFloat.h"
 #include "SolverMinefield.h"
 
 class ChoiceColumn;
@@ -37,9 +38,9 @@ public:
 
     void calculateWaysToBe(int mineCount);
 
-    double getWaysToBeMine() const;
+    SolverFloat getWaysToBeMine() const;
 
-    double getWaysToBeClear() const;
+    SolverFloat getWaysToBeClear() const;
 
     bool isEndpoint() const;
     void setEndpoint(bool newEndpoint);
@@ -56,20 +57,20 @@ private:
     QWeakPointer<ChoiceNode> mineForwardEdge;
     QWeakPointer<ChoiceNode> clearForwardEdge;
 
-    QList<double> pathsForward;
-    QList<double> pathsBack;
+    QList<SolverFloat> pathsForward;
+    QList<SolverFloat> pathsBack;
 
-    double waysToBeMine = 0;
-    double waysToBeClear = 0;
+    SolverFloat waysToBeMine = 0;
+    SolverFloat waysToBeClear = 0;
 
     bool endpoint = false;
 
     void tryAddEdge(QSharedPointer<ChoiceColumn> column, const SolverMinefield& minefield, int cost);
     void linkTarget(QSharedPointer<ChoiceNode> edgeTarget, int cost);
 
-    double findPathsForward(int mineCount) const;
-    double findPathsBack(int mineCount) const;
-    double findPaths(int mineCount, bool forward) const;
+    SolverFloat findPathsForward(int mineCount) const;
+    SolverFloat findPathsBack(int mineCount) const;
+    SolverFloat findPaths(int mineCount, bool forward) const;
 
     void precomputePaths(int mineCount, bool forward);
 };

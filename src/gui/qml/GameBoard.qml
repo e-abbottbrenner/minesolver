@@ -17,7 +17,7 @@ TableView {
     property int hoveredSolverPathIndex: -1
     property int hoveredIndex: -1
 
-    readonly property int cellSize: 30
+    property int cellSize: Math.min(900 / columns, 600 / rows)
 
     implicitWidth: columns * cellSize
     implicitHeight: rows * cellSize
@@ -55,7 +55,7 @@ TableView {
             anchors.fill: parent
 
             visible: isMine
-            anchors.margins: 5
+            anchors.margins: 1
         }
 
         Rectangle {
@@ -63,7 +63,7 @@ TableView {
             anchors.fill: parent
 
             visible: guessMine
-            anchors.margins: 5
+            anchors.margins: 1
         }
 
         Rectangle {
@@ -71,7 +71,7 @@ TableView {
             anchors.fill: parent
 
             visible: chanceMine > 0 && AppState.showSolution
-            anchors.margins: 10
+            anchors.margins: 3
         }
 
         Rectangle {

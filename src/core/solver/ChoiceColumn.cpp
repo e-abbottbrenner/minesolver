@@ -67,15 +67,16 @@ void ChoiceColumn::calculateWaysToBe(int mineCount)
 
 double ChoiceColumn::getPercentChanceToBeMine() const
 {
-    return waysToBeMine / (waysToBeMine + waysToBeClear);
+    // cast in case we rework the type again to be larger than a normal double
+    return static_cast<double>(waysToBeMine / (waysToBeMine + waysToBeClear));
 }
 
-double ChoiceColumn::getWaysToBeMine() const
+SolverFloat ChoiceColumn::getWaysToBeMine() const
 {
     return waysToBeMine;
 }
 
-double ChoiceColumn::getWaysToBeClear() const
+SolverFloat ChoiceColumn::getWaysToBeClear() const
 {
     return waysToBeClear;
 }

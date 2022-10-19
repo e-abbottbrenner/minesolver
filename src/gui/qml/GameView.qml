@@ -10,9 +10,6 @@ Row
 
         GameBoard {
             id: gameBoard
-
-            Layout.maximumWidth: 900
-            Layout.maximumHeight: 600
         }
     }
 
