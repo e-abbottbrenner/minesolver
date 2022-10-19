@@ -15,6 +15,7 @@ TableView {
     property int hoveredPercentMine: -1
     property int hoveredChoiceColumnCount: -1
     property int hoveredSolverPathIndex: -1
+    property int hoveredIndex: -1
 
     readonly property int cellSize: 30
 
@@ -37,9 +38,6 @@ TableView {
             onEntered: {
                 minefieldTable.hoveredRow = row
                 minefieldTable.hoveredColumn = column
-                minefieldTable.hoveredPercentMine = 100 * chanceMine
-                minefieldTable.hoveredChoiceColumnCount = choiceColumnCount
-                minefieldTable.hoveredSolverPathIndex = solverPathIndex
             }
         }
 
@@ -69,10 +67,10 @@ TableView {
         }
 
         Rectangle {
-            color: Qt.rgba(1, 0.5, 0, chanceMine)
+            color: Qt.rgba(1, 0.5, 0, chanceMine * 0.75 + 0.25)
             anchors.fill: parent
 
-            visible: true
+            visible: chanceMine > 0
             anchors.margins: 10
         }
 

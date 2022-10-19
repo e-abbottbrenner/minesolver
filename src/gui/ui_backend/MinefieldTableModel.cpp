@@ -151,6 +151,23 @@ int MinefieldTableModel::getLogLegalFieldCount() const
     return finishedSolver? finishedSolver->getLogLegalFieldCount() : -1;
 }
 
+int MinefieldTableModel::roleForName(const QString &roleName) const
+{
+    auto roleNames = this->roleNames();
+
+    auto roles = roleNames.keys();
+
+    for(int role: roles)
+    {
+        if(roleNames[role] == roleName)
+        {
+            return role;
+        }
+    }
+
+    return -1;
+}
+
 int MinefieldTableModel::getCurrentRecalculationProgress() const
 {
     return currentRecalculationProgress;

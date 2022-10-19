@@ -10,9 +10,10 @@ Rectangle {
 
     property int row: -1
     property int column: -1
-    property int percentMine: -1
-    property int choiceColumnCount: -1
-    property int solverPathIndex: -1
+
+    function modelData(roleName) {
+        return AppState.minefieldModel.data(AppState.minefieldModel.index(row, column), AppState.minefieldModel.roleForName(roleName))
+    }
 
     Column {
         anchors.top: parent.top
@@ -70,7 +71,9 @@ Rectangle {
                 anchors.left: parent.left
 
                 color: "white"
-                text: "Cell Info:\nPosition: " + row + ", " + column + "\nMine Chance: " + percentMine + "%\nLegal minefield count: 2^" + AppState.minefieldModel.logLegalFieldCount
+                text: "Cell Info:\nPosition: " + row + ", " + column +
+                      "\nMine Chance: " + (modelData("chanceMine") * 100).toFixed(2)
+                      + "%\nLegal minefield count: 2^" + AppState.minefieldModel.logLegalFieldCount
             }
 
             Text {
@@ -78,7 +81,9 @@ Rectangle {
 
                 color: "white"
 
-                text: "Solver metrics:\nChoice columns: " + choiceColumnCount + "\nPath Index: " + solverPathIndex
+                text: "Solver metrics:\nChoice columns: "
+                      + modelData("choiceColumnCount") + "\nPath Index: "
+                      + modelData("solverPathIndex")
             }
         }
 

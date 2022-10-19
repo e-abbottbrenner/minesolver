@@ -56,6 +56,8 @@ public:
 
     int getLogLegalFieldCount() const;
 
+    Q_INVOKABLE int roleForName(const QString& roleName) const;
+
 signals:
     void recalculationInProgressChanged(bool recalculating);
     void maxRecalculationProgressChanged(int max);
