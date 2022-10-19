@@ -23,6 +23,7 @@ class MinefieldTableModel : public QAbstractTableModel
     Q_PROPERTY(int currentRecalculationProgress READ getCurrentRecalculationProgress NOTIFY currentRecalculationProgressChanged)
     Q_PROPERTY(QString recalculationStep READ getRecalculationStep NOTIFY recalculationStepChanged)
     Q_PROPERTY(int logLegalFieldCount READ getLogLegalFieldCount NOTIFY logLegalFieldCountChanged)
+    Q_PROPERTY(double bestMineChance READ getBestMineChance NOTIFY bestMineChanceChanged)
 
 public:
     enum DataRoles
@@ -58,12 +59,15 @@ public:
 
     Q_INVOKABLE int roleForName(const QString& roleName) const;
 
+    double getBestMineChance() const;
+
 signals:
     void recalculationInProgressChanged(bool recalculating);
     void maxRecalculationProgressChanged(int max);
     void currentRecalculationProgressChanged(int progress);
     void recalculationStepChanged(const QString& step);
     void logLegalFieldCountChanged(int logFieldCount);
+    void bestMineChanceChanged(double mineChance);
 
 public slots:
     void reveal(int row, int col);
@@ -85,7 +89,11 @@ private:
     int currentRecalculationProgress = 0;
     QString recalculationStep;
 
+    double bestMineChance = 0;
+
     QList<QMetaObject::Connection> recalcProgressConnections;
+
+    QList<Coordinate> getOptimalCells() const;
 
     void calculateChances();
 

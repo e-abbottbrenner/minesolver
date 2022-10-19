@@ -21,6 +21,14 @@ Rectangle {
 
         spacing: 20
 
+        Button {
+            text: "Toggle show solution"
+
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            onClicked: { AppState.showSolution = !AppState.showSolution }
+        }
+
         Item {
 
             anchors.horizontalCenter: parent.horizontalCenter
@@ -71,19 +79,37 @@ Rectangle {
                 anchors.left: parent.left
 
                 color: "white"
-                text: "Cell Info:\nPosition: " + row + ", " + column +
-                      "\nMine Chance: " + (modelData("chanceMine") * 100).toFixed(2)
-                      + "%\nLegal minefield count: 2^" + AppState.minefieldModel.logLegalFieldCount
+                text: "Legal minefield count: 2^" + AppState.minefieldModel.logLegalFieldCount
             }
 
             Text {
                 anchors.left: parent.left
 
                 color: "white"
+                text: "Cell Info:\nPosition: " + row + ", " + column +
+                      "\nMine Chance: " + (modelData("chanceMine") * 100).toFixed(2) + "%"
 
-                text: "Solver metrics:\nChoice columns: "
-                      + modelData("choiceColumnCount") + "\nPath Index: "
-                      + modelData("solverPathIndex")
+                visible: AppState.showSolution
+            }
+
+//            Text {
+//                anchors.left: parent.left
+
+//                color: "white"
+
+//                text: "Solver metrics:\nChoice columns: "
+//                      + modelData("choiceColumnCount") + "\nPath Index: "
+//                      + modelData("solverPathIndex")
+//            }
+
+            Text {
+                anchors.left: parent.left
+
+                color: "white"
+
+                text: "Best mine chance: " + (AppState.minefieldModel.bestMineChance * 100).toFixed(2) + "%"
+
+                visible: AppState.showSolution
             }
         }
 
@@ -93,6 +119,8 @@ Rectangle {
             text: "Reveal optimal cell"
 
             onClicked: { AppState.minefieldModel.revealOptimalCell() }
+
+            visible: AppState.showSolution
         }
     }
 }

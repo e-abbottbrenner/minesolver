@@ -70,7 +70,7 @@ TableView {
             color: Qt.rgba(1, 0.5, 0, chanceMine * 0.75 + 0.25)
             anchors.fill: parent
 
-            visible: chanceMine > 0
+            visible: chanceMine > 0 && AppState.showSolution
             anchors.margins: 10
         }
 

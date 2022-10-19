@@ -111,33 +111,43 @@ void MinefieldTableModel::revealOptimalCell()
 {
     if(finishedSolver && !activeSolver)
     {
-        auto chances = finishedSolver->getChancesToBeMine();
-
-        auto coords = chances.keys();
-
-        Coordinate bestCoord{0, 0};
-        double bestChance = 1;
-
-        for(const Coordinate &coord: coords)
-        {
-            if(chances[coord] == 0)
-            {
-                bestChance = 0;
-                reveal(coord.second, coord.first);
-            }
-
-            if(bestChance >= chances[coord])
-            {
-                bestChance = chances[coord];
-                bestCoord = coord;
-            }
-        }
-
-        if(bestChance > 0)
+        for(const auto &bestCoord : getOptimalCells())
         {
             reveal(bestCoord.second, bestCoord.first);
         }
     }
+}
+
+QList<Coordinate> MinefieldTableModel::getOptimalCells() const
+{
+    auto chances = finishedSolver->getChancesToBeMine();
+
+    auto coords = chances.keys();
+
+    Coordinate bestCoord{0, 0};
+    double bestChance = 1;
+
+    QList<Coordinate> zeroCoords;
+
+    for(const Coordinate &coord: coords)
+    {
+        if(chances[coord] == 0)
+        {// 0 is always best
+            zeroCoords.append(coord);
+        }
+        else if(bestChance >= chances[coord])
+        {
+            bestChance = chances[coord];
+            bestCoord = coord;
+        }
+    }
+
+    if(zeroCoords.isEmpty())
+    {// pick one with the lowest odds if there aren't any zero odd cells
+        return {bestCoord};
+    }
+
+    return zeroCoords;
 }
 
 const QString &MinefieldTableModel::getRecalculationStep() const
@@ -166,6 +176,11 @@ int MinefieldTableModel::roleForName(const QString &roleName) const
     }
 
     return -1;
+}
+
+double MinefieldTableModel::getBestMineChance() const
+{
+    return bestMineChance;
 }
 
 int MinefieldTableModel::getCurrentRecalculationProgress() const
@@ -218,6 +233,9 @@ void MinefieldTableModel::emitUpdateSignalForCoords(QList<Coordinate> coords)
 void MinefieldTableModel::applyCalculationResults()
 {
     finishedSolver = activeSolver;
+
+    bestMineChance = finishedSolver->getChancesToBeMine()[getOptimalCells().constFirst()];
+    emit bestMineChanceChanged(bestMineChance);
 
     emit logLegalFieldCountChanged(getLogLegalFieldCount());
 

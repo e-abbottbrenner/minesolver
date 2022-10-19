@@ -16,6 +16,7 @@ class AppState : public QObject
     QML_SINGLETON
 
     Q_PROPERTY(MinefieldTableModel* minefieldModel READ getMinefieldModel CONSTANT)
+    Q_PROPERTY(bool showSolution READ getShowSolution WRITE setShowSolution NOTIFY showSolutionChanged)
 
 public:
     AppState();
@@ -24,11 +25,17 @@ public:
 
     Q_INVOKABLE void createNewMinefield(int mineCount, int width, int height);
 
+    bool getShowSolution() const;
+    void setShowSolution(bool show);
+
 signals:
     void minefieldChanged();
+    void showSolutionChanged(bool show);
 
 private:
     QSharedPointer<Minefield> minefield;
+
+    bool showSolution = false;
 
     // exposed to QML so we use Qt's object ownership system instead of smart pointers
     MinefieldTableModel *minefieldModel = nullptr;

@@ -24,3 +24,17 @@ void AppState::createNewMinefield(int mineCount, int width, int height)
 
     emit minefieldChanged();
 }
+
+bool AppState::getShowSolution() const
+{
+    return showSolution;
+}
+
+void AppState::setShowSolution(bool show)
+{
+    if(showSolution != show)
+    {
+        showSolution = show;
+        emit showSolutionChanged(show);
+    }
+}
