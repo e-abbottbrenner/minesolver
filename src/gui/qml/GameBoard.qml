@@ -53,24 +53,6 @@ TableView {
         }
 
         Rectangle {
-            border.color: "light green"
-            border.width: 3
-            color: "transparent"
-            anchors.fill: parent
-
-            visible: hoveredSolverPathIndex >= 0 && hoveredSolverPathIndex + 1 === solverPathIndex
-        }
-
-        Rectangle {
-            border.color: "light blue"
-            border.width: 3
-            color: "transparent"
-            anchors.fill: parent
-
-            visible: solverPathIndex >= 0 && hoveredSolverPathIndex - 1 === solverPathIndex
-        }
-
-        Rectangle {
             color: "red"
             anchors.fill: parent
 

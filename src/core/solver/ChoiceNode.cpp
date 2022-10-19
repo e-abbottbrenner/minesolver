@@ -2,12 +2,12 @@
 
 #include "ChoiceColumn.h"
 
-ChoiceNode::ChoiceNode(PotentialMinefield minefield, int x, int y)
+ChoiceNode::ChoiceNode(const SolverMinefield &minefield, int x, int y)
     : minefield(minefield), x(x), y(y)
 {
 }
 
-const PotentialMinefield &ChoiceNode::getMinefield() const
+const SolverMinefield &ChoiceNode::getMinefield() const
 {
     return minefield;
 }
@@ -25,8 +25,8 @@ const QList<ChoiceNode::Edge> &ChoiceNode::getEdgesBack() const
 void ChoiceNode::addSuccessorsToNextColumn(QSharedPointer<ChoiceColumn> nextColumn)
 {
     // these are what the minefields look like if the column's x/y is clear or a mine
-    PotentialMinefield fieldIfMine = minefield.chooseMine(x, y);
-    PotentialMinefield fieldIfClear = minefield.chooseClear(x, y);
+    SolverMinefield fieldIfMine = minefield.chooseMine(x, y);
+    SolverMinefield fieldIfClear = minefield.chooseClear(x, y);
 
     // we try to add edges to the next column, it can fail because the state may be illegal
     tryAddEdge(nextColumn, fieldIfMine, 1);
@@ -43,7 +43,7 @@ void ChoiceNode::precomputePathsBack(int mineCount)
     precomputePaths(mineCount, false);
 }
 
-void ChoiceNode::tryAddEdge(QSharedPointer<ChoiceColumn> column, const PotentialMinefield &minefield, int cost)
+void ChoiceNode::tryAddEdge(QSharedPointer<ChoiceColumn> column, const SolverMinefield &minefield, int cost)
 {
     // we don't add edges to illegal states
     if(minefield.isLegal())

@@ -1,39 +1,43 @@
 #include "PathChooser.h"
 
-#include "Minefield.h"
+#include "SolverMinefield.h"
 
 #include <QDebug>
 
-PathChooser::PathChooser(QSharedPointer<const Minefield> minefield)
+PathChooser::PathChooser(const SolverMinefield &minefield)
     : minefield(minefield)
 {
-    width = minefield->getWidth();
-    height = minefield->getHeight();
+    width = minefield.getWidth();
+    height = minefield.getHeight();
 }
 
 /*
  * This method figures out the path to use when constructing the mine state machine
- *
- * It works by being greedy and trying to minimize the fringe as it tries to traverse
- * This does not guarantee that we'll get an optimal path, but it does guarantee that
- * we will never have more nodes in our fringe than is absolutely necessary
+ * It used to be more complicated but the complexity wasn't the optimization that was promised (see first rule of optimization)
  */
 void PathChooser::decidePath()
 {
     path.clear();
 
-    // going along the rows/columns seems to work about the same as greedy on square boards and better on rectangular...
+    auto tryAddCellToPath = [&] (int x, int y)
+    {
+        MineStatus status = minefield.getCell(x, y);
 
+        // some cells can be pre-visited because they're already known to be mines or clear
+        if(status < 0 && status != SpecialStatus::Visited)
+        {
+            path.append({x, y});
+        }
+    };
+
+    // going along the rows/columns seems to work about the same as greedy on square boards and better on rectangular...
     if(width > height)
     {
         for(int x = 0; x < width; ++x)
         {
             for(int y = 0; y < height; ++y)
             {
-                if(minefield->getCell(x, y) < 0)
-                {
-                    path.append({x, y});
-                }
+                tryAddCellToPath(x, y);
             }
         }
     }
@@ -43,10 +47,7 @@ void PathChooser::decidePath()
         {
             for(int x = 0; x < width; ++x)
             {
-                if(minefield->getCell(x, y) < 0)
-                {
-                    path.append({x, y});
-                }
+                tryAddCellToPath(x, y);
             }
         }
     }

@@ -1,29 +1,29 @@
-#include "PotentialMinefield.h"
+#include "SolverMinefield.h"
 
 #include "MineStatus.h"
 
-PotentialMinefield::PotentialMinefield(QByteArray minefield, int width, int height)
+SolverMinefield::SolverMinefield(QByteArray minefield, int width, int height)
     : TraversableGrid(width, height), minefieldBytes(minefield)
 {
 
 }
 
-PotentialMinefield PotentialMinefield::chooseMine(int x, int y) const
+SolverMinefield SolverMinefield::chooseMine(int x, int y) const
 {
     return chooseCellState(x, y, true);
 }
 
-PotentialMinefield PotentialMinefield::chooseClear(int x, int y) const
+SolverMinefield SolverMinefield::chooseClear(int x, int y) const
 {
     return chooseCellState(x, y, false);
 }
 
-bool PotentialMinefield::isLegal() const
+bool SolverMinefield::isLegal() const
 {
     return legal;
 }
 
-QString PotentialMinefield::toString() const
+QString SolverMinefield::toString() const
 {
     QString result;
 
@@ -55,14 +55,19 @@ QString PotentialMinefield::toString() const
     return result;
 }
 
-const QByteArray &PotentialMinefield::getMinefieldBytes() const
+MineStatus SolverMinefield::getCell(int x, int y) const
+{
+    return minefieldBytes[mapToArray(x, y)];
+}
+
+const QByteArray &SolverMinefield::getMinefieldBytes() const
 {
     return minefieldBytes;
 }
 
-PotentialMinefield PotentialMinefield::chooseCellState(int x, int y, bool mine) const
+SolverMinefield SolverMinefield::chooseCellState(int x, int y, bool mine) const
 {
-    PotentialMinefield resultField(*this);
+    SolverMinefield resultField(*this);
 
     int allAdjacentsKnown = true;
 

@@ -71,8 +71,6 @@ Rectangle {
 
                 color: "white"
                 text: "Cell Info:\nPosition: " + row + ", " + column + "\nMine Chance: " + percentMine + "%\nLegal minefield count: 2^" + AppState.minefieldModel.logLegalFieldCount
-
-                visible: row >= 0 && column >= 0
             }
 
             Text {
@@ -81,8 +79,6 @@ Rectangle {
                 color: "white"
 
                 text: "Solver metrics:\nChoice columns: " + choiceColumnCount + "\nPath Index: " + solverPathIndex
-
-                visible: row >= 0 && column >= 0
             }
         }
 

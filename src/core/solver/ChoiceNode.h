@@ -7,7 +7,7 @@
 #include <QList>
 #include <QSharedPointer>
 
-#include "PotentialMinefield.h"
+#include "SolverMinefield.h"
 
 class ChoiceColumn;
 
@@ -15,7 +15,7 @@ class ChoiceColumn;
 class ChoiceNode : public QEnableSharedFromThis<ChoiceNode>
 {
 public:
-    ChoiceNode(PotentialMinefield minefield, int x, int y);
+    ChoiceNode(const SolverMinefield& minefield, int x, int y);
 
     struct Edge
     {
@@ -24,7 +24,7 @@ public:
         int cost = 0;
     };
 
-    const PotentialMinefield &getMinefield() const;
+    const SolverMinefield &getMinefield() const;
 
     const QList<Edge> &getEdgesForward() const;
     const QList<Edge> &getEdgesBack() const;
@@ -45,7 +45,7 @@ public:
     void setEndpoint(bool newEndpoint);
 
 private:
-    PotentialMinefield minefield;
+    SolverMinefield minefield;
 
     int x = -1;
     int y = -1;
@@ -64,7 +64,7 @@ private:
 
     bool endpoint = false;
 
-    void tryAddEdge(QSharedPointer<ChoiceColumn> column, const PotentialMinefield& minefield, int cost);
+    void tryAddEdge(QSharedPointer<ChoiceColumn> column, const SolverMinefield& minefield, int cost);
     void linkTarget(QSharedPointer<ChoiceNode> edgeTarget, int cost);
 
     double findPathsForward(int mineCount) const;

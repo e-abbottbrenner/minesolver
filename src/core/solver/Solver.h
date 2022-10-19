@@ -2,6 +2,7 @@
 #define SOLVER_H
 
 #include "ChoiceColumn.h"
+#include "SolverMinefield.h"
 
 #include <QList>
 #include <QHash>
@@ -20,7 +21,7 @@ class ProgressProxy;
 class Solver
 {
 public:
-    explicit Solver(QSharedPointer<Minefield const> minefield);
+    Solver(QSharedPointer<Minefield const> gameMinefield, QHash<Coordinate, double> previousMineChances = {});
     ~Solver();
 
     void computeSolution();
@@ -49,11 +50,13 @@ private:
     void buildSolutionGraph();
     void analyzeSolutionGraph();
 
-    QSharedPointer<Minefield const> minefield;
+    SolverMinefield startingMinefield;
 
     bool logProgress = false;
 
     bool cancelled = false;
+
+    int numMines = 0;
 
     QSharedPointer<ProgressProxy> progress;
 };

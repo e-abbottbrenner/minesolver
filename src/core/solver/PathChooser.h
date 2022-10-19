@@ -1,12 +1,13 @@
 #ifndef PATHCHOOSER_H
 #define PATHCHOOSER_H
 
+#include "SolverMinefield.h"
+
 #include <QHash>
 #include <QPair>
 #include <QSharedPointer>
 #include <QVector>
 
-class Minefield;
 
 typedef QPair<int, int> Coordinate;
 typedef QVector<Coordinate> CoordVector;
@@ -15,14 +16,14 @@ typedef QVector<Coordinate> CoordVector;
 class PathChooser
 {
 public:
-    PathChooser(QSharedPointer<Minefield const> minefield);
+    PathChooser(const SolverMinefield& minefield);
 
     void decidePath();
 
     const CoordVector &getPath() const;
 
 private:
-    QSharedPointer<Minefield const> minefield;
+    SolverMinefield minefield;
 
     CoordVector path;
 

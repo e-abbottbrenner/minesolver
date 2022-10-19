@@ -11,8 +11,9 @@
 
 #define CHECK_CANCELLED if(cancelled) return;
 
-Solver::Solver(QSharedPointer<Minefield const> minefield)
-    : minefield(minefield->clone())
+Solver::Solver(QSharedPointer<Minefield const> gameMinefield, QHash<Coordinate, double> /*previousMineChances*/)
+    : startingMinefield(gameMinefield->getRevealedMinefield(), gameMinefield->getWidth(), gameMinefield->getHeight()),
+      numMines(gameMinefield->getNumMines())
     // clone the passed in minefield so this is thread safe with multiple solves vs the same field
 {
     progress = progress.create();
@@ -71,7 +72,7 @@ void Solver::decidePath()
 
     progress->emitProgressStep("Deciding path.");
 
-    PathChooser chooser(minefield);
+    PathChooser chooser(startingMinefield);
 
     chooser.decidePath();
 
@@ -104,9 +105,7 @@ void Solver::buildSolutionGraph()
     auto initialChoiceColumn = choiceColumns.first();
 
     // the starting node is the current state of the revealed minefield, with a choice pending for the first cell that we will visit
-    QSharedPointer<ChoiceNode> startingNode(new ChoiceNode(PotentialMinefield(minefield->getRevealedMinefield(),
-                                                                              minefield->getWidth(), minefield->getHeight()),
-                                                           initialChoiceColumn->getX(), initialChoiceColumn->getY()));
+    QSharedPointer<ChoiceNode> startingNode(new ChoiceNode(startingMinefield, initialChoiceColumn->getX(), initialChoiceColumn->getY()));
 
     // adding the initial node gives us a starting point for the graph
     initialChoiceColumn->addChoiceNode(startingNode);
@@ -169,7 +168,7 @@ void Solver::analyzeSolutionGraph()
     {// we start from the beginning and move forward to precompute the paths back since each column depends on the previous
         CHECK_CANCELLED;
 
-        column->precomputePathsBack(minefield->getNumMines());
+        column->precomputePathsBack(numMines);
 
         progress->incrementProgress();
     }
@@ -178,7 +177,7 @@ void Solver::analyzeSolutionGraph()
     {// we start from the end of the columns and move backward to precompute the paths forward since each column depends on the next
         CHECK_CANCELLED;
 
-        (*iter)->precomputePathsForward(minefield->getNumMines());
+        (*iter)->precomputePathsForward(numMines);
 
         progress->incrementProgress();
     }
@@ -194,7 +193,7 @@ void Solver::analyzeSolutionGraph()
 
         if(column->getX() >= 0 && column->getY() >= 0)
         {// the final column has -1, -1
-            column->calculateWaysToBe(minefield->getNumMines());
+            column->calculateWaysToBe(numMines);
 
             chancesToBeMine.insert({column->getX(), column->getY()}, column->getPercentChanceToBeMine());
         }
