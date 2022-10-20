@@ -50,9 +50,11 @@ TableView {
             visible: hoveredRow === row && hoveredColumn === column
         }
 
-        Rectangle {
-            color: "red"
+        Image {
+            source: "qrc:/icons/exploded.png"
             anchors.fill: parent
+
+            fillMode: Image.PreserveAspectFit
 
             visible: isMine
             anchors.margins: 1
@@ -66,11 +68,17 @@ TableView {
             anchors.margins: 1
         }
 
-        Rectangle {
-            color: Qt.rgba(1, 0.5, 0, chanceMine * 0.75 + 0.25)
+        Image {
+            source: "qrc:/icons/mine.png"
+
+            opacity: chanceMine
+
+            fillMode: Image.PreserveAspectFit
+
             anchors.fill: parent
 
-            visible: chanceMine > 0 && AppState.showSolution
+            visible: chanceMine > 0 && AppState.showSolution && !isMine
+
             anchors.margins: 3
         }
 
