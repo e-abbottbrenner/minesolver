@@ -1,6 +1,7 @@
 #include "ChoiceNode.h"
 
 #include "ChoiceColumn.h"
+#include "SolverMath.h"
 
 ChoiceNode::ChoiceNode(const SolverMinefield &minefield, int x, int y)
     : minefield(minefield), x(x), y(y)
@@ -97,6 +98,17 @@ void ChoiceNode::calculateWaysToBe(int mineCount)
         SolverFloat pathsForwardIfMine = mineForwardEdgeStrong? mineForwardEdgeStrong->findPathsForward(i - 1) : 0;
         SolverFloat pathsForwardIfClear = clearFowardEdgeStrong? clearFowardEdgeStrong->findPathsForward(i) : 0;
 
+        if(offPathCellCount > 0)
+        {// if there are no off path cells this logic is irrelevant
+            // additionally, having a non-zero value for off path cells is only possible for the trailing endpoint
+            // the paths forward for mine or clear are found with the choose function
+            // because there's no information on how they're distributed
+            // if we're a mine we choose i - 1 from the remaining off path cells (we are one of them)
+            // if we're not a mine we choose i from the remaining off path cells (we are one of them)
+            pathsForwardIfMine = SolverMath::choose(offPathCellCount - 1, i - 1);
+            pathsForwardIfClear = SolverMath::choose(offPathCellCount - 1, i);
+        }
+
         // then we find the opposite count of paths using mines that go back to the start node
         SolverFloat pathsBack = findPathsBack(mineCount - i);
 
@@ -134,6 +146,12 @@ void ChoiceNode::setEndpoint(bool newEndpoint)
     endpoint = newEndpoint;
 }
 
+void ChoiceNode::setOffPathCellCount(int count)
+{
+    // if this value is set
+    offPathCellCount = count;
+}
+
 SolverFloat ChoiceNode::findPathsForward(int mineCount) const
 {
     return findPaths(mineCount, true);
@@ -151,10 +169,22 @@ SolverFloat ChoiceNode::findPaths(int mineCount, bool forward) const
         return 0;
     }
 
-    if((forward && edgesForward.isEmpty())
-            || (!forward && edgesBack.isEmpty()))
+    if(forward && edgesForward.isEmpty())
     {// no more edges to proceed through, only report a path if we're at exactly 0 mines and have reached an endpoint
-        return mineCount == 0 && isEndpoint()? 1 : 0;
+        SolverFloat offPathPathCount = offPathPathCounts.value(mineCount, -1);
+
+        if(offPathPathCount < 0)
+        {// remember the value for this mine count, it's not going to change
+            offPathPathCount = offPathCellCount > 0? SolverMath::choose(offPathCellCount, mineCount) : 1;
+            offPathPathCounts[mineCount] = offPathPathCount;
+        }
+
+        return isEndpoint()? offPathPathCount : 0;
+    }
+
+    if((!forward && edgesBack.isEmpty()))
+    {// no more edges to proceed through, only report a path if we're at exactly 0 mines and have reached an endpoint
+        return (mineCount == 0 && isEndpoint())? 1 : 0;
     }
 
     SolverFloat sumOfEdges = 0;

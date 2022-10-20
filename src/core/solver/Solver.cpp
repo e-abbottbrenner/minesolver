@@ -78,6 +78,7 @@ void Solver::decidePath()
     chooser.decidePath();
 
     path = chooser.getPath();
+    cellsOffPath = chooser.getCellsOffPath();
 
     // there are four computational loops that go over the path size
     progress->emitProgressMaximum(4 * path.size());
@@ -126,6 +127,13 @@ void Solver::buildSolutionGraph()
         }
 
         progress->incrementProgress();
+    }
+
+    auto finalColumnChoiceNodes = choiceColumns.last()->getChoiceNodes();
+    if(finalColumnChoiceNodes.size() > 0)
+    {
+        // the only cell of the final choice column needs to account for the off path cells
+        finalColumnChoiceNodes.first()->setOffPathCellCount(cellsOffPath.size());
     }
 
     qsizetype maxColumnSize = 0;
@@ -192,14 +200,22 @@ void Solver::analyzeSolutionGraph()
     {// calculate all the ways to be
         CHECK_CANCELLED;
 
-        if(column->getX() >= 0 && column->getY() >= 0)
-        {// the final column has -1, -1
-            column->calculateWaysToBe(numMines);
+        // we compute the ways to be for all columns, including the final column
+        column->calculateWaysToBe(numMines);
 
+        if(column->getX() >= 0 && column->getY() >= 0)
+        {// the final column has -1, -1, we don't insert chances for it at its coordinate as it represents all off path cells
             chancesToBeMine.insert({column->getX(), column->getY()}, column->getPercentChanceToBeMine());
         }
 
         progress->incrementProgress();
+    }
+
+    for(Coordinate coord : cellsOffPath)
+    {// for the off path cells we use the chance to be a mine from the final column since it represents them
+        // the logic for generating the chance to be a mine is specialized for this column to produce correct results using a formula
+        // this can be computed with a formula because there's no information about how the mines are distributed among the unknown cells off the path
+        chancesToBeMine.insert({coord.first, coord.second}, choiceColumns.last()->getPercentChanceToBeMine());
     }
 
     // if all mines are known and passed in as previous state, it's possible for there to only be one choice column at (-1, -1)

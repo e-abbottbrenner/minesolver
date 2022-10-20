@@ -23,7 +23,7 @@ protected:
             }
         }
 
-        ADD_FAILURE() << "Bucket not found for" << probability;
+        ADD_FAILURE() << "Bucket not found for: " << probability;
         return 0;
     }
 

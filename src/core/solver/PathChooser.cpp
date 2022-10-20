@@ -18,15 +18,26 @@ PathChooser::PathChooser(const SolverMinefield &minefield)
 void PathChooser::decidePath()
 {
     path.clear();
+    cellsOffPath.clear();
 
     auto tryAddCellToPath = [&] (int x, int y)
     {
         MineStatus status = minefield.getCell(x, y);
 
         // some cells can be pre-visited because they're already known to be mines or clear
+        // we also leave out any cells with no adjacents, these are just represented as a raw number
         if(status < 0 && status != SpecialStatus::Visited)
         {
-            path.append({x, y});
+            if(countAdjacentCountCells(x, y) > 0)
+            {
+                path.append({x, y});
+            }
+            else
+            {
+                // rather than building a state machine for these, we're just going to assign counts for this section of the field with n choose k math
+                // this works because there's no information on them besides how many mines are in them
+                cellsOffPath.append({x, y});
+            }
         }
     };
 
@@ -53,7 +64,21 @@ void PathChooser::decidePath()
     }
 }
 
+int PathChooser::countAdjacentCountCells(int x, int y) const
+{
+    int countCells = 0;
+
+    minefield.traverseAdjacentCells(x, y, [&] (int x, int y) -> void {minefield.getCell(x, y) >= 0? ++countCells : 0;});
+
+    return countCells;
+}
+
 const CoordVector &PathChooser::getPath() const
 {
     return path;
+}
+
+const CoordVector &PathChooser::getCellsOffPath() const
+{
+    return cellsOffPath;
 }

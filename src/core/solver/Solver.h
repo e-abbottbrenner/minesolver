@@ -40,6 +40,7 @@ public:
 
 private:
     CoordVector path;
+    CoordVector cellsOffPath;
     QList<QSharedPointer<ChoiceColumn>> choiceColumns;
 
     QHash<Coordinate, double> chancesToBeMine;

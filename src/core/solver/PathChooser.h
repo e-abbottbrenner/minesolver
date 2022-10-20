@@ -21,16 +21,18 @@ public:
     void decidePath();
 
     const CoordVector &getPath() const;
+    const CoordVector &getCellsOffPath() const;
 
 private:
     SolverMinefield minefield;
 
     CoordVector path;
-
-    CoordVector pathSources;
+    CoordVector cellsOffPath;
 
     int width;
     int height;
+
+    int countAdjacentCountCells(int x, int y) const;
 };
 
 #endif // PATHCHOOSER_H
