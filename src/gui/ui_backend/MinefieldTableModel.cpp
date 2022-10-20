@@ -256,11 +256,20 @@ void MinefieldTableModel::calculateChances()
 
 void MinefieldTableModel::emitUpdateSignalForCoords(QList<Coordinate> coords)
 {
+    int maxRow = 0;
+    int maxCol = 0;
+    int minRow = minefield->getHeight();
+    int minCol = minefield->getWidth();
+
     for(Coordinate coord: coords)
     {
-        QModelIndex coordIndex = index(coord.second, coord.first);
-        emit dataChanged(coordIndex, coordIndex);
+        maxRow = std::max(maxRow, coord.second);
+        maxCol = std::max(maxCol, coord.first);
+        minRow = std::min(minRow, coord.second);
+        minCol = std::min(minRow, coord.first);
     }
+
+    emit dataChanged(index(minRow, minCol), index(maxRow, maxCol));
 }
 
 void MinefieldTableModel::applyCalculationResults()
