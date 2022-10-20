@@ -21,13 +21,13 @@ public:
     void decidePath();
 
     const CoordVector &getPath() const;
-    const CoordVector &getCellsOffPath() const;
+    const CoordVector &getTailPath() const;
 
 private:
     SolverMinefield minefield;
 
     CoordVector path;
-    CoordVector cellsOffPath;
+    CoordVector tailPath;
 
     int width;
     int height;

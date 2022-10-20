@@ -40,7 +40,8 @@ public:
 
 private:
     CoordVector path;
-    CoordVector cellsOffPath;
+    // the tail path is all the unknown cells that have no adjacent count cells, these can be solved with math formulas instead of algorithmic analysis
+    CoordVector tailPath;
     QList<QSharedPointer<ChoiceColumn>> choiceColumns;
 
     QHash<Coordinate, double> chancesToBeMine;

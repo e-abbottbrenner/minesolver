@@ -11,7 +11,6 @@
 #include "SolverMinefield.h"
 
 class ChoiceColumn;
-class OffPathContext;
 
 // this class represents a node in the powerset DAG. It has a state and edges for the DAG and its reverse
 class ChoiceNode : public QEnableSharedFromThis<ChoiceNode>
@@ -46,7 +45,7 @@ public:
     bool isEndpoint() const;
     void setEndpoint(bool newEndpoint);
 
-    void setOffPathCellCount(int count);
+    void setTailPathCellCount(int count);
 
 private:
     SolverMinefield minefield;
@@ -54,8 +53,8 @@ private:
     int x = -1;
     int y = -1;
 
-    int offPathCellCount = 0;
-    mutable QHash<int, SolverFloat> offPathPathCounts;
+    int tailPathCellCount = 0;
+    mutable QHash<int, SolverFloat> tailPathCounts;
 
     QList<Edge> edgesForward;
     QList<Edge> edgesBack;

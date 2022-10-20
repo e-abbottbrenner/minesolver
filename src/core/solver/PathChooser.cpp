@@ -18,7 +18,7 @@ PathChooser::PathChooser(const SolverMinefield &minefield)
 void PathChooser::decidePath()
 {
     path.clear();
-    cellsOffPath.clear();
+    tailPath.clear();
 
     auto tryAddCellToPath = [&] (int x, int y)
     {
@@ -36,7 +36,7 @@ void PathChooser::decidePath()
             {
                 // rather than building a state machine for these, we're just going to assign counts for this section of the field with n choose k math
                 // this works because there's no information on them besides how many mines are in them
-                cellsOffPath.append({x, y});
+                tailPath.append({x, y});
             }
         }
     };
@@ -78,7 +78,7 @@ const CoordVector &PathChooser::getPath() const
     return path;
 }
 
-const CoordVector &PathChooser::getCellsOffPath() const
+const CoordVector &PathChooser::getTailPath() const
 {
-    return cellsOffPath;
+    return tailPath;
 }

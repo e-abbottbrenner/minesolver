@@ -78,7 +78,7 @@ void Solver::decidePath()
     chooser.decidePath();
 
     path = chooser.getPath();
-    cellsOffPath = chooser.getCellsOffPath();
+    tailPath = chooser.getTailPath();
 
     // there are four computational loops that go over the path size
     progress->emitProgressMaximum(4 * path.size());
@@ -132,8 +132,8 @@ void Solver::buildSolutionGraph()
     auto finalColumnChoiceNodes = choiceColumns.last()->getChoiceNodes();
     if(finalColumnChoiceNodes.size() > 0)
     {
-        // the only cell of the final choice column needs to account for the off path cells
-        finalColumnChoiceNodes.first()->setOffPathCellCount(cellsOffPath.size());
+        // the only cell of the final choice column needs to account for the tail path cells
+        finalColumnChoiceNodes.first()->setTailPathCellCount(tailPath.size());
     }
 
     qsizetype maxColumnSize = 0;
@@ -204,15 +204,15 @@ void Solver::analyzeSolutionGraph()
         column->calculateWaysToBe(numMines);
 
         if(column->getX() >= 0 && column->getY() >= 0)
-        {// the final column has -1, -1, we don't insert chances for it at its coordinate as it represents all off path cells
+        {// the final column has -1, -1, we don't insert chances for it at its coordinate as it represents all tail path cells
             chancesToBeMine.insert({column->getX(), column->getY()}, column->getPercentChanceToBeMine());
         }
 
         progress->incrementProgress();
     }
 
-    for(Coordinate coord : cellsOffPath)
-    {// for the off path cells we use the chance to be a mine from the final column since it represents them
+    for(Coordinate coord : tailPath)
+    {// for the tail path cells we use the chance to be a mine from the final column since it represents them
         // the logic for generating the chance to be a mine is specialized for this column to produce correct results using a formula
         // this can be computed with a formula because there's no information about how the mines are distributed among the unknown cells off the path
         chancesToBeMine.insert({coord.first, coord.second}, choiceColumns.last()->getPercentChanceToBeMine());
