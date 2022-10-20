@@ -1,5 +1,6 @@
 #include "SolverMath.h"
 
+#include <QHash>
 #include <QList>
 #include <QMutex>
 #include <QMutexLocker>
@@ -8,34 +9,38 @@ using boost::multiprecision::cpp_int;
 
 namespace SolverMath
 {
-cpp_int factorial(int n)
-{
-    static QMutex factorialMutex;
-
-    QMutexLocker factorialLocker(&factorialMutex);
-
-    static QList<cpp_int> previousFactorials = {1};
-
-    cpp_int result = previousFactorials[std::min(n, static_cast<int>(previousFactorials.size() - 1))];
-
-    for(int i = previousFactorials.size(); i <= n; ++i)
-    {
-        result *= i;
-        previousFactorials.append(result);
-    }
-
-    return result;
-}
-
 SolverFloat choose(int n, int k)
 {
+    static QMutex chooseMutex;
+    QMutexLocker locker(&chooseMutex);
+
+    static QHash<int, QList<SolverFloat>> resultsHash;
+
+    if(!resultsHash.contains(n))
+    {
+        // start with the value of n choose 0
+        resultsHash[n] = {1};
+    }
+
+    auto newResults = resultsHash[n];
+
     if(n < k || k < 0)
     {
         return 0;
     }
 
-    // standard formula for choose
-    return (factorial(n) / (factorial(k) * factorial(n - k))).convert_to<SolverFloat>();
+    int startingIndex = std::min(static_cast<int>(newResults.size()) - 1, k);
+    SolverFloat nchoosek = newResults[startingIndex];
+
+    for(int i = startingIndex + 1; i <= k; ++i)
+    {
+        nchoosek *= (n + 1 - i) / static_cast<SolverFloat>(i);
+        newResults.append(nchoosek);
+    }
+
+    resultsHash[n] = newResults;
+
+    return nchoosek;
 }
 
 }

@@ -8,7 +8,7 @@ AppState::AppState()
 {
     minefieldModel = new MinefieldTableModel(this);
 
-    createNewMinefield(500, 50, 50);
+    createNewMinefield(2500, 100, 100);
 }
 
 MinefieldTableModel *AppState::getMinefieldModel() const
