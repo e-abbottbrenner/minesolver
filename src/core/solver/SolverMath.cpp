@@ -1,16 +1,27 @@
 #include "SolverMath.h"
 
+#include <QList>
+#include <QMutex>
+#include <QMutexLocker>
+
 using boost::multiprecision::cpp_int;
 
 namespace SolverMath
 {
 cpp_int factorial(int n)
 {
-    cpp_int result = 1;
+    static QMutex factorialMutex;
 
-    for(int i = 1; i <= n; ++i)
+    QMutexLocker factorialLocker(&factorialMutex);
+
+    static QList<cpp_int> previousFactorials = {1};
+
+    cpp_int result = previousFactorials[std::min(n, static_cast<int>(previousFactorials.size() - 1))];
+
+    for(int i = previousFactorials.size(); i <= n; ++i)
     {
         result *= i;
+        previousFactorials.append(result);
     }
 
     return result;
@@ -18,7 +29,7 @@ cpp_int factorial(int n)
 
 SolverFloat choose(int n, int k)
 {
-    if(n < k)
+    if(n < k || k < 0)
     {
         return 0;
     }
