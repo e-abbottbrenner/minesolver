@@ -16,6 +16,21 @@ void MinefieldTableModel::setMinefield(QSharedPointer<Minefield> minefield)
 {
     beginResetModel();
 
+    setCurrentRecalculationProgress(0);
+    setMaxRecalculationProgress(0);
+
+    setRecalculationInProgress(false);
+
+    setBestMineChance(0);
+
+    setCumulativeRiskOfLoss(0);
+
+    autoSolve = false;
+
+    mineChancesCalculationWatcher.clear();
+    activeSolver.clear();
+    finishedSolver.clear();
+
     this->minefield = minefield;
     calculateChances();
 
@@ -280,8 +295,7 @@ void MinefieldTableModel::applyCalculationResults()
 
     if(optimalCells.size() > 0)
     {
-        bestMineChance = finishedSolver->getChancesToBeMine()[optimalCells.constFirst()];
-        emit bestMineChanceChanged(bestMineChance);
+        setBestMineChance(finishedSolver->getChancesToBeMine()[optimalCells.constFirst()]);
     }
 
     emit logLegalFieldCountChanged(getLogLegalFieldCount());
@@ -314,6 +328,16 @@ void MinefieldTableModel::setCumulativeRiskOfLoss(double risk)
         cumulativeRiskOfLoss = risk;
 
         emit cumulativeRiskOfLossChanged(risk);
+    }
+}
+
+void MinefieldTableModel::setBestMineChance(double chance)
+{
+    if(bestMineChance != chance)
+    {
+        bestMineChance = chance;
+
+        emit bestMineChanceChanged(chance);
     }
 }
 

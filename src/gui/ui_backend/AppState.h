@@ -17,22 +17,42 @@ class AppState : public QObject
 
     Q_PROPERTY(MinefieldTableModel* minefieldModel READ getMinefieldModel CONSTANT)
     Q_PROPERTY(bool showSolution READ getShowSolution WRITE setShowSolution NOTIFY showSolutionChanged)
+    Q_PROPERTY(int mineCount READ getMineCount WRITE setMineCount NOTIFY mineCountChanged)
+    Q_PROPERTY(int minefieldWidth READ getMinefieldWidth WRITE setMinefieldWidth NOTIFY minefieldWidthChanged)
+    Q_PROPERTY(int minefieldHeight READ getMinefieldHeight WRITE setMinefieldHeight NOTIFY minefieldHeightChanged)
 
 public:
     AppState();
 
     MinefieldTableModel *getMinefieldModel() const;
 
-    Q_INVOKABLE void createNewMinefield(int mineCount, int width, int height);
+    Q_INVOKABLE void createNewMinefield();
 
     bool getShowSolution() const;
     void setShowSolution(bool show);
+
+    int getMineCount() const;
+    void setMineCount(int newMineCount);
+
+    int getMinefieldWidth() const;
+    void setMinefieldWidth(int newMinefieldWidth);
+
+    int getMinefieldHeight() const;
+    void setMinefieldHeight(int newMinefieldHeight);
 
 signals:
     void minefieldChanged();
     void showSolutionChanged(bool show);
 
+    void mineCountChanged(int count);
+    void minefieldWidthChanged(int width);
+    void minefieldHeightChanged(int height);
+
 private:
+    int mineCount = 99;
+    int minefieldWidth = 30;
+    int minefieldHeight = 16;
+
     QSharedPointer<Minefield> minefield;
 
     bool showSolution = true;

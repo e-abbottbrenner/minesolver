@@ -5,8 +5,8 @@ import Minesolver
 Rectangle {
     color: "black"
 
-    implicitWidth: 200
-    implicitHeight: 300
+    width: 200
+    height: 600
 
     property int row: -1
     property int column: -1
@@ -86,8 +86,7 @@ Rectangle {
                 anchors.left: parent.left
 
                 color: "white"
-                text: "Cell Info:\nPosition: " + row + ", " + column +
-                      "\nMine Chance: " + (modelData("chanceMine") * 100).toFixed(2) + "%"
+                text: "Mine Chance: " + (modelData("chanceMine") * 100).toFixed(2) + "%"
 
                 visible: AppState.showSolution
             }
@@ -139,6 +138,16 @@ Rectangle {
             onClicked: { AppState.minefieldModel.autoSolve = true }
 
             visible: AppState.showSolution
+        }
+
+        Button {
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            text: "Start over"
+
+            onClicked: { AppState.createNewMinefield() }
+
+            visible: true
         }
     }
 }

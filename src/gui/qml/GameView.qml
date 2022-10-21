@@ -1,23 +1,28 @@
 import QtQuick
 import QtQuick.Layouts
 
-Row
+Rectangle
 {
-    // just using the row layout to get the behavior of a preferred size expanding up to a point
-    RowLayout
+    color: "black"
+
+    border.color: "gray"
+    border.width: 20
+
+    Row
     {
-        id: boardLayout
+        anchors.centerIn: parent
+
+        spacing: 20
 
         GameBoard {
             id: gameBoard
+
+            anchors.verticalCenter: parent.verticalCenter
         }
-    }
 
-    CellDetailsDisplay {
-        anchors.top: boardLayout.top
-        anchors.bottom: boardLayout.bottom
-
-        row: gameBoard.hoveredRow
-        column: gameBoard.hoveredColumn
+        GameDashboard {
+            row: gameBoard.hoveredRow
+            column: gameBoard.hoveredColumn
+        }
     }
 }

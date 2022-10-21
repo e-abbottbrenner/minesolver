@@ -117,6 +117,7 @@ private:
     void setCurrentRecalculationProgress(int newCurrentRecalculationProgress);
     void setRecalculationStep(const QString &newRecalculationStep);
     void setCumulativeRiskOfLoss(double risk);
+    void setBestMineChance(double chance);
 
     void setActiveSolver(QSharedPointer<Solver> solver);
 };

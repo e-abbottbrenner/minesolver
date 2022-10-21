@@ -12,10 +12,6 @@ TableView {
 
     property int hoveredRow: -1
     property int hoveredColumn: -1
-    property int hoveredPercentMine: -1
-    property int hoveredChoiceColumnCount: -1
-    property int hoveredSolverPathIndex: -1
-    property int hoveredIndex: -1
 
     property int cellSize: Math.min(900 / columns, 600 / rows)
 
@@ -71,7 +67,7 @@ TableView {
         Image {
             source: "qrc:/icons/mine.png"
 
-            opacity: chanceMine
+            opacity: chanceMine * 0.95 + 0.05
 
             fillMode: Image.PreserveAspectFit
 

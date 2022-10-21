@@ -8,7 +8,7 @@ AppState::AppState()
 {
     minefieldModel = new MinefieldTableModel(this);
 
-    createNewMinefield(99, 30, 16);
+    createNewMinefield();
 }
 
 MinefieldTableModel *AppState::getMinefieldModel() const
@@ -16,9 +16,9 @@ MinefieldTableModel *AppState::getMinefieldModel() const
     return minefieldModel;
 }
 
-void AppState::createNewMinefield(int mineCount, int width, int height)
+void AppState::createNewMinefield()
 {
-    minefield = minefield.create(mineCount, width, height, QRandomGenerator::global()->generate());
+    minefield = minefield.create(mineCount, minefieldWidth, minefieldHeight, QRandomGenerator::global()->generate());
 
     minefieldModel->setMinefield(minefield);
 
@@ -36,5 +36,50 @@ void AppState::setShowSolution(bool show)
     {
         showSolution = show;
         emit showSolutionChanged(show);
+    }
+}
+
+int AppState::getMineCount() const
+{
+    return mineCount;
+}
+
+void AppState::setMineCount(int newMineCount)
+{
+    if(mineCount != newMineCount)
+    {
+        mineCount = newMineCount;
+
+        emit mineCountChanged(newMineCount);
+    }
+}
+
+int AppState::getMinefieldWidth() const
+{
+    return minefieldWidth;
+}
+
+void AppState::setMinefieldWidth(int newMinefieldWidth)
+{
+    if(minefieldWidth != newMinefieldWidth)
+    {
+        minefieldWidth = newMinefieldWidth;
+
+        emit minefieldWidthChanged(newMinefieldWidth);
+    }
+}
+
+int AppState::getMinefieldHeight() const
+{
+    return minefieldHeight;
+}
+
+void AppState::setMinefieldHeight(int newMinefieldHeight)
+{
+    if(minefieldHeight != newMinefieldHeight)
+    {
+        minefieldHeight = newMinefieldHeight;
+
+        emit minefieldHeightChanged(newMinefieldHeight);
     }
 }

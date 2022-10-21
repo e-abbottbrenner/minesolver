@@ -2,9 +2,9 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls.Fusion
 
-Window {
+ApplicationWindow {
     width: 1200
-    height: 800
+    height: 700
     visible: true
 
     color: "light grey"
@@ -19,6 +19,10 @@ Window {
 
         GameView {
             id: view
+            Layout.alignment: Qt.AlignCenter
+
+            Layout.minimumHeight: 700
+            Layout.minimumWidth: 1200
         }
     }
 }
