@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls.Fusion
+import Minesolver
 
 ApplicationWindow {
     width: 1200
@@ -11,18 +12,22 @@ ApplicationWindow {
 
     title: qsTr("MineSolver")
 
-    StackLayout
-    {
+    GameView {
         anchors.centerIn: parent
 
-        id: itemStack
+        id: view
+        Layout.alignment: Qt.AlignCenter
+    }
 
-        GameView {
-            id: view
-            Layout.alignment: Qt.AlignCenter
+    Shortcut {
+        sequences: [StandardKey.Quit, "Ctrl+Q"]
 
-            Layout.minimumHeight: 700
-            Layout.minimumWidth: 1200
-        }
+        onActivated: Qt.quit()
+    }
+
+    Shortcut {
+        sequence: StandardKey.New
+
+        onActivated: AppState.createNewMinefield()
     }
 }

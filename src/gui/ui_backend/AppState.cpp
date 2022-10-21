@@ -50,6 +50,8 @@ void AppState::setMineCount(int newMineCount)
     {
         mineCount = newMineCount;
 
+        checkFieldConfigValid();
+
         emit mineCountChanged(newMineCount);
     }
 }
@@ -64,6 +66,8 @@ void AppState::setMinefieldWidth(int newMinefieldWidth)
     if(minefieldWidth != newMinefieldWidth)
     {
         minefieldWidth = newMinefieldWidth;
+
+        checkFieldConfigValid();
 
         emit minefieldWidthChanged(newMinefieldWidth);
     }
@@ -80,6 +84,28 @@ void AppState::setMinefieldHeight(int newMinefieldHeight)
     {
         minefieldHeight = newMinefieldHeight;
 
+        checkFieldConfigValid();
+
         emit minefieldHeightChanged(newMinefieldHeight);
+    }
+}
+
+bool AppState::isFieldConfigValid() const
+{
+    return fieldConfigValid;
+}
+
+void AppState::checkFieldConfigValid()
+{
+    setFieldConfigValid(mineCount > 0 && mineCount < minefieldWidth * minefieldHeight);
+}
+
+void AppState::setFieldConfigValid(bool valid)
+{
+    if(fieldConfigValid != valid)
+    {
+        fieldConfigValid = valid;
+
+        emit fieldConfigValidChanged(valid);
     }
 }

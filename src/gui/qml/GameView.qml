@@ -8,6 +8,9 @@ Rectangle
     border.color: "gray"
     border.width: 20
 
+    width: 1200
+    height: 700
+
     Row
     {
         anchors.centerIn: parent
@@ -23,6 +26,8 @@ Rectangle
         GameDashboard {
             row: gameBoard.hoveredRow
             column: gameBoard.hoveredColumn
+
+            anchors.verticalCenter: parent.verticalCenter
         }
     }
 }

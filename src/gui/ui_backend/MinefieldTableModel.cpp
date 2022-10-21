@@ -308,7 +308,7 @@ void MinefieldTableModel::applyCalculationResults()
 
     if(autoSolve)
     {
-        revealOptimalCell();
+        QTimer::singleShot(100, this, &MinefieldTableModel::revealOptimalCell);
     }
 }
 

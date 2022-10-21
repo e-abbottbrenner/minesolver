@@ -4,6 +4,7 @@ import Minesolver
 
 Rectangle {
     color: "black"
+    border.color: "gray"
 
     width: 200
     height: 600
@@ -16,10 +17,18 @@ Rectangle {
     }
 
     Column {
-        anchors.top: parent.top
-        anchors.topMargin: 30
+
+        anchors.centerIn: parent
 
         spacing: 20
+
+        Button {
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            text: "New Game"
+
+            onClicked: newBoard.open()
+        }
 
         Button {
             text: "Toggle show solution"
@@ -40,6 +49,8 @@ Rectangle {
                 anchors.centerIn: parent
 
                 spacing: 5
+
+                visible: AppState.showSolution
 
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -80,6 +91,8 @@ Rectangle {
 
                 color: "white"
                 text: "Legal minefield count: 2^" + AppState.minefieldModel.logLegalFieldCount
+
+                visible: AppState.showSolution
             }
 
             Text {
@@ -90,16 +103,6 @@ Rectangle {
 
                 visible: AppState.showSolution
             }
-
-//            Text {
-//                anchors.left: parent.left
-
-//                color: "white"
-
-//                text: "Solver metrics:\nChoice columns: "
-//                      + modelData("choiceColumnCount") + "\nPath Index: "
-//                      + modelData("solverPathIndex")
-//            }
 
             Text {
                 anchors.left: parent.left
@@ -149,5 +152,9 @@ Rectangle {
 
             visible: true
         }
+    }
+
+    NewBoardDialog {
+        id: newBoard
     }
 }
