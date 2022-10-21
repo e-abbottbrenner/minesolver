@@ -53,15 +53,15 @@ TableView {
             fillMode: Image.PreserveAspectFit
 
             visible: isMine
-            anchors.margins: 1
         }
 
-        Rectangle {
-            color: "yellow"
+        Image {
+            source: "qrc:/icons/flag.png"
             anchors.fill: parent
 
+            fillMode: Image.PreserveAspectFit
+
             visible: guessMine
-            anchors.margins: 1
         }
 
         Image {
@@ -73,9 +73,7 @@ TableView {
 
             anchors.fill: parent
 
-            visible: chanceMine > 0 && AppState.showSolution && !isMine
-
-            anchors.margins: 3
+            visible: chanceMine > 0 && AppState.showSolution && !isMine && !guessMine
         }
 
         Rectangle {
