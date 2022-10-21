@@ -52,8 +52,8 @@ Popup {
                         anchors.horizontalCenter: parent.horizontalCenter
 
                         id: numMines
-                        text: AppState.mineCount
 
+                        Component.onCompleted: text = AppState.mineCount
                         validator: IntValidator{ bottom: 1; top: 4999; }
 
                         onTextChanged: AppState.mineCount = parseInt(text)
@@ -70,8 +70,8 @@ Popup {
                         anchors.horizontalCenter: parent.horizontalCenter
 
                         id: fieldWidth
-                        text: AppState.minefieldWidth
 
+                        Component.onCompleted: text = AppState.minefieldWidth
                         validator: IntValidator{ bottom: 10; top: 100; }
 
                         onTextChanged: AppState.minefieldWidth = parseInt(text)
@@ -87,9 +87,9 @@ Popup {
                     TextField {
                         anchors.horizontalCenter: parent.horizontalCenter
 
-                        id: fieldHeight
-                        text: AppState.minefieldHeight
+                        id: fieldHeightg
 
+                        Component.onCompleted: text = AppState.minefieldHeight
                         validator: IntValidator{ bottom: 10; top: 50; }
 
                         onTextChanged: AppState.minefieldHeight = parseInt(text)

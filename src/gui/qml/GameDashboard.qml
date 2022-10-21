@@ -27,6 +27,16 @@ Rectangle {
 
             text: "New Game"
 
+            onClicked: { AppState.createNewMinefield() }
+
+            visible: true
+        }
+
+        Button {
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            text: "Customize Minefield"
+
             onClicked: newBoard.open()
         }
 
@@ -141,16 +151,6 @@ Rectangle {
             onClicked: { AppState.minefieldModel.autoSolve = true }
 
             visible: AppState.showSolution
-        }
-
-        Button {
-            anchors.horizontalCenter: parent.horizontalCenter
-
-            text: "Start over"
-
-            onClicked: { AppState.createNewMinefield() }
-
-            visible: true
         }
     }
 

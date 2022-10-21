@@ -97,7 +97,7 @@ bool AppState::isFieldConfigValid() const
 
 void AppState::checkFieldConfigValid()
 {
-    setFieldConfigValid(mineCount > 0 && mineCount < minefieldWidth * minefieldHeight);
+    setFieldConfigValid(mineCount > 0 && mineCount < minefieldWidth * minefieldHeight - 9 && minefieldWidth > 3 && minefieldHeight > 3);
 }
 
 void AppState::setFieldConfigValid(bool valid)
