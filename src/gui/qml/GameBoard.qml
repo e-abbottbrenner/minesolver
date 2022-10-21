@@ -35,6 +35,8 @@ TableView {
                 minefieldTable.hoveredRow = row
                 minefieldTable.hoveredColumn = column
             }
+
+            enabled: !AppState.minefieldModel.gameWon && !AppState.minefieldModel.gameLost
         }
 
         Rectangle {

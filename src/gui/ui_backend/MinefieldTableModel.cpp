@@ -25,6 +25,9 @@ void MinefieldTableModel::setMinefield(QSharedPointer<Minefield> minefield)
 
     setCumulativeRiskOfLoss(0);
 
+    setGameWon(false);
+    setGameLost(false);
+
     autoSolve = false;
 
     mineChancesCalculationWatcher.clear();
@@ -33,6 +36,9 @@ void MinefieldTableModel::setMinefield(QSharedPointer<Minefield> minefield)
 
     this->minefield = minefield;
     calculateChances();
+
+    connect(minefield.data(), &Minefield::mineHit, this, &MinefieldTableModel::onMineHit);
+    connect(minefield.data(), &Minefield::allCountCellsRevealed, this, &MinefieldTableModel::onAllCountCellsRevealed);
 
     endResetModel();
 }
@@ -140,6 +146,16 @@ void MinefieldTableModel::revealOptimalCell()
             reveal(bestCoord.second, bestCoord.first);
         }
     }
+}
+
+bool MinefieldTableModel::getGameLost() const
+{
+    return gameLost;
+}
+
+bool MinefieldTableModel::getGameWon() const
+{
+    return gameWon;
 }
 
 QList<Coordinate> MinefieldTableModel::getOptimalCells() const
@@ -341,6 +357,24 @@ void MinefieldTableModel::setBestMineChance(double chance)
     }
 }
 
+void MinefieldTableModel::setGameWon(bool won)
+{
+    if(won != gameWon)
+    {
+        gameWon = won;
+        emit gameWonChanged(won);
+    }
+}
+
+void MinefieldTableModel::setGameLost(bool lost)
+{
+    if(lost != gameLost)
+    {
+        gameLost = lost;
+        emit gameLostChanged(lost);
+    }
+}
+
 void MinefieldTableModel::setMaxRecalculationProgress(int newMaxRecalculationProgress)
 {
     if(newMaxRecalculationProgress != maxRecalculationProgress)
@@ -382,4 +416,14 @@ void MinefieldTableModel::setActiveSolver(QSharedPointer<Solver> solver)
     recalcProgressConnections << connect(activeSolver->getProgress().data(), &ProgressProxy::progressMade, this, &MinefieldTableModel::setCurrentRecalculationProgress);
     recalcProgressConnections << connect(activeSolver->getProgress().data(), &ProgressProxy::progressMaximum, this, &MinefieldTableModel::setMaxRecalculationProgress);
     recalcProgressConnections << connect(activeSolver->getProgress().data(), &ProgressProxy::progressStep, this, &MinefieldTableModel::setRecalculationStep);
+}
+
+void MinefieldTableModel::onMineHit()
+{
+    setGameLost(true);
+}
+
+void MinefieldTableModel::onAllCountCellsRevealed()
+{
+    setGameWon(true);
 }

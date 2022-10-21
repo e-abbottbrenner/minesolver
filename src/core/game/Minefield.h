@@ -40,6 +40,7 @@ public:
 signals:
     void cellUpdated(int x, int y);
     void mineHit();
+    void allCountCellsRevealed();
 
 private:
     QList<Coordinate> recursiveReveal(int x, int y);
@@ -48,6 +49,8 @@ private:
 
     int numMines = 0;
     int seed = 0;
+
+    int unrevealedCount = 0;
 
     bool populated = false;
 

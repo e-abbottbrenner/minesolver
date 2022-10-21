@@ -13,6 +13,8 @@ Minefield::Minefield(int numMines, int width, int height, int seed, QObject *par
 {
     populated = false;
 
+    unrevealedCount = width * height;
+
     underlyingMinefield.resize(width * height, SpecialStatus::Unknown);
     revealedMinefield.resize(width * height, SpecialStatus::Unknown);
     for(int i = 0; i < width; ++i)
@@ -144,9 +146,9 @@ QList<Coordinate> Minefield::revealCell(int x, int y)
     }
     else
     {
-        return revealAll();
-
         emit mineHit();
+
+        return revealAll();
     }
 }
 
@@ -181,6 +183,14 @@ QList<Coordinate> Minefield::recursiveReveal(int x, int y)
         if(underlyingMinefield[mapToArray(x, y)] != revealedMinefield[mapToArray(x, y)])
         {
             revealedMinefield[mapToArray(x, y)] = underlyingMinefield[mapToArray(x, y)];
+
+            --unrevealedCount;
+
+            if(unrevealedCount <= numMines)
+            {
+                emit allCountCellsRevealed();
+            }
+
             coordsRevealed.append(coord);
 
             emit cellUpdated(x, y);

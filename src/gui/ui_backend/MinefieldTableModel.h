@@ -26,6 +26,8 @@ class MinefieldTableModel : public QAbstractTableModel
     Q_PROPERTY(double bestMineChance READ getBestMineChance NOTIFY bestMineChanceChanged)
     Q_PROPERTY(bool autoSolve WRITE setAutoSolve)
     Q_PROPERTY(double cumulativeRiskOfLoss READ getCumulativeRiskOfLoss NOTIFY cumulativeRiskOfLossChanged)
+    Q_PROPERTY(bool gameWon READ getGameWon NOTIFY gameWonChanged)
+    Q_PROPERTY(bool gameLost READ getGameLost NOTIFY gameLostChanged)
 
 public:
     enum DataRoles
@@ -67,6 +69,10 @@ public:
 
     double getCumulativeRiskOfLoss() const;
 
+    bool getGameWon() const;
+
+    bool getGameLost() const;
+
 signals:
     void recalculationInProgressChanged(bool recalculating);
     void maxRecalculationProgressChanged(int max);
@@ -75,6 +81,8 @@ signals:
     void logLegalFieldCountChanged(int logFieldCount);
     void bestMineChanceChanged(double mineChance);
     void cumulativeRiskOfLossChanged(double risk);
+    void gameWonChanged(bool won);
+    void gameLostChanged(bool lost);
 
 public slots:
     void reveal(int row, int col);
@@ -82,6 +90,10 @@ public slots:
     void toggleGuessMine(int row, int col);
 
     void revealOptimalCell();
+
+private slots:
+    void onMineHit();
+    void onAllCountCellsRevealed();
 
 private:
     QSharedPointer<Minefield> minefield;
@@ -102,6 +114,9 @@ private:
 
     bool autoSolve = false;
 
+    bool gameWon = false;
+    bool gameLost = false;
+
     QList<QMetaObject::Connection> recalcProgressConnections;
 
     QList<Coordinate> getOptimalCells() const;
@@ -118,6 +133,8 @@ private:
     void setRecalculationStep(const QString &newRecalculationStep);
     void setCumulativeRiskOfLoss(double risk);
     void setBestMineChance(double chance);
+    void setGameWon(bool won);
+    void setGameLost(bool lost);
 
     void setActiveSolver(QSharedPointer<Solver> solver);
 };
