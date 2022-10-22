@@ -126,14 +126,14 @@ QList<Coordinate> Minefield::revealAdjacents(int x, int y)
     return coordsRevealed;
 }
 
-QList<Coordinate> Minefield::revealCell(int x, int y)
+QList<Coordinate> Minefield::revealCell(int x, int y, bool force)
 {
     if(!populated)
     {
         populateMinefield(x, y);
     }
 
-    if(revealedMinefield[mapToArray(x, y)] == SpecialStatus::GuessMine)
+    if(revealedMinefield[mapToArray(x, y)] == SpecialStatus::GuessMine && !force)
     {// not allowed to reveal guesses
         return {};
     }

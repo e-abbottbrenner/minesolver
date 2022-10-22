@@ -110,7 +110,7 @@ bool MinefieldTableModel::isRecalculationInProgress() const
     return recalculationInProgress;
 }
 
-void MinefieldTableModel::reveal(int row, int col)
+void MinefieldTableModel::reveal(int row, int col, bool force)
 {
     if(finishedSolver)
     {
@@ -118,7 +118,7 @@ void MinefieldTableModel::reveal(int row, int col)
         setCumulativeRiskOfLoss(1 - (1 - cumulativeRiskOfLoss) * (1 - finishedSolver->getChancesToBeMine()[{col, row}]));
     }
 
-    auto coordsRevealed = minefield->revealCell(col, row);
+    auto coordsRevealed = minefield->revealCell(col, row, force);
 
     emitUpdateSignalForCoords(coordsRevealed);
 
@@ -145,13 +145,13 @@ void MinefieldTableModel::toggleGuessMine(int row, int col)
     emit dataChanged(toggleIndex, toggleIndex);
 }
 
-void MinefieldTableModel::revealOptimalCell()
+void MinefieldTableModel::revealLowestRiskCells()
 {
     if(finishedSolver && !activeSolver && bestMineChance < 1)
     {
         for(const auto &bestCoord : getOptimalCells())
         {
-            reveal(bestCoord.second, bestCoord.first);
+            reveal(bestCoord.second, bestCoord.first, true);
         }
     }
 }
@@ -245,7 +245,7 @@ void MinefieldTableModel::setAutoSolve(bool newAutoSolve)
 
         if(autoSolve)
         {
-            revealOptimalCell();
+            revealLowestRiskCells();
         }
     }
 }
@@ -332,7 +332,7 @@ void MinefieldTableModel::applyCalculationResults()
 
     if(autoSolve)
     {
-        QTimer::singleShot(0, this, &MinefieldTableModel::revealOptimalCell);
+        QTimer::singleShot(0, this, &MinefieldTableModel::revealLowestRiskCells);
     }
 }
 

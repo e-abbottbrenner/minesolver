@@ -92,11 +92,11 @@ signals:
     void newMinefieldStarted();
 
 public slots:
-    void reveal(int row, int col);
+    void reveal(int row, int col, bool force = false);
     void revealAdjacent(int row, int col);
     void toggleGuessMine(int row, int col);
 
-    void revealOptimalCell();
+    void revealLowestRiskCells();
 
 private slots:
     void onMineHit();

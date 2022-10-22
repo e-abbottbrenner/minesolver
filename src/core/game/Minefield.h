@@ -21,7 +21,7 @@ public:
     void populateMinefield(int originX, int originY);
 
     QList<Coordinate> revealAdjacents(int x, int y);
-    QList<Coordinate> revealCell(int x, int y);
+    QList<Coordinate> revealCell(int x, int y, bool force = false);
     void toggleGuessMine(int x, int y);
 
     MineStatus getCell(int x, int y) const;

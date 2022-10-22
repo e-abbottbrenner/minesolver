@@ -136,9 +136,9 @@ Rectangle {
         Button {
             anchors.horizontalCenter: parent.horizontalCenter
 
-            text: "Reveal optimal cell"
+            text: "Reveal lowest risk cell(s)"
 
-            onClicked: { AppState.minefieldModel.revealOptimalCell() }
+            onClicked: { AppState.minefieldModel.revealLowestRiskCells() }
 
             visible: AppState.showSolution
         }
