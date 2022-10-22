@@ -49,7 +49,7 @@ Popup {
 
                 Column {
                     TextField {
-                        id: numMinesField
+                        id: mineCountField
 
                         anchors.horizontalCenter: parent.horizontalCenter
 
@@ -107,7 +107,7 @@ Popup {
                     text: "Set Default"
 
                     onClicked: {
-                        numMinesField.text = "99"
+                        mineCountField.text = "99"
                         widthField.text = "30"
                         heightField.text = "16"
                     }

@@ -8,8 +8,8 @@
 
 typedef QPair<int, int> Coordinate;
 
-Minefield::Minefield(int numMines, int width, int height, int seed, QObject *parent) :
-    QObject(parent), TraversableGrid(width, height), numMines(numMines), seed(seed)
+Minefield::Minefield(int mineCount, int width, int height, int seed, QObject *parent) :
+    QObject(parent), TraversableGrid(width, height), mineCount(mineCount), seed(seed)
 {
     populated = false;
 
@@ -41,7 +41,7 @@ void Minefield::populateMinefield(int originX, int originY)
 
     int freeCells = getWidth() * getHeight() - bannedCells;
 
-    for(int mineCount = 0; mineCount < numMines && freeCells > 0; ++mineCount, --freeCells)
+    for(int count = 0; count < mineCount && freeCells > 0; ++count, --freeCells)
     {
         int mineLoc = random.bounded(freeCells);
 
@@ -186,7 +186,7 @@ QList<Coordinate> Minefield::recursiveReveal(int x, int y)
 
             --unrevealedCount;
 
-            if(unrevealedCount <= numMines)
+            if(unrevealedCount <= mineCount)
             {
                 emit allCountCellsRevealed();
             }
@@ -232,9 +232,9 @@ bool Minefield::isPopulated() const
     return populated;
 }
 
-int Minefield::getNumMines() const
+int Minefield::getMineCount() const
 {
-    return numMines;
+    return mineCount;
 }
 
 MineStatus Minefield::getCell(int x, int y) const
@@ -254,7 +254,7 @@ QByteArray Minefield::getRevealedMinefield() const
 
 QSharedPointer<Minefield> Minefield::clone() const
 {
-    QSharedPointer<Minefield> cloneField(new Minefield(numMines, getWidth(), getHeight(), seed));
+    QSharedPointer<Minefield> cloneField(new Minefield(mineCount, getWidth(), getHeight(), seed));
     cloneField->populated = populated;
     cloneField->underlyingMinefield = underlyingMinefield;
     cloneField->revealedMinefield = revealedMinefield;

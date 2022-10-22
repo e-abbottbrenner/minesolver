@@ -58,7 +58,7 @@ private:
 
     bool cancelled = false;
 
-    int numMines = 0;
+    int mineCount = 0;
 
     bool minefieldPopulated = true;
 

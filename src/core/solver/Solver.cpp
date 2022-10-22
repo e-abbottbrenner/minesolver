@@ -13,7 +13,7 @@
 
 Solver::Solver(QSharedPointer<Minefield const> gameMinefield, QHash<Coordinate, double> previousMineChances)
     : startingMinefield(gameMinefield->getRevealedMinefield(), gameMinefield->getWidth(), gameMinefield->getHeight()),
-      numMines(gameMinefield->getNumMines()), minefieldPopulated(gameMinefield->isPopulated())
+      mineCount(gameMinefield->getMineCount()), minefieldPopulated(gameMinefield->isPopulated())
     // clone the passed in minefield so this is thread safe with multiple solves vs the same field
 {
     cancelled = false;
@@ -177,7 +177,7 @@ void Solver::analyzeSolutionGraph()
     {// we start from the beginning and move forward to precompute the paths back since each column depends on the previous
         CHECK_CANCELLED;
 
-        column->precomputePathsBack(numMines);
+        column->precomputePathsBack(mineCount);
 
         progress->incrementProgress();
     }
@@ -186,7 +186,7 @@ void Solver::analyzeSolutionGraph()
     {// we start from the end of the columns and move backward to precompute the paths forward since each column depends on the next
         CHECK_CANCELLED;
 
-        (*iter)->precomputePathsForward(numMines);
+        (*iter)->precomputePathsForward(mineCount);
 
         progress->incrementProgress();
     }
@@ -201,7 +201,7 @@ void Solver::analyzeSolutionGraph()
         CHECK_CANCELLED;
 
         // we compute the ways to be for all columns, including the final column
-        column->calculateWaysToBe(numMines);
+        column->calculateWaysToBe(mineCount);
 
         if(column->getX() >= 0 && column->getY() >= 0)
         {// the final column has -1, -1, we don't insert chances for it at its coordinate as it represents all tail path cells
@@ -252,7 +252,7 @@ void Solver::prepareStartingMinefield(const QHash<Coordinate, double>& previousM
         {
             chancesToBeMine[coord] = 1;
             startingMinefield = startingMinefield.chooseMine(coord.first, coord.second);
-            numMines--;
+            mineCount--;
         }
     }
 }

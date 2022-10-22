@@ -16,7 +16,7 @@ class Minefield : public QObject, public TraversableGrid
 {
     Q_OBJECT
 public:
-    explicit Minefield(int numMines, int width, int height, int seed, QObject *parent = 0);
+    explicit Minefield(int mineCount, int width, int height, int seed, QObject *parent = 0);
 
     void populateMinefield(int originX, int originY);
 
@@ -27,7 +27,7 @@ public:
     MineStatus getCell(int x, int y) const;
     MineStatus getUnderlyingCell(int x, int y) const;
 
-    int getNumMines() const;
+    int getMineCount() const;
 
     QByteArray getRevealedMinefield() const;
 
@@ -47,7 +47,7 @@ private:
 
     QList<Coordinate> revealAll();
 
-    int numMines = 0;
+    int mineCount = 0;
     int seed = 0;
 
     int unrevealedCount = 0;

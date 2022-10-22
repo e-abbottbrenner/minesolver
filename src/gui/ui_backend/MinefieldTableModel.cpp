@@ -28,7 +28,7 @@ void MinefieldTableModel::setMinefield(QSharedPointer<Minefield> minefield)
     setGameWon(false);
     setGameLost(false);
 
-    setFlagsRemaining(minefield->getNumMines());
+    setFlagsRemaining(minefield->getMineCount());
 
     autoSolve = false;
 
