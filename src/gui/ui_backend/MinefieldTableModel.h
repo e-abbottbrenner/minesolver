@@ -73,6 +73,9 @@ public:
 
     bool getGameLost() const;
 
+    int getFlagsRemaining() const;
+    void setFlagsRemaining(int newFlagsRemaining);
+
 signals:
     void recalculationInProgressChanged(bool recalculating);
     void maxRecalculationProgressChanged(int max);
@@ -83,6 +86,10 @@ signals:
     void cumulativeRiskOfLossChanged(double risk);
     void gameWonChanged(bool won);
     void gameLostChanged(bool lost);
+
+    void flagsRemainingChanged(int flagsRemaining);
+
+    void newMinefieldStarted();
 
 public slots:
     void reveal(int row, int col);
@@ -117,6 +124,8 @@ private:
     bool gameWon = false;
     bool gameLost = false;
 
+    int flagsRemaining;
+
     QList<QMetaObject::Connection> recalcProgressConnections;
 
     QList<Coordinate> getOptimalCells() const;
@@ -137,6 +146,7 @@ private:
     void setGameLost(bool lost);
 
     void setActiveSolver(QSharedPointer<Solver> solver);
+    Q_PROPERTY(int flagsRemaining READ getFlagsRemaining WRITE setFlagsRemaining NOTIFY flagsRemainingChanged)
 };
 
 Q_DECLARE_METATYPE(MinefieldTableModel)

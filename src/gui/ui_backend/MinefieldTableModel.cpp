@@ -28,6 +28,8 @@ void MinefieldTableModel::setMinefield(QSharedPointer<Minefield> minefield)
     setGameWon(false);
     setGameLost(false);
 
+    setFlagsRemaining(minefield->getNumMines());
+
     autoSolve = false;
 
     mineChancesCalculationWatcher.clear();
@@ -39,6 +41,8 @@ void MinefieldTableModel::setMinefield(QSharedPointer<Minefield> minefield)
 
     connect(minefield.data(), &Minefield::mineHit, this, &MinefieldTableModel::onMineHit);
     connect(minefield.data(), &Minefield::allCountCellsRevealed, this, &MinefieldTableModel::onAllCountCellsRevealed);
+
+    emit newMinefieldStarted();
 
     endResetModel();
 }
@@ -132,9 +136,13 @@ void MinefieldTableModel::revealAdjacent(int row, int col)
 
 void MinefieldTableModel::toggleGuessMine(int row, int col)
 {
+    QModelIndex toggleIndex = index(row, col);
+
     minefield->toggleGuessMine(col, row);
 
-    emit dataChanged(index(row, col), index(row, col));
+    setFlagsRemaining(flagsRemaining + (toggleIndex.data(GuessMineRole).toBool()? -1 : 1));
+
+    emit dataChanged(toggleIndex, toggleIndex);
 }
 
 void MinefieldTableModel::revealOptimalCell()
@@ -426,4 +434,18 @@ void MinefieldTableModel::onMineHit()
 void MinefieldTableModel::onAllCountCellsRevealed()
 {
     setGameWon(true);
+}
+
+int MinefieldTableModel::getFlagsRemaining() const
+{
+    return flagsRemaining;
+}
+
+void MinefieldTableModel::setFlagsRemaining(int newFlagsRemaining)
+{
+    if (flagsRemaining != newFlagsRemaining)
+    {
+        flagsRemaining = newFlagsRemaining;
+        emit flagsRemainingChanged(flagsRemaining);
+    }
 }

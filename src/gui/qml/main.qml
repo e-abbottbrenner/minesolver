@@ -5,7 +5,7 @@ import Minesolver
 
 ApplicationWindow {
     width: 1200
-    height: 700
+    height: 760
     visible: true
 
     color: "light grey"
