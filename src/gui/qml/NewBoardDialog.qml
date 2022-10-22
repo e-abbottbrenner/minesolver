@@ -49,9 +49,9 @@ Popup {
 
                 Column {
                     TextField {
-                        anchors.horizontalCenter: parent.horizontalCenter
+                        id: numMinesField
 
-                        id: numMines
+                        anchors.horizontalCenter: parent.horizontalCenter
 
                         Component.onCompleted: text = AppState.mineCount
                         validator: IntValidator{ bottom: 1; top: 4999; }
@@ -67,9 +67,9 @@ Popup {
 
                 Column {
                     TextField {
-                        anchors.horizontalCenter: parent.horizontalCenter
+                        id: widthField
 
-                        id: fieldWidth
+                        anchors.horizontalCenter: parent.horizontalCenter
 
                         Component.onCompleted: text = AppState.minefieldWidth
                         validator: IntValidator{ bottom: 10; top: 100; }
@@ -85,9 +85,9 @@ Popup {
 
                 Column {
                     TextField {
-                        anchors.horizontalCenter: parent.horizontalCenter
+                        id: heightField
 
-                        id: fieldHeightg
+                        anchors.horizontalCenter: parent.horizontalCenter
 
                         Component.onCompleted: text = AppState.minefieldHeight
                         validator: IntValidator{ bottom: 10; top: 50; }
@@ -107,9 +107,9 @@ Popup {
                     text: "Set Default"
 
                     onClicked: {
-                        AppState.mineCount = 99
-                        AppState.minefieldWidth = 30
-                        AppState.minefieldHeight = 16
+                        numMinesField.text = "99"
+                        widthField.text = "30"
+                        heightField.text = "16"
                     }
                 }
             }

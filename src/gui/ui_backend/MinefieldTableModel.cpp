@@ -200,7 +200,7 @@ QList<Coordinate> MinefieldTableModel::getOptimalCells() const
     }
     else
     {
-        return {{QRandomGenerator::global()->bounded(minefield->getWidth()), QRandomGenerator::global()->bounded(minefield->getHeight())}};
+        return {{minefield->getWidth() / 2, minefield->getHeight() / 2}};
     }
 }
 
