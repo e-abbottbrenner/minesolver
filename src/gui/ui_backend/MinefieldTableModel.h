@@ -64,6 +64,8 @@ public:
 
     Q_INVOKABLE int roleForName(const QString& roleName) const;
 
+    Q_INVOKABLE QModelIndex nullIndex() const;
+
     double getBestMineChance() const;
 
     void setAutoSolve(bool newAutoSolve);

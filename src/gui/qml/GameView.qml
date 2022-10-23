@@ -19,25 +19,51 @@ Rectangle
         spacing: 20
 
         Item {
-            implicitWidth: gameBoard.implicitWidth
-            implicitHeight: gameBoard.implicitHeight
+            width: 900
+            height: 600
 
             anchors.verticalCenter: parent.verticalCenter
 
             Row {
                 anchors.horizontalCenter: parent.horizontalCenter
-                anchors.bottom: gameBoard.top
+                anchors.bottom: panelPosHelper.top
                 anchors.bottomMargin: 10
+
+                spacing: 20
 
                 GameStatusPanel {
                 }
 
                 Button {
                     anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 10
 
                     text: AppState.showInteractiveGameBoard? "Display Mode: Interactive" : "Display Mode: Image"
 
                     onClicked: AppState.showInteractiveGameBoard = !AppState.showInteractiveGameBoard
+                }
+            }
+
+            Item {
+                id: panelPosHelper
+
+                anchors.centerIn: parent
+
+                property double aspect: computeAspect()
+
+                width: Math.min(900, 500 * aspect)
+                height: Math.min(500, 900 / aspect)
+
+                function computeAspect() {
+                    return AppState.minefieldModel.columnCount(AppState.minefieldModel.nullIndex()) / AppState.minefieldModel.rowCount(AppState.minefieldModel.nullIndex())
+                }
+
+                Connections {
+                    target: AppState.minefieldModel
+
+                    function onModelReset() {
+                        panelPosHelper.aspect = panelPosHelper.computeAspect()
+                    }
                 }
             }
 
@@ -56,14 +82,11 @@ Rectangle
 
                 id: gameImage
 
-                width: 900
-                height: 600
-
                 cache: false
 
                 fillMode: Image.PreserveAspectFit
 
-                anchors.centerIn: parent
+                anchors.fill: panelPosHelper
 
                 visible: !AppState.showInteractiveGameBoard
 

@@ -232,6 +232,11 @@ int MinefieldTableModel::roleForName(const QString &roleName) const
     return -1;
 }
 
+QModelIndex MinefieldTableModel::nullIndex() const
+{
+    return QModelIndex();
+}
+
 double MinefieldTableModel::getBestMineChance() const
 {
     return bestMineChance;

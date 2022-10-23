@@ -8,15 +8,29 @@ TableView {
     pointerNavigationEnabled: false
     selectionBehavior: TableView.SelectionDisabled
 
-    model: AppState.minefieldModel
-
     property int hoveredRow: -1
     property int hoveredColumn: -1
 
-    property int cellSize: Math.min(900 / columns, 600 / rows)
+    property int cellSize: Math.min(900 / columns, 500 / rows)
 
     implicitWidth: columns * cellSize
     implicitHeight: rows * cellSize
+
+    function assignModel() {
+        model = AppState.showInteractiveGameBoard? AppState.minefieldModel : null
+    }
+
+    Component.onCompleted: {
+        assignModel()
+    }
+
+    Connections {
+        target: AppState
+
+        function onShowInteractiveGameBoardChanged() {
+            assignModel()
+        }
+    }
 
     delegate: Rectangle {
         color: "gray"
