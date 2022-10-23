@@ -1,6 +1,7 @@
 #include "AppState.h"
 
 #include "Minefield.h"
+#include "MinefieldImageProvider.h"
 
 #include <QRandomGenerator>
 
@@ -21,6 +22,7 @@ void AppState::createNewMinefield()
     minefield = minefield.create(mineCount, minefieldWidth, minefieldHeight, QRandomGenerator::global()->generate());
 
     minefieldModel->setMinefield(minefield);
+    MinefieldImageProvider::instance()->setMinefield(minefield);
 
     emit minefieldChanged();
 }
@@ -95,6 +97,24 @@ bool AppState::isFieldConfigValid() const
     return fieldConfigValid;
 }
 
+QImage AppState::getMinefieldThumbnail() const
+{
+    return minefieldThumbnail;
+}
+
+bool AppState::getShowInteractiveGameBoard() const
+{
+    return showInteractiveGameBoard;
+}
+
+void AppState::setShowInteractiveGameBoard(bool newShowInteractiveGameBoard)
+{
+    if (showInteractiveGameBoard == newShowInteractiveGameBoard)
+        return;
+    showInteractiveGameBoard = newShowInteractiveGameBoard;
+    emit showInteractiveGameBoardChanged();
+}
+
 void AppState::checkFieldConfigValid()
 {
     setFieldConfigValid(mineCount > 0 && mineCount < minefieldWidth * minefieldHeight - 9 && minefieldWidth > 3 && minefieldHeight > 3);
@@ -108,4 +128,12 @@ void AppState::setFieldConfigValid(bool valid)
 
         emit fieldConfigValidChanged(valid);
     }
+}
+
+void AppState::setMinefieldThumbnail(QImage thumbnail)
+{
+    // don't bother comparing for this one
+    minefieldThumbnail = thumbnail;
+
+    emit minefieldThumbnailChanged();
 }

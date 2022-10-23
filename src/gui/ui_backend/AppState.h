@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QtQml/QtQml>
+#include <QImage>
 
 // needed for Q_PROPERTY DECLARATION BELOW
 #include "MinefieldTableModel.h"
@@ -21,6 +22,7 @@ class AppState : public QObject
     Q_PROPERTY(int minefieldWidth READ getMinefieldWidth WRITE setMinefieldWidth NOTIFY minefieldWidthChanged)
     Q_PROPERTY(int minefieldHeight READ getMinefieldHeight WRITE setMinefieldHeight NOTIFY minefieldHeightChanged)
     Q_PROPERTY(bool fieldConfigValid READ isFieldConfigValid NOTIFY fieldConfigValidChanged)
+    Q_PROPERTY(bool showInteractiveGameBoard READ getShowInteractiveGameBoard WRITE setShowInteractiveGameBoard NOTIFY showInteractiveGameBoardChanged)
 
 public:
     AppState();
@@ -43,9 +45,16 @@ public:
 
     bool isFieldConfigValid() const;
 
+    QImage getMinefieldThumbnail() const;
+
+    bool getShowInteractiveGameBoard() const;
+    void setShowInteractiveGameBoard(bool newShowInteractiveGameBoard);
+
 signals:
     void minefieldChanged();
     void showSolutionChanged(bool show);
+
+    void minefieldThumbnailChanged();
 
     void mineCountChanged(int count);
     void minefieldWidthChanged(int width);
@@ -53,12 +62,18 @@ signals:
 
     void fieldConfigValidChanged(bool valid);
 
+    void showInteractiveGameBoardChanged();
+
 private:
     int mineCount = 99;
     int minefieldWidth = 30;
     int minefieldHeight = 16;
 
+    QImage minefieldThumbnail;
+
     bool fieldConfigValid = true;
+
+    bool showInteractiveGameBoard = true;
 
     QSharedPointer<Minefield> minefield;
 
@@ -69,6 +84,8 @@ private:
 
     void checkFieldConfigValid();
     void setFieldConfigValid(bool valid);
+
+    void setMinefieldThumbnail(QImage thumbnail);
 };
 
 #endif // APPSTATE_H

@@ -28,6 +28,7 @@ class MinefieldTableModel : public QAbstractTableModel
     Q_PROPERTY(double cumulativeRiskOfLoss READ getCumulativeRiskOfLoss NOTIFY cumulativeRiskOfLossChanged)
     Q_PROPERTY(bool gameWon READ getGameWon NOTIFY gameWonChanged)
     Q_PROPERTY(bool gameLost READ getGameLost NOTIFY gameLostChanged)
+    Q_PROPERTY(int flagsRemaining READ getFlagsRemaining WRITE setFlagsRemaining NOTIFY flagsRemainingChanged)
 
 public:
     enum DataRoles
@@ -146,7 +147,6 @@ private:
     void setGameLost(bool lost);
 
     void setActiveSolver(QSharedPointer<Solver> solver);
-    Q_PROPERTY(int flagsRemaining READ getFlagsRemaining WRITE setFlagsRemaining NOTIFY flagsRemainingChanged)
 };
 
 Q_DECLARE_METATYPE(MinefieldTableModel)

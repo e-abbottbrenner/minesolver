@@ -1,11 +1,9 @@
 # This CMakeLists sets up the target for the GUI executable that lets the user play the game
 
+file(GLOB_RECURSE GUI_SOURCES LIST_DIRECTORIES false *.h *.cpp)
+
 qt_add_executable(Minesolver WIN32 MACOSX_BUNDLE
-    SolverMain.cpp
-    ui_backend/AppState.h
-    ui_backend/AppState.cpp
-    ui_backend/MinefieldTableModel.h
-    ui_backend/MinefieldTableModel.cpp
+    ${GUI_SOURCES}
 )
 
 file(GLOB ICONS LIST_DIRECTORIES false RELATIVE ${CMAKE_CURRENT_LIST_DIR} ../../icons/*.png)
