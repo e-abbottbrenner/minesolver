@@ -48,6 +48,7 @@ private:
     QHash<Coordinate, int> columnCounts;
     SolverFloat legalFieldCount;
 
+    void flagObviousCells();
     void decidePath();
     void buildSolutionGraph();
     void analyzeSolutionGraph();
