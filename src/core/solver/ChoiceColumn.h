@@ -19,7 +19,6 @@ public:
     void addChoiceNode(QSharedPointer<ChoiceNode> node);
 
     QList<QSharedPointer<ChoiceNode>> getChoiceNodes() const;
-    QList<QList<QSharedPointer<ChoiceNode>>> getChoiceNodesSliced(int slices) const;
 
     int getX() const;
     int getY() const;

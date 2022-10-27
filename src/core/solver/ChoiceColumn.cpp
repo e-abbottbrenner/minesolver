@@ -44,33 +44,6 @@ QList<QSharedPointer<ChoiceNode> > ChoiceColumn::getChoiceNodes() const
     return choicesInColumn.values();
 }
 
-QList<QList<QSharedPointer<ChoiceNode>>> ChoiceColumn::getChoiceNodesSliced(int slices) const
-{
-    auto choiceNodes = getChoiceNodes();
-
-    QList<QList<QSharedPointer<ChoiceNode>>> choiceNodesSliced;
-
-    int sliceSize = choiceNodes.size() / slices;
-
-    for(int i = 0; i < slices; ++i)
-    {
-        int pos = i * sliceSize;
-
-        choiceNodesSliced.append(choiceNodes.sliced(pos, sliceSize));
-    }
-
-    int remainder = choiceNodes.size() % slices;
-
-    for(int i = 1; i <= remainder; ++i)
-    {
-        // spread out the remainder over the slices
-        // note this cannot go out of bounds because remainder is at most slices - 1 and the size of choiceNodesSiced is slices
-        choiceNodesSliced[i].append(choiceNodes[choiceNodes.size() - i]);
-    }
-
-    return choiceNodesSliced;
-}
-
 int ChoiceColumn::getX() const
 {
     return x;
@@ -83,21 +56,16 @@ int ChoiceColumn::getY() const
 
 void ChoiceColumn::precomputePathsForward(int mineCount)
 {
-    auto choiceNodesSliced = getChoiceNodesSliced(columnCalcThreadPool->maxThreadCount());
-
     QFutureSynchronizer<void> threadSyncer;
 
-    auto precomputePaths = [&] (const QList<QSharedPointer<ChoiceNode>>& choiceNodes)
+    auto precomputePaths = [&] (const QSharedPointer<ChoiceNode>& choiceNode)
     {
-        for(auto choiceNode: choiceNodes)
-        {
-            choiceNode->precomputePathsForward(mineCount);
-        }
+        choiceNode->precomputePathsForward(mineCount);
     };
 
-    for(auto choiceNodeList : choiceNodesSliced)
+    for(auto choiceNode : getChoiceNodes())
     {
-        threadSyncer.addFuture(QtConcurrent::run(&(*columnCalcThreadPool), precomputePaths, choiceNodeList));
+        threadSyncer.addFuture(QtConcurrent::run(&(*columnCalcThreadPool), precomputePaths, choiceNode));
     }
 
     threadSyncer.waitForFinished();
@@ -105,21 +73,16 @@ void ChoiceColumn::precomputePathsForward(int mineCount)
 
 void ChoiceColumn::precomputePathsBack(int mineCount)
 {
-    auto choiceNodesSliced = getChoiceNodesSliced(columnCalcThreadPool->maxThreadCount());
-
     QFutureSynchronizer<void> threadSyncer;
 
-    auto precomputePaths = [&] (const QList<QSharedPointer<ChoiceNode>>& choiceNodes)
+    auto precomputePaths = [&] (const QSharedPointer<ChoiceNode>& choiceNode)
     {
-        for(auto choiceNode: choiceNodes)
-        {
-            choiceNode->precomputePathsBack(mineCount);
-        }
+        choiceNode->precomputePathsBack(mineCount);
     };
 
-    for(auto choiceNodeList : choiceNodesSliced)
+    for(auto choiceNode : getChoiceNodes())
     {
-        threadSyncer.addFuture(QtConcurrent::run(&(*columnCalcThreadPool), precomputePaths, choiceNodeList));
+        threadSyncer.addFuture(QtConcurrent::run(&(*columnCalcThreadPool), precomputePaths, choiceNode));
     }
 
     threadSyncer.waitForFinished();
@@ -132,26 +95,21 @@ void ChoiceColumn::calculateWaysToBe(int mineCount)
     waysToBeMine = 0;
     waysToBeClear = 0;
 
-    auto choiceNodesSliced = getChoiceNodesSliced(columnCalcThreadPool->maxThreadCount());
-
     QFutureSynchronizer<void> threadSyncer;
 
-    auto calculateWaysToBe = [&] (const QList<QSharedPointer<ChoiceNode>>& choiceNodes)
+    auto calculateWaysToBe = [&] (const QSharedPointer<ChoiceNode>& choiceNode)
     {
-        for(auto choiceNode: choiceNodes)
-        {
-            choiceNode->calculateWaysToBe(mineCount);
+        choiceNode->calculateWaysToBe(mineCount);
 
-            QMutexLocker locker(&waysToBeMutex);
+        QMutexLocker locker(&waysToBeMutex);
 
-            waysToBeMine += choiceNode->getWaysToBeMine();
-            waysToBeClear += choiceNode->getWaysToBeClear();
-        }
+        waysToBeMine += choiceNode->getWaysToBeMine();
+        waysToBeClear += choiceNode->getWaysToBeClear();
     };
 
-    for(auto choiceNodeList : choiceNodesSliced)
+    for(auto choiceNode : getChoiceNodes())
     {
-        threadSyncer.addFuture(QtConcurrent::run(&(*columnCalcThreadPool), calculateWaysToBe, choiceNodeList));
+        threadSyncer.addFuture(QtConcurrent::run(&(*columnCalcThreadPool), calculateWaysToBe, choiceNode));
     }
 
     threadSyncer.waitForFinished();
