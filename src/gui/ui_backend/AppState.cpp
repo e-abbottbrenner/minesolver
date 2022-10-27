@@ -2,6 +2,7 @@
 
 #include "Minefield.h"
 #include "MinefieldImageProvider.h"
+#include "SolverMath.h"
 
 #include <QRandomGenerator>
 
@@ -117,7 +118,9 @@ void AppState::setShowInteractiveGameBoard(bool newShowInteractiveGameBoard)
 
 void AppState::checkFieldConfigValid()
 {
-    setFieldConfigValid(mineCount > 0 && mineCount < minefieldWidth * minefieldHeight - 9 && minefieldWidth > 3 && minefieldHeight > 3);
+    setFieldConfigValid(mineCount > 0 && mineCount < minefieldWidth * minefieldHeight - 9 && minefieldWidth > 3 && minefieldHeight > 3
+                        // if the operation gets too big for the solver it ends up infinite because floats are fun
+                        && boost::multiprecision::isfinite(SolverMath::choose(minefieldWidth * minefieldHeight, mineCount)));
 }
 
 void AppState::setFieldConfigValid(bool valid)

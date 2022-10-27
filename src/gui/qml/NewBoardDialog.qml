@@ -72,7 +72,7 @@ Popup {
                         anchors.horizontalCenter: parent.horizontalCenter
 
                         Component.onCompleted: text = AppState.minefieldWidth
-                        validator: IntValidator{ bottom: 10; top: 200; }
+                        validator: IntValidator{ bottom: 1 }
 
                         onTextChanged: AppState.minefieldWidth = parseInt(text)
                     }
@@ -90,7 +90,7 @@ Popup {
                         anchors.horizontalCenter: parent.horizontalCenter
 
                         Component.onCompleted: text = AppState.minefieldHeight
-                        validator: IntValidator{ bottom: 10; top: 100; }
+                        validator: IntValidator{ bottom: 1 }
 
                         onTextChanged: AppState.minefieldHeight = parseInt(text)
                     }
