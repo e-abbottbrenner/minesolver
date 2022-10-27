@@ -22,7 +22,7 @@ A single node in this DAG (in the code this is called a ChoiceNode) consists of 
 
 The DAG is broken down into columns (in the code these are called ChoiceColumn). Each column contains all of the choice nodes for a corresponding coordinate. When a board is difficult to solve, it is because there is exponential growth in the size of these columns. Every optimization is intended to fight this.
 
-There are two connections forward out of each choice node. One is for when the unknown cell is a mine, the other for when it's clear. They connect to a node for another coordinate with the state updated to match the choice. This update marks the coordinate of the chosen cell as visited and updates the counts according to whether it is a mine or clear. The connection is not formed if the update would violate the constraints of the count cells(meaning an adjacent cell's goes below zero or would be stalled above zero).
+There are two connections forward out of each choice node. One is for when the unknown cell is a mine, the other for when it's clear. They connect to a node for another coordinate with the state updated to match the choice. This update marks the coordinate of the chosen cell as visited and updates the counts according to whether it is a mine or clear. The connection is not formed if the update would violate the constraints of the count cells(meaning an adjacent cell's count goes below zero or would be stalled above zero).
 
 There is a final column appended to the end of the DAG. This is so all the choices made in the last cell can lead into a single node. The only valid state of this node is that all count cells are zero and all unknown cells are visited. No choices are made out of this final node.
 
@@ -61,6 +61,8 @@ The ordering used by the solver currently is to just follow rows or columns. Whi
 Many unknown cells have a probability of 0 or 1. These never change with more information. This is often the case in formations that cause the fringe to get out of control.
 
 So another optimization in this program is to simply remember if past calculations for a cell have already been proven to be either a mine or clear. If such proof exists, then their status is pre-applied to the starting state of the board.
+
+It is also possible to find many of these by simply checking for count cells that have exactly as many adjacent unknown cells as their counts. All of these must be mines. Additionally, if a count cell is zero, none of the adjacent unknown cells can be mines.
 
 ### Using math to calculate possibilities in the "open ocean" part of the board
 Many unknown cells have no adjacent count cells. These cells can have the number of ways they could be a mine or clear calculated with the choose operator because you have a certain number of them and you're choosing a certain number of mines to distribute among them.
