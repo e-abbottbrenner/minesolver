@@ -27,7 +27,7 @@ public:
     int countAdjacentUnknowns(int x, int y) const;
 
 private:
-    void validateMinefield();
+    bool validateCell(int x, int y) const;
     SolverMinefield chooseCellState(int x, int y, bool mine) const;
 
     bool legal = true;

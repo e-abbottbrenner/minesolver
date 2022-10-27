@@ -85,25 +85,18 @@ int SolverMinefield::countAdjacentUnknowns(int x, int y) const
     return adjacentUnknownCount;
 }
 
-void SolverMinefield::validateMinefield()
+bool SolverMinefield::validateCell(int x, int y) const
 {
-    for(int x = 0; x < getWidth(); ++x)
-    {
-        for(int y = 0; y < getHeight(); ++y)
-        {
-            MineStatus status = minefieldBytes[mapToArray(x, y)];
+    MineStatus status = minefieldBytes[mapToArray(x, y)];
 
-            // Invalid status is -1, if a count cell reaches it then it's invalid
-            if(status == SpecialStatus::Invalid ||
-                    (status >= 0 && countAdjacentUnknowns(x, y) < status))
-            {// this is a contradiction, it's not possible for there to be enough mines to satisfy status
-                legal = false;
-                return;
-            }
-        }
+    // Invalid status is -1, if a count cell reaches it then it's invalid
+    if(status == SpecialStatus::Invalid ||
+            (status >= 0 && countAdjacentUnknowns(x, y) < status))
+    {// this is a contradiction, it's not possible for there to be enough mines to satisfy status
+        return false;
     }
 
-    legal = true;
+    return true;
 }
 
 SolverMinefield SolverMinefield::chooseCellState(int x, int y, bool mine) const
@@ -125,6 +118,8 @@ SolverMinefield SolverMinefield::chooseCellState(int x, int y, bool mine) const
 
                 resultField.minefieldBytes[cellAddress] = updatedValue;
             }
+
+            resultField.legal = resultField.legal && resultField.validateCell(i, j);
         }
     };
 
@@ -133,8 +128,6 @@ SolverMinefield SolverMinefield::chooseCellState(int x, int y, bool mine) const
 
     // then we update all adjacent cells in the result so that their counts correspond to this cell being a mine
     resultField.traverseAdjacentCells(x, y, updateCell);
-
-    resultField.validateMinefield();
 
     return resultField;
 }
