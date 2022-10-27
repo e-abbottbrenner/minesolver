@@ -3,6 +3,7 @@
 #include "ChoiceColumn.h"
 #include "ChoiceNode.h"
 #include "Minefield.h"
+#include "ObviousCellFlagger.h"
 #include "PathChooser.h"
 #include "ProgressProxy.h"
 
@@ -72,78 +73,13 @@ void Solver::flagObviousCells()
 {
     progress->emitProgressStep("Flagging obvious cells");
 
-    QHash<Coordinate, double> additionalChancesToBeMine;
+    ObviousCellFlagger flagger(startingMinefield);
+
+    flagger.flagObviousCells();
+
+    prepareStartingMinefield(flagger.getChancesToBeMine());
 
     SolverMinefield flaggerMinefield = startingMinefield;
-
-    // TODO: general pattern recognition helper class
-    auto countAdjacentUnknowns = [&] (int x, int y)
-    {
-        int adjacentUnknowns = 0;
-
-        auto updateAdjacentUnknowns = [&] (int i, int j) {
-            MineStatus status = flaggerMinefield.getCell(i, j);
-
-            if(status < 0 && status != SpecialStatus::Visited)
-            {
-                ++adjacentUnknowns;
-            }
-        };
-
-        flaggerMinefield.traverseAdjacentCells(x, y, updateAdjacentUnknowns);
-
-        return adjacentUnknowns;
-    };
-
-    auto markAdjacentAsMines = [&] (int x, int y)
-    {
-        MineStatus status = flaggerMinefield.getCell(x, y);
-
-        if(status < 0 && status != SpecialStatus::Visited)
-        {// unknown, unvisited cell, mark it mine
-            flaggerMinefield = flaggerMinefield.chooseMine(x, y);
-
-            additionalChancesToBeMine.insert({x, y}, 1);
-        }
-    };
-
-    auto markAdjacentAsClear = [&] (int x, int y)
-    {
-        MineStatus status = flaggerMinefield.getCell(x, y);
-
-        if(status < 0 && status != SpecialStatus::Visited)
-        {// unknown, unvisited cell, mark it clear
-            flaggerMinefield = flaggerMinefield.chooseClear(x, y);
-
-            additionalChancesToBeMine.insert({x, y}, 0);
-        }
-    };
-
-    int previousKnownCount = -1;
-
-    while(previousKnownCount != chancesToBeMine.count())
-    {
-        previousKnownCount = chancesToBeMine.count();
-
-        for(int x = 0; x < flaggerMinefield.getWidth(); ++x)
-        {
-            for(int y = 0; y < flaggerMinefield.getHeight(); ++y)
-            {
-                MineStatus status = flaggerMinefield.getCell(x, y);
-
-                if(status > 0 && status == countAdjacentUnknowns(x, y))
-                {// the count is the same as the number of adjacent unknown cells, they are all mines
-                    flaggerMinefield.traverseAdjacentCells(x, y, markAdjacentAsMines);
-                } else
-                if(status == 0)
-                {
-                    flaggerMinefield.traverseAdjacentCells(x, y, markAdjacentAsClear);
-                }
-            }
-        }
-    }
-
-    prepareStartingMinefield(additionalChancesToBeMine);
 }
 
 void Solver::decidePath()

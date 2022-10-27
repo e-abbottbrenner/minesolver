@@ -24,7 +24,10 @@ public:
 
     const QByteArray &getMinefieldBytes() const;
 
+    int countAdjacentUnknowns(int x, int y) const;
+
 private:
+    void validateMinefield();
     SolverMinefield chooseCellState(int x, int y, bool mine) const;
 
     bool legal = true;
