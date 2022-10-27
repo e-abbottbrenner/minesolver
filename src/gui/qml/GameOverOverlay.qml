@@ -2,46 +2,31 @@ import QtQuick
 import QtQuick.Layouts
 import Minesolver
 
-Rectangle
+ColumnLayout
 {
     visible: AppState.minefieldModel.gameLost || AppState.minefieldModel.gameWon
 
-    color: "black"
+    Text {
+        text: "Game Lost!"
 
-    radius: 70
+        color: "red"
+        style: Text.Sunken
+        styleColor: "white"
 
-    width: gameOverLayout.implicitWidth + 100
-    height: gameOverLayout.implicitHeight + 10
+        font.pixelSize: 36
 
-    ColumnLayout
-    {
-        id: gameOverLayout
+        visible: AppState.minefieldModel.gameLost
+    }
 
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
+    Text {
+        text: "Game Won!"
 
-        Text {
-            text: "Game Lost!"
+        color: "green"
+        style: Text.Raised
+        styleColor: "white"
 
-            color: "red"
-            style: Text.Sunken
-            styleColor: "white"
+        font.pixelSize: 36
 
-            font.pixelSize: 72
-
-            visible: AppState.minefieldModel.gameLost
-        }
-
-        Text {
-            text: "Game Won!"
-
-            color: "green"
-            style: Text.Raised
-            styleColor: "white"
-
-            font.pixelSize: 72
-
-            visible: AppState.minefieldModel.gameWon
-        }
+        visible: AppState.minefieldModel.gameWon
     }
 }

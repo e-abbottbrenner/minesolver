@@ -109,10 +109,6 @@ Rectangle
                     }
                 }
             }
-
-            GameOverOverlay {
-                anchors.centerIn: parent
-            }
         }
 
         GameDashboard {

@@ -16,6 +16,13 @@ Rectangle {
         return AppState.minefieldModel.data(AppState.minefieldModel.index(row, column), AppState.minefieldModel.roleForName(roleName))
     }
 
+    GameOverOverlay {
+        anchors.top: parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
+
+        anchors.topMargin: 10
+    }
+
     Column {
 
         anchors.centerIn: parent
