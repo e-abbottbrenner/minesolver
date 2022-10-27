@@ -2,7 +2,7 @@
 A solver for minesweeper that for a given board, computes the probability of each unknown cell being a mine. You can also just play minesweeper with it.
 
 # How fast is it?
-Normal minesweeper boards that can be solved by people are evaluated in a fraction of a second. It can fully solve(or hit a mine and lose) the standard "expert" setting of minesweeper in under a second.
+The standard "expert" board (30x16 with 99 mines) is evaluated in a fraction of a second. It can fully solve(or hit a mine and lose) the standard "expert" setting of minesweeper in under a second.
 
 For harder boards it will take longer to evaluate them.
 
