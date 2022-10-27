@@ -9,6 +9,7 @@ target_link_libraries(Minesolver_src PUBLIC
     Qt::Core
     Qt::Gui
     Qt::Widgets
+    Qt6::Concurrent
 )
 
 target_include_directories(Minesolver_src PUBLIC

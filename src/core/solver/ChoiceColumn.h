@@ -5,6 +5,7 @@
 
 #include <QByteArray>
 #include <QHash>
+#include <QMutex>
 #include <QSharedPointer>
 
 class ChoiceNode;
@@ -37,6 +38,8 @@ private:
 
     int x = 0;
     int y = 0;
+
+    QMutex waysToBeMutex;
 
     SolverFloat waysToBeMine = 0;
     SolverFloat waysToBeClear = 0;

@@ -3,8 +3,6 @@
 #include "ChoiceNode.h"
 #include "SolverMinefield.h"
 
-#include <QFutureSynchronizer>
-#include <QMutex>
 #include <QMutexLocker>
 #include <QThreadPool>
 #include <QDebug>
@@ -56,46 +54,30 @@ int ChoiceColumn::getY() const
 
 void ChoiceColumn::precomputePathsForward(int mineCount)
 {
-    QFutureSynchronizer<void> threadSyncer;
-
-    auto precomputePaths = [&] (const QSharedPointer<ChoiceNode>& choiceNode)
+    auto precomputePaths = [mineCount] (const QSharedPointer<ChoiceNode>& choiceNode)
     {
         choiceNode->precomputePathsForward(mineCount);
     };
 
-    for(auto choiceNode : getChoiceNodes())
-    {
-        threadSyncer.addFuture(QtConcurrent::run(&(*columnCalcThreadPool), precomputePaths, choiceNode));
-    }
-
-    threadSyncer.waitForFinished();
+    // TODO: return plain map so there's a cancellable future
+    QtConcurrent::blockingMap(&(*columnCalcThreadPool), getChoiceNodes(), precomputePaths);
 }
 
 void ChoiceColumn::precomputePathsBack(int mineCount)
 {
-    QFutureSynchronizer<void> threadSyncer;
-
-    auto precomputePaths = [&] (const QSharedPointer<ChoiceNode>& choiceNode)
+    auto precomputePaths = [mineCount] (const QSharedPointer<ChoiceNode>& choiceNode)
     {
         choiceNode->precomputePathsBack(mineCount);
     };
 
-    for(auto choiceNode : getChoiceNodes())
-    {
-        threadSyncer.addFuture(QtConcurrent::run(&(*columnCalcThreadPool), precomputePaths, choiceNode));
-    }
-
-    threadSyncer.waitForFinished();
+    // TODO: return plain map so there's a cancellable future
+    QtConcurrent::blockingMap(&(*columnCalcThreadPool), getChoiceNodes(), precomputePaths);
 }
 
 void ChoiceColumn::calculateWaysToBe(int mineCount)
 {
-    QMutex waysToBeMutex;
-
     waysToBeMine = 0;
     waysToBeClear = 0;
-
-    QFutureSynchronizer<void> threadSyncer;
 
     auto calculateWaysToBe = [&] (const QSharedPointer<ChoiceNode>& choiceNode)
     {
@@ -107,12 +89,8 @@ void ChoiceColumn::calculateWaysToBe(int mineCount)
         waysToBeClear += choiceNode->getWaysToBeClear();
     };
 
-    for(auto choiceNode : getChoiceNodes())
-    {
-        threadSyncer.addFuture(QtConcurrent::run(&(*columnCalcThreadPool), calculateWaysToBe, choiceNode));
-    }
-
-    threadSyncer.waitForFinished();
+    // TODO: return plain map so there's a cancellable future
+    QtConcurrent::blockingMap(&(*columnCalcThreadPool), getChoiceNodes(), calculateWaysToBe);
 }
 
 double ChoiceColumn::getPercentChanceToBeMine() const
