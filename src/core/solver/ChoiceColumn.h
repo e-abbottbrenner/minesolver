@@ -8,16 +8,18 @@
 #include <QSharedPointer>
 
 class ChoiceNode;
+class SolverMinefield;
 
 class ChoiceColumn
 {
 public:
     ChoiceColumn(int x, int y);
 
-    QSharedPointer<ChoiceNode> getChoiceNode(const QByteArray& minefieldBytes) const;
+    QSharedPointer<ChoiceNode> getOrCreateChoiceNode(const SolverMinefield& minefield);
     void addChoiceNode(QSharedPointer<ChoiceNode> node);
 
     QList<QSharedPointer<ChoiceNode>> getChoiceNodes() const;
+    QList<QList<QSharedPointer<ChoiceNode>>> getChoiceNodesSliced(int slices) const;
 
     int getX() const;
     int getY() const;

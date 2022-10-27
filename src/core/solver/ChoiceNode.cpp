@@ -50,16 +50,7 @@ void ChoiceNode::tryAddEdge(QSharedPointer<ChoiceColumn> column, const SolverMin
     if(minefield.isLegal())
     {
         // there will often be an existing choice node in the column that has the same state, use it
-        auto edgeTargetNode = column->getChoiceNode(minefield.getMinefieldBytes());
-
-        if(edgeTargetNode.isNull())
-        {// no existing target, so need to create one
-            edgeTargetNode = edgeTargetNode.create(minefield, column->getX(), column->getY());
-            // we add it to the column so it can be reused
-            column->addChoiceNode(edgeTargetNode);
-        }
-
-        linkTarget(edgeTargetNode, cost);
+        linkTarget(column->getOrCreateChoiceNode(minefield), cost);
     }
 }
 
@@ -76,6 +67,7 @@ void ChoiceNode::linkTarget(QSharedPointer<ChoiceNode> edgeTarget, int cost)
 
     // add the target to our forward edges
     edgesForward.append({edgeTarget, cost});
+
     // add ourself to the target's back edges
     edgeTarget->edgesBack.append({sharedFromThis(), cost});
 }
