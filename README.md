@@ -6,7 +6,7 @@ Qt6 - should just be installed, you'll likely want to build the project with QtC
 
 boost 1.80.0 - Should be installed in boost_1_80_0 one level down from the repository. All that really matters is the multiprecision library though.
 
-gtest - cmake just pulls this in
+gtest - Cmake pulls this in so you don't need to install it.
 
 # How fast is it?
 The standard "expert" board (30x16 with 99 mines) is evaluated in a fraction of a second. It can fully solve(or hit a mine and lose) such a board in under a second.
