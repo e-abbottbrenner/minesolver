@@ -37,7 +37,7 @@ public:
 private:
     static void precomputePathsForwardForNode(const QSharedPointer<ChoiceNode>& choiceNode, int mineCount);
     static void precomputePathsBackForNode(const QSharedPointer<ChoiceNode>& choiceNode, int mineCount);
-    static void calculateWaytsToBeForNode(const QSharedPointer<ChoiceNode>& choiceNode, ChoiceColumn* column, int mineCount);
+    static void calculateWaysToBeForNode(const QSharedPointer<ChoiceNode>& choiceNode, ChoiceColumn* column, int mineCount);
 
     QHash<QByteArray, QSharedPointer<ChoiceNode>> choicesInColumn;
 

@@ -31,6 +31,8 @@ Solver::Solver(QSharedPointer<Minefield const> gameMinefield, QHash<Coordinate, 
 
 Solver::~Solver()
 {
+    // don't fully destroy the solver if we're waiting on a future that's interacting with the columns we would destroy
+    currentFuture.waitForFinished();
 }
 
 void Solver::computeSolution()

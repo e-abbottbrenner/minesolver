@@ -70,7 +70,7 @@ QFuture<void> ChoiceColumn::calculateWaysToBe(int mineCount)
     waysToBeClear = 0;
 
     // map seems to hate lambdas
-    return QtConcurrent::map(&(*columnCalcThreadPool), choicesInColumn, std::bind(&calculateWaytsToBeForNode, std::placeholders::_1, this, mineCount));
+    return QtConcurrent::map(&(*columnCalcThreadPool), choicesInColumn, std::bind(&calculateWaysToBeForNode, std::placeholders::_1, this, mineCount));
 }
 
 double ChoiceColumn::getPercentChanceToBeMine() const
@@ -99,7 +99,7 @@ void ChoiceColumn::precomputePathsBackForNode(const QSharedPointer<ChoiceNode> &
     choiceNode->precomputePathsBack(mineCount);
 }
 
-void ChoiceColumn::calculateWaytsToBeForNode(const QSharedPointer<ChoiceNode> &choiceNode, ChoiceColumn *column, int mineCount)
+void ChoiceColumn::calculateWaysToBeForNode(const QSharedPointer<ChoiceNode> &choiceNode, ChoiceColumn *column, int mineCount)
 {
     choiceNode->calculateWaysToBe(mineCount);
 
