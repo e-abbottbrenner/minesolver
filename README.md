@@ -1,6 +1,11 @@
 # minesolver
 A solver for minesweeper that for a given board, computes the probability of each unknown cell being a mine. You can also just play minesweeper with it.
 
+# Dependencies
+Qt6 - should just be installed, you'll likely want to build the project with QtCreator.
+boost 1.80.0 - Should be installed in boost_1_80_0 one level down from the repository
+gtest - cmake just pulls this in
+
 # How fast is it?
 The standard "expert" board (30x16 with 99 mines) is evaluated in a fraction of a second. It can fully solve(or hit a mine and lose) such a board in under a second.
 
