@@ -160,6 +160,20 @@ void MinefieldTableModel::revealLowestRiskCells()
     }
 }
 
+void MinefieldTableModel::flagGuaranteedMines()
+{
+    auto chances = finishedSolver->getChancesToBeMine();
+    auto coords = chances.keys();
+
+    for(auto coord: coords)
+    {
+        if(minefield->getCell(coord.first, coord.second) == SpecialStatus::Unknown && chances[coord] == 1)
+        {
+            toggleGuessMine(coord.second, coord.first);
+        }
+    }
+}
+
 bool MinefieldTableModel::getGameLost() const
 {
     return gameLost;
@@ -341,6 +355,7 @@ void MinefieldTableModel::applyCalculationResults()
 
     if(autoSolve)
     {
+        QTimer::singleShot(0, this, &MinefieldTableModel::flagGuaranteedMines);
         QTimer::singleShot(0, this, &MinefieldTableModel::revealLowestRiskCells);
     }
 }

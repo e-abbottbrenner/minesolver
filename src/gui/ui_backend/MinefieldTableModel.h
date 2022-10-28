@@ -101,6 +101,7 @@ public slots:
     void toggleGuessMine(int row, int col);
 
     void revealLowestRiskCells();
+    void flagGuaranteedMines();
 
 private slots:
     void onMineHit();

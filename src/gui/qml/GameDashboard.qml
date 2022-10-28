@@ -153,6 +153,16 @@ Rectangle {
         Button {
             anchors.horizontalCenter: parent.horizontalCenter
 
+            text: "Flag Guaranteed Mines"
+
+            onClicked: { AppState.minefieldModel.flagGuaranteedMines() }
+
+            visible: AppState.showSolution
+        }
+
+        Button {
+            anchors.horizontalCenter: parent.horizontalCenter
+
             text: "Auto solve"
 
             onClicked: { AppState.minefieldModel.autoSolve = true }
