@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
 import Minesolver
 
 Rectangle
@@ -9,29 +10,24 @@ Rectangle
     border.color: "gray"
     border.width: 20
 
-    width: 1200
-    height: 700
-
-    Row
+    RowLayout
     {
-        anchors.centerIn: parent
+        anchors.fill: parent
+        anchors.margins: 40
 
         spacing: 20
 
-        Item {
-            width: 900
-            height: 600
-
-            anchors.verticalCenter: parent.verticalCenter
-
+        ColumnLayout {
             Row {
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.bottom: panelPosHelper.top
-                anchors.bottomMargin: 10
+                id: topRow
+
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignBottom
+                Layout.bottomMargin: 10
 
                 spacing: 20
 
                 GameStatusPanel {
+                    id: statusPanel
                 }
 
                 Button {
@@ -44,33 +40,19 @@ Rectangle
                 }
             }
 
-            Item {
-                id: panelPosHelper
-
-                anchors.centerIn: parent
-
-                property double aspect: computeAspect()
-
-                width: Math.min(900, 500 * aspect)
-                height: Math.min(500, 900 / aspect)
-
-                function computeAspect() {
-                    return AppState.minefieldModel.columnCount(AppState.minefieldModel.nullIndex()) / AppState.minefieldModel.rowCount(AppState.minefieldModel.nullIndex())
-                }
-
-                Connections {
-                    target: AppState.minefieldModel
-
-                    function onModelReset() {
-                        panelPosHelper.aspect = panelPosHelper.computeAspect()
-                    }
-                }
-            }
-
             GameBoard {
                 id: gameBoard
 
-                anchors.centerIn: parent
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+
+                Layout.minimumWidth: 900
+                Layout.minimumHeight: 500
+
+                Layout.maximumHeight: Number.POSITIVE_INFINITY
+                Layout.maximumWidth: Number.POSITIVE_INFINITY
+
+                Layout.alignment: Qt.AlignCenter
 
                 visible: AppState.showInteractiveGameBoard
             }
@@ -82,11 +64,20 @@ Rectangle
 
                 id: gameImage
 
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+
+                Layout.minimumWidth: 900
+                Layout.minimumHeight: 500
+
+                Layout.maximumHeight: Number.POSITIVE_INFINITY
+                Layout.maximumWidth: Number.POSITIVE_INFINITY
+
+                Layout.alignment: Qt.AlignCenter
+
                 cache: false
 
                 fillMode: Image.PreserveAspectFit
-
-                anchors.fill: panelPosHelper
 
                 visible: !AppState.showInteractiveGameBoard
 
@@ -115,7 +106,7 @@ Rectangle
             row: gameBoard.hoveredRow
             column: gameBoard.hoveredColumn
 
-            anchors.verticalCenter: parent.verticalCenter
+            Layout.alignment: Qt.AlignVCenter
         }
     }
 }

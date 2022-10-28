@@ -12,11 +12,18 @@ ApplicationWindow {
 
     title: qsTr("MineSolver")
 
-    GameView {
-        anchors.centerIn: parent
+    RowLayout {
+        anchors.fill: parent
 
-        id: view
-        Layout.alignment: Qt.AlignCenter
+        GameView {
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            Layout.minimumWidth: 1200
+            Layout.minimumHeight: 760
+
+            id: view
+        }
+
     }
 
     Shortcut {
