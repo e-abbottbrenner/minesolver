@@ -25,7 +25,7 @@ target_include_directories(Minesolver_test PRIVATE
     ../include
 )
 
-target_link_libraries(Minesolver_test PUBLIC
+target_link_libraries(Minesolver_test PRIVATE
     Minesolver_src
     GTest::gtest_main
 )
