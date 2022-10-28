@@ -4,6 +4,7 @@
 #include "SolverFloat.h"
 
 #include <QByteArray>
+#include <QFuture>
 #include <QHash>
 #include <QMutex>
 #include <QSharedPointer>
@@ -24,16 +25,20 @@ public:
     int getX() const;
     int getY() const;
 
-    void precomputePathsForward(int mineCount);
-    void precomputePathsBack(int mineCount);
+    QFuture<void> precomputePathsForward(int mineCount);
+    QFuture<void> precomputePathsBack(int mineCount);
 
-    void calculateWaysToBe(int mineCount);
+    QFuture<void> calculateWaysToBe(int mineCount);
 
     double getPercentChanceToBeMine() const;
     SolverFloat getWaysToBeMine() const;
     SolverFloat getWaysToBeClear() const;
 
 private:
+    static void precomputePathsForwardForNode(const QSharedPointer<ChoiceNode>& choiceNode, int mineCount);
+    static void precomputePathsBackForNode(const QSharedPointer<ChoiceNode>& choiceNode, int mineCount);
+    static void calculateWaytsToBeForNode(const QSharedPointer<ChoiceNode>& choiceNode, ChoiceColumn* column, int mineCount);
+
     QHash<QByteArray, QSharedPointer<ChoiceNode>> choicesInColumn;
 
     int x = 0;

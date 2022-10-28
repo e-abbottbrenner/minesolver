@@ -63,6 +63,8 @@ private:
 
     bool minefieldPopulated = true;
 
+    QFuture<void> currentFuture;
+
     QSharedPointer<ProgressProxy> progress;
 
     void prepareStartingMinefield(const QHash<Coordinate, double> &previousMineChances);

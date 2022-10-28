@@ -192,7 +192,8 @@ void Solver::analyzeSolutionGraph()
     {// we start from the beginning and move forward to precompute the paths back since each column depends on the previous
         CHECK_CANCELLED;
 
-        column->precomputePathsBack(mineCount);
+        currentFuture = column->precomputePathsBack(mineCount);
+        currentFuture.waitForFinished();
 
         progress->incrementProgress();
     }
@@ -201,7 +202,8 @@ void Solver::analyzeSolutionGraph()
     {// we start from the end of the columns and move backward to precompute the paths forward since each column depends on the next
         CHECK_CANCELLED;
 
-        (*iter)->precomputePathsForward(mineCount);
+        currentFuture = (*iter)->precomputePathsForward(mineCount);
+        currentFuture.waitForFinished();
 
         progress->incrementProgress();
     }
@@ -216,7 +218,8 @@ void Solver::analyzeSolutionGraph()
         CHECK_CANCELLED;
 
         // we compute the ways to be for all columns, including the final column
-        column->calculateWaysToBe(mineCount);
+        currentFuture = column->calculateWaysToBe(mineCount);
+        currentFuture.waitForFinished();
 
         if(column->getX() >= 0 && column->getY() >= 0)
         {// the final column has -1, -1, we don't insert chances for it at its coordinate as it represents all tail path cells
@@ -280,4 +283,6 @@ void Solver::setLogProgress(bool newLogProgress)
 void Solver::cancel()
 {
     cancelled = true;
+
+    currentFuture.cancel();
 }

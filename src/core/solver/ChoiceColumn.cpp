@@ -52,45 +52,25 @@ int ChoiceColumn::getY() const
     return y;
 }
 
-void ChoiceColumn::precomputePathsForward(int mineCount)
+QFuture<void> ChoiceColumn::precomputePathsForward(int mineCount)
 {
-    auto precomputePaths = [mineCount] (const QSharedPointer<ChoiceNode>& choiceNode)
-    {
-        choiceNode->precomputePathsForward(mineCount);
-    };
-
-    // TODO: return plain map so there's a cancellable future
-    QtConcurrent::blockingMap(&(*columnCalcThreadPool), getChoiceNodes(), precomputePaths);
+    // map seems to hate lambdas
+    return QtConcurrent::map(&(*columnCalcThreadPool), choicesInColumn, std::bind(&precomputePathsForwardForNode, std::placeholders::_1, mineCount));
 }
 
-void ChoiceColumn::precomputePathsBack(int mineCount)
+QFuture<void> ChoiceColumn::precomputePathsBack(int mineCount)
 {
-    auto precomputePaths = [mineCount] (const QSharedPointer<ChoiceNode>& choiceNode)
-    {
-        choiceNode->precomputePathsBack(mineCount);
-    };
-
-    // TODO: return plain map so there's a cancellable future
-    QtConcurrent::blockingMap(&(*columnCalcThreadPool), getChoiceNodes(), precomputePaths);
+    // map seems to hate lambdas
+    return QtConcurrent::map(&(*columnCalcThreadPool), choicesInColumn, std::bind(&precomputePathsBackForNode, std::placeholders::_1, mineCount));
 }
 
-void ChoiceColumn::calculateWaysToBe(int mineCount)
+QFuture<void> ChoiceColumn::calculateWaysToBe(int mineCount)
 {
     waysToBeMine = 0;
     waysToBeClear = 0;
 
-    auto calculateWaysToBe = [&] (const QSharedPointer<ChoiceNode>& choiceNode)
-    {
-        choiceNode->calculateWaysToBe(mineCount);
-
-        QMutexLocker locker(&waysToBeMutex);
-
-        waysToBeMine += choiceNode->getWaysToBeMine();
-        waysToBeClear += choiceNode->getWaysToBeClear();
-    };
-
-    // TODO: return plain map so there's a cancellable future
-    QtConcurrent::blockingMap(&(*columnCalcThreadPool), getChoiceNodes(), calculateWaysToBe);
+    // map seems to hate lambdas
+    return QtConcurrent::map(&(*columnCalcThreadPool), choicesInColumn, std::bind(&calculateWaytsToBeForNode, std::placeholders::_1, this, mineCount));
 }
 
 double ChoiceColumn::getPercentChanceToBeMine() const
@@ -107,4 +87,24 @@ SolverFloat ChoiceColumn::getWaysToBeMine() const
 SolverFloat ChoiceColumn::getWaysToBeClear() const
 {
     return waysToBeClear;
+}
+
+void ChoiceColumn::precomputePathsForwardForNode(const QSharedPointer<ChoiceNode> &choiceNode, int mineCount)
+{
+    choiceNode->precomputePathsForward(mineCount);
+}
+
+void ChoiceColumn::precomputePathsBackForNode(const QSharedPointer<ChoiceNode> &choiceNode, int mineCount)
+{
+    choiceNode->precomputePathsBack(mineCount);
+}
+
+void ChoiceColumn::calculateWaytsToBeForNode(const QSharedPointer<ChoiceNode> &choiceNode, ChoiceColumn *column, int mineCount)
+{
+    choiceNode->calculateWaysToBe(mineCount);
+
+    QMutexLocker locker(&column->waysToBeMutex);
+
+    column->waysToBeMine += choiceNode->getWaysToBeMine();
+    column->waysToBeClear += choiceNode->getWaysToBeClear();
 }
