@@ -3,7 +3,9 @@ A solver for minesweeper that for a given board, computes the probability of eac
 
 # Dependencies
 Qt6 - should just be installed, you'll likely want to build the project with QtCreator.
-boost 1.80.0 - Should be installed in boost_1_80_0 one level down from the repository
+
+boost 1.80.0 - Should be installed in boost_1_80_0 one level down from the repository. All that really matters is the multiprecision library though.
+
 gtest - cmake just pulls this in
 
 # How fast is it?
