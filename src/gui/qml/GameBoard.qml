@@ -92,6 +92,15 @@ Item {
                 }
 
                 Image {
+                    source: "qrc:/icons/smiley.png"
+                    anchors.fill: parent
+
+                    fillMode: Image.PreserveAspectFit
+
+                    visible: isUnexplodedMine
+                }
+
+                Image {
                     source: "qrc:/icons/flag.png"
                     anchors.fill: parent
 
@@ -109,7 +118,7 @@ Item {
 
                     anchors.fill: parent
 
-                    visible: chanceMine > 0 && AppState.showSolution && !isMine && !guessMine
+                    visible: chanceMine > 0 && AppState.showSolution && !isMine && !guessMine && !isUnexplodedMine
                 }
 
                 Rectangle {

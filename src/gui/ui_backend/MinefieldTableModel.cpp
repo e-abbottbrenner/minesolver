@@ -74,6 +74,9 @@ QVariant MinefieldTableModel::data(const QModelIndex &index, int role) const
         case MineRole:
             return SpecialStatus::Mine == mineStatus;
             break;
+        case UnexplodedMineRole:
+            return SpecialStatus::UnexplodedMine == mineStatus;
+            break;
         case GuessMineRole:
             return SpecialStatus::GuessMine == mineStatus;
         case ChanceToBeMineRole:
@@ -98,6 +101,7 @@ QHash<int, QByteArray> MinefieldTableModel::roleNames() const
     roles[CountRole] = "count";
     roles[GuessMineRole] = "guessMine";
     roles[MineRole] = "isMine";
+    roles[UnexplodedMineRole] = "isUnexplodedMine";
     roles[ChanceToBeMineRole] = "chanceMine";
     roles[ChoiceColumnCountRole] = "choiceColumnCount";
     roles[SolverPathIndexRole] = "solverPathIndex";
@@ -375,6 +379,12 @@ void MinefieldTableModel::setGameWon(bool won)
     if(won != gameWon)
     {
         gameWon = won;
+
+        if(won)
+        {
+            minefield->revealAll(true);
+        }
+
         emit gameWonChanged(won);
     }
 }

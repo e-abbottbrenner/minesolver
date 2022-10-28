@@ -208,15 +208,23 @@ QList<Coordinate> Minefield::recursiveReveal(int x, int y)
     return coordsRevealed;
 }
 
-QList<Coordinate> Minefield::revealAll()
+QList<Coordinate> Minefield::revealAll(bool changeToUnexploded)
 {
     QList<Coordinate> coordsRevealed;
 
     auto reveal = [&] (int x, int y)
     {
-        if(revealedMinefield[mapToArray(x, y)] != underlyingMinefield[mapToArray(x, y)])
+        int cellIndex = mapToArray(x, y);
+
+        if(revealedMinefield[cellIndex] != underlyingMinefield[cellIndex])
         {
-            revealedMinefield[mapToArray(x, y)] = underlyingMinefield[mapToArray(x, y)];
+            revealedMinefield[cellIndex] = underlyingMinefield[cellIndex];
+
+            if(changeToUnexploded && revealedMinefield[cellIndex] == SpecialStatus::Mine)
+            {
+                revealedMinefield[cellIndex] = SpecialStatus::UnexplodedMine;
+            }
+
             coordsRevealed.append({x, y});
             emit cellUpdated(x, y);
         }
