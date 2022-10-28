@@ -174,6 +174,11 @@ Popup {
                     enabled: AppState.fieldConfigValid
 
                     onClicked: {
+                        if(widthField.text * heightField.text > 2500)
+                        {// large board, default to the fast mode
+                            AppState.showInteractiveGameBoard = false
+                        }
+
                         AppState.createNewMinefield()
 
                         newBoardDialog.close()
