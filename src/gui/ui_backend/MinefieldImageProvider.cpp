@@ -35,8 +35,9 @@ QImage MinefieldImageProvider::requestImage(const QString &/*id*/, QSize *size, 
 
         image.setColor(static_cast<uchar>(SpecialStatus::Unknown), qRgb(128, 128, 128));
         image.setColor(static_cast<uchar>(SpecialStatus::GuessMine), qRgb(255, 0, 255));
-        image.setColor(static_cast<uchar>(SpecialStatus::Mine), qRgb(255, 0, 0));
+        image.setColor(static_cast<uchar>(SpecialStatus::Mine), qRgb(0, 0, 0));
         image.setColor(static_cast<uchar>(SpecialStatus::UnexplodedMine), qRgb(255, 255, 0));
+        image.setColor(static_cast<uchar>(SpecialStatus::ExplodedMine), qRgb(255, 0, 0));
 
         for(int i = 0; i <= 8; ++i)
         {

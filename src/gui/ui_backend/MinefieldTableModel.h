@@ -36,6 +36,7 @@ public:
         CountRole = Qt::UserRole,
         GuessMineRole,
         MineRole,
+        ExplodedMineRole,
         UnexplodedMineRole,
         ChanceToBeMineRole,
         ChoiceColumnCountRole,

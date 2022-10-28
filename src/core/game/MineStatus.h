@@ -13,6 +13,7 @@ namespace SpecialStatus
     const MineStatus GuessMine = -4;
     const MineStatus Visited = -5;
     const MineStatus UnexplodedMine = -6;
+    const MineStatus ExplodedMine = -7;
 }
 
 #endif // MINESTATUS_H

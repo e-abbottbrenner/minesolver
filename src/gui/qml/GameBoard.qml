@@ -61,15 +61,14 @@ Item {
                 MouseArea {
                     id: clickCatcher
                     hoverEnabled: true
-                    acceptedButtons: Qt.LeftButton | Qt.RightButton
+                    acceptedButtons: !AppState.minefieldModel.gameWon && !AppState.minefieldModel.gameLost?
+                                         Qt.LeftButton | Qt.RightButton : 0
                     anchors.fill: parent
 
                     onEntered: {
                         gameBoard.hoveredRow = row
                         gameBoard.hoveredColumn = column
                     }
-
-                    enabled: !AppState.minefieldModel.gameWon && !AppState.minefieldModel.gameLost
                 }
 
                 Rectangle {
@@ -78,12 +77,20 @@ Item {
                     color: "transparent"
                     anchors.fill: parent
 
-                    visible: hoveredRow === row && hoveredColumn === column &&
-                             !AppState.minefieldModel.gameWon && !AppState.minefieldModel.gameLost
+                    visible: hoveredRow === row && hoveredColumn === column
                 }
 
                 Image {
                     source: "qrc:/icons/exploded.png"
+                    anchors.fill: parent
+
+                    fillMode: Image.PreserveAspectFit
+
+                    visible: isExplodedMine
+                }
+
+                Image {
+                    source: "qrc:/icons/mine.png"
                     anchors.fill: parent
 
                     fillMode: Image.PreserveAspectFit
@@ -118,7 +125,8 @@ Item {
 
                     anchors.fill: parent
 
-                    visible: chanceMine > 0 && AppState.showSolution && !isMine && !guessMine && !isUnexplodedMine
+                    visible: chanceMine > 0 && AppState.showSolution && !guessMine &&
+                             !AppState.minefieldModel.gameLost && !AppState.minefieldModel.gameWon
                 }
 
                 Rectangle {

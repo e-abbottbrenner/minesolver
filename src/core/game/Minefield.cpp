@@ -133,12 +133,14 @@ QList<Coordinate> Minefield::revealCell(int x, int y, bool force)
         populateMinefield(x, y);
     }
 
-    if(revealedMinefield[mapToArray(x, y)] == SpecialStatus::GuessMine && !force)
+    int cellIndex = mapToArray(x, y);
+
+    if(revealedMinefield[cellIndex] == SpecialStatus::GuessMine && !force)
     {// not allowed to reveal guesses
         return {};
     }
 
-    bool clear = underlyingMinefield[mapToArray(x, y)] != SpecialStatus::Mine;
+    bool clear = underlyingMinefield[cellIndex] != SpecialStatus::Mine;
 
     if(clear)
     {
@@ -148,7 +150,11 @@ QList<Coordinate> Minefield::revealCell(int x, int y, bool force)
     {
         emit mineHit();
 
-        return revealAll();
+        auto mines = revealMines();
+
+        revealedMinefield[cellIndex] = SpecialStatus::ExplodedMine;
+
+        return mines;
     }
 }
 
@@ -208,7 +214,7 @@ QList<Coordinate> Minefield::recursiveReveal(int x, int y)
     return coordsRevealed;
 }
 
-QList<Coordinate> Minefield::revealAll(bool changeToUnexploded)
+QList<Coordinate> Minefield::revealAll()
 {
     QList<Coordinate> coordsRevealed;
 
@@ -220,10 +226,32 @@ QList<Coordinate> Minefield::revealAll(bool changeToUnexploded)
         {
             revealedMinefield[cellIndex] = underlyingMinefield[cellIndex];
 
-            if(changeToUnexploded && revealedMinefield[cellIndex] == SpecialStatus::Mine)
+            if(revealedMinefield[cellIndex] == SpecialStatus::Mine)
             {
                 revealedMinefield[cellIndex] = SpecialStatus::UnexplodedMine;
             }
+
+            coordsRevealed.append({x, y});
+            emit cellUpdated(x, y);
+        }
+    };
+
+    traverseCells(reveal);
+
+    return coordsRevealed;
+}
+
+QList<Coordinate> Minefield::revealMines()
+{
+    QList<Coordinate> coordsRevealed;
+
+    auto reveal = [&] (int x, int y)
+    {
+        int cellIndex = mapToArray(x, y);
+
+        if(SpecialStatus::Mine == underlyingMinefield[cellIndex])
+        {
+            revealedMinefield[cellIndex] = underlyingMinefield[cellIndex];
 
             coordsRevealed.append({x, y});
             emit cellUpdated(x, y);
