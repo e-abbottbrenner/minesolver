@@ -2,7 +2,7 @@
 A solver for minesweeper that for a given board, computes the probability of each unknown cell being a mine. You can also just play minesweeper with it.
 
 # Dependencies
-Qt6 - should just be installed, you'll likely want to build the project with QtCreator.
+Qt6 - Easiest way to get this is the open source installer, QtCreator is the best way to build the application as well.
 
 boost 1.80.0 - Should be installed in boost_1_80_0 one level down from the repository. All that really matters is the multiprecision library though.
 
