@@ -22,7 +22,7 @@ add_executable(Minesolver_test
     ${TEST_SOURCES})
 
 target_include_directories(Minesolver_test PRIVATE
-    ../include
+    ../../boost_1_80_0
 )
 
 target_link_libraries(Minesolver_test PRIVATE

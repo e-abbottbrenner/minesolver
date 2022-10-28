@@ -13,7 +13,7 @@ target_link_libraries(Minesolver_src PUBLIC
 )
 
 target_include_directories(Minesolver_src PUBLIC
-    ../../include
+    ../../../boost_1_80_0
     game
     solver
     ui
