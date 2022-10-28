@@ -11,7 +11,7 @@ Popup {
     property int startingFieldWidth
     property int startingFieldHeight
 
-    width: 600
+    width: 800
     height: 150
 
     modal: true
@@ -112,6 +112,30 @@ Popup {
                         heightField.text = "16"
                     }
                 }
+
+                Button {
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    text: "Set Large"
+
+                    onClicked: {
+                        mineCountField.text = "500"
+                        widthField.text = "50"
+                        heightField.text = "50"
+                    }
+                }
+
+                Button {
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    text: "Set Jumbo"
+
+                    onClicked: {
+                        mineCountField.text = "2000"
+                        widthField.text = "100"
+                        heightField.text = "100"
+                    }
+                }
             }
 
             Row {
@@ -120,7 +144,7 @@ Popup {
 
                     visible: !AppState.fieldConfigValid
 
-                    text: "Field config is not valid"
+                    text: "Field config is not valid (too many mines or too many states to count)"
 
                     color: "red"
                 }
@@ -135,9 +159,10 @@ Popup {
 
                     onClicked: {
                         // back to the previous state for rejection
-                        AppState.mineCount = startingMineCount
-                        AppState.minefieldWidth = startingFieldWidth
-                        AppState.minefieldHeight = startingFieldHeight
+                        // set the text fields so that the ui states also update
+                        mineCountField.text = startingMineCount
+                        widthField.text = startingFieldWidth
+                        heightField.text = startingFieldHeight
 
                         newBoardDialog.close()
                     }

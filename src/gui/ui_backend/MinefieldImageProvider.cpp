@@ -15,7 +15,8 @@ MinefieldImageProvider::MinefieldImageProvider()
 
 MinefieldImageProvider *MinefieldImageProvider::instance()
 {
-    // TODO: Qt takes ownership, this isn't really "safe" as a singleton
+    // Qt takes ownership, this isn't really "safe" as a singleton
+    // but we also don't reference it outside of qml so it outlasts all references
     static MinefieldImageProvider* inst = new MinefieldImageProvider;
 
     return inst;

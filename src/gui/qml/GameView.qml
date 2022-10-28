@@ -34,7 +34,7 @@ Rectangle
                     anchors.bottom: parent.bottom
                     anchors.bottomMargin: 10
 
-                    text: AppState.showInteractiveGameBoard? "Display Mode: Interactive" : "Display Mode: Image"
+                    text: AppState.showInteractiveGameBoard? "Display Mode: Interactive (Slow)" : "Display Mode: Image (Fast)"
 
                     onClicked: AppState.showInteractiveGameBoard = !AppState.showInteractiveGameBoard
                 }
