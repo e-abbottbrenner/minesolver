@@ -14,7 +14,7 @@ The standard "expert" board (30x16 with 99 mines) is evaluated in a fraction of 
 For harder boards it will take longer to evaluate them.
 
 # How much memory does it use?
-Again not much for normal minesweeper boards that can be solved by people. But it can eat multiple gigabytes if you feed it a harder board.
+Again not much for normal minesweeper boards that can be solved by people. But it can eat many gigabytes if you feed it a harder board (memory used is not guaranteed to be polynomial in the input).
 
 # How it works
 The probability of each unknown cell is determined by counting all the ways that cell could be a mine vs all the ways it could be clear.
