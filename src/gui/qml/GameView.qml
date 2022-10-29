@@ -99,6 +99,14 @@ Rectangle
                         gameImage.reloadSource()
                     }
                 }
+
+                Connections {
+                    target: AppState
+
+                    function onMinefieldChanged() {
+                        gameImage.reloadSource()
+                    }
+                }
             }
         }
 

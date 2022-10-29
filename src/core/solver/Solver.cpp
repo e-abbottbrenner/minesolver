@@ -102,7 +102,7 @@ void Solver::decidePath()
     path = chooser.getPath();
     tailPath = chooser.getTailPath();
 
-    // there are four computational loops that go over the path size
+    // there are four computational loops that go over the path size and a cleanup step
     progress->emitProgressMaximum(5 * path.size());
 
     if(logProgress)

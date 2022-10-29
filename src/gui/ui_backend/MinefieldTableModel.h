@@ -132,6 +132,13 @@ private:
 
     int flagsRemaining;
 
+    int dataChangedMinRow = std::numeric_limits<int>::max();
+    int dataChangedMinCol = std::numeric_limits<int>::max();
+    int dataChangedMaxRow = 0;
+    int dataChangedMaxCol = 0;
+
+    bool dataChangedPending = false;
+
     QList<QMetaObject::Connection> recalcProgressConnections;
 
     QList<Coordinate> getOptimalCells() const;
@@ -139,6 +146,8 @@ private:
     void calculateChances();
 
     void emitUpdateSignalForCoords(QList<Coordinate> coords);
+    void prepareDataChanged(int minRow, int minCol, int maxRow, int maxCol);
+    void deliverDataChanged();
 
     void applyCalculationResults();
 

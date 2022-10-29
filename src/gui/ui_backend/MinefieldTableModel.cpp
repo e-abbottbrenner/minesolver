@@ -150,7 +150,7 @@ void MinefieldTableModel::toggleGuessMine(int row, int col)
 
     setFlagsRemaining(flagsRemaining + (toggleIndex.data(GuessMineRole).toBool()? -1 : 1));
 
-    emit dataChanged(toggleIndex, toggleIndex);
+    prepareDataChanged(row, col, row, col);
 }
 
 void MinefieldTableModel::revealLowestRiskCells()
@@ -322,20 +322,51 @@ void MinefieldTableModel::calculateChances()
 
 void MinefieldTableModel::emitUpdateSignalForCoords(QList<Coordinate> coords)
 {
-    int maxRow = 0;
-    int maxCol = 0;
     int minRow = minefield->getHeight();
     int minCol = minefield->getWidth();
+    int maxRow = 0;
+    int maxCol = 0;
 
     for(Coordinate coord: coords)
     {
-        maxRow = std::max(maxRow, coord.second);
-        maxCol = std::max(maxCol, coord.first);
         minRow = std::min(minRow, coord.second);
         minCol = std::min(minRow, coord.first);
+        maxRow = std::max(maxRow, coord.second);
+        maxCol = std::max(maxCol, coord.first);
     }
 
-    emit dataChanged(index(minRow, minCol), index(maxRow, maxCol));
+    if(coords.size() > 0)
+    {
+        prepareDataChanged(minRow, minCol, maxRow, maxCol);
+    }
+}
+
+void MinefieldTableModel::prepareDataChanged(int minRow, int minCol, int maxRow, int maxCol)
+{
+    dataChangedMinRow = std::min(minRow, dataChangedMinRow);
+    dataChangedMinCol = std::min(minCol, dataChangedMinCol);
+    dataChangedMaxRow = std::max(maxRow, dataChangedMaxRow);
+    dataChangedMaxCol = std::max(maxCol, dataChangedMaxCol);
+
+    if(!dataChangedPending)
+    {
+        dataChangedPending = true;
+
+        QTimer::singleShot(0, this, &MinefieldTableModel::deliverDataChanged);
+    }
+}
+
+void MinefieldTableModel::deliverDataChanged()
+{
+    if(dataChangedPending)
+    {
+        emit dataChanged(index(dataChangedMinRow, dataChangedMinCol), index(dataChangedMaxRow, dataChangedMaxCol));
+
+        dataChangedMinRow = dataChangedMinCol = std::numeric_limits<int>::max();
+        dataChangedMaxRow = dataChangedMaxCol = 0;
+
+        dataChangedPending = false;
+    }
 }
 
 void MinefieldTableModel::applyCalculationResults()

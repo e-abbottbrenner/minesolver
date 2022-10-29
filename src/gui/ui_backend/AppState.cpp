@@ -98,11 +98,6 @@ bool AppState::isFieldConfigValid() const
     return fieldConfigValid;
 }
 
-QImage AppState::getMinefieldThumbnail() const
-{
-    return minefieldThumbnail;
-}
-
 bool AppState::getShowInteractiveGameBoard() const
 {
     return showInteractiveGameBoard;
@@ -131,12 +126,4 @@ void AppState::setFieldConfigValid(bool valid)
 
         emit fieldConfigValidChanged(valid);
     }
-}
-
-void AppState::setMinefieldThumbnail(QImage thumbnail)
-{
-    // don't bother comparing for this one
-    minefieldThumbnail = thumbnail;
-
-    emit minefieldThumbnailChanged();
 }

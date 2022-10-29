@@ -45,16 +45,12 @@ public:
 
     bool isFieldConfigValid() const;
 
-    QImage getMinefieldThumbnail() const;
-
     bool getShowInteractiveGameBoard() const;
     void setShowInteractiveGameBoard(bool newShowInteractiveGameBoard);
 
 signals:
     void minefieldChanged();
     void showSolutionChanged(bool show);
-
-    void minefieldThumbnailChanged();
 
     void mineCountChanged(int count);
     void minefieldWidthChanged(int width);
@@ -69,8 +65,6 @@ private:
     int minefieldWidth = 30;
     int minefieldHeight = 16;
 
-    QImage minefieldThumbnail;
-
     bool fieldConfigValid = true;
 
     bool showInteractiveGameBoard = true;
@@ -84,8 +78,6 @@ private:
 
     void checkFieldConfigValid();
     void setFieldConfigValid(bool valid);
-
-    void setMinefieldThumbnail(QImage thumbnail);
 };
 
 #endif // APPSTATE_H
