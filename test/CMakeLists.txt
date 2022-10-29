@@ -21,10 +21,6 @@ file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false *.h *.cpp)
 add_executable(Minesolver_test
     ${TEST_SOURCES})
 
-target_include_directories(Minesolver_test PRIVATE
-    ../../boost_1_80_0
-)
-
 target_link_libraries(Minesolver_test PRIVATE
     Minesolver_src
     GTest::gtest_main

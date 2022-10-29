@@ -4,9 +4,9 @@ A solver for minesweeper that for a given board, computes the probability of eac
 # Dependencies
 Qt6 - Easiest way to get this is the open source installer, QtCreator is the best way to build the application as well.
 
-boost 1.80.0 - Should be installed in boost_1_80_0 one level down from the repository. All that really matters is the multiprecision library though.
+boost multiprecision - cmake gets it
 
-gtest - Cmake pulls this in so you don't need to install it.
+gtest - cmake gets it
 
 # How fast is it?
 The standard "expert" board (30x16 with 99 mines) is evaluated in a fraction of a second. It can fully solve(or hit a mine and lose) such a board in under a second.
