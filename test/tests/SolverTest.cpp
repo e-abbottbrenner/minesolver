@@ -184,7 +184,7 @@ protected:
             {
                 analyzeNewMinefield(QRandomGenerator::global()->generate());
 
-                int percentCompletion = i / (ITERATIONS / 100);
+                int percentCompletion = i / (ITERATIONS / 100.0);
 
                 // don't have race conditions aruond the percent completion output
                 QMutexLocker outputLocker(&outputMutex);

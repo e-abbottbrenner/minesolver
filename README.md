@@ -74,10 +74,11 @@ It is also possible to find many of these by simply checking for count cells tha
 ### Using math to calculate possibilities in the "open ocean" part of the board
 Many unknown cells have no adjacent count cells. These cells can have the number of ways they could be a mine or clear calculated with the choose operator because you have a certain number of them and you're choosing a certain number of mines to distribute among them.
 
-# Limitations
-The computations are done using large floating point types rather than infinite precision ints. This is because floating point is quite a bit faster and sufficiently precise.
+### Use floating point instead of unlimited precision ints
+This has no practical impact on the results and is much much faster.
 
-However, it also means that when the size of the minefield gets too high, it simply becomes impossible to count the paths and compute the probabilities.
+# Limitations
+If you make the field too big, the solver will get slow. If the field gets really big, it might have too many states for floating point arithmetic to function.
 
 # Testing and confirmation
 The code contains a test to verify that the computed probabilities are correct: 

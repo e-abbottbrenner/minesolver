@@ -33,6 +33,8 @@ private:
     int height;
 
     int countAdjacentCountCells(int x, int y) const;
+
+    void optimizePath();
 };
 
 #endif // PATHCHOOSER_H
