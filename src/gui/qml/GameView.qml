@@ -107,6 +107,8 @@ Rectangle
                         gameImage.reloadSource()
                     }
                 }
+
+                Component.onCompleted: gameImage.reloadSource()
             }
         }
 
