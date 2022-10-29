@@ -52,6 +52,11 @@ int ChoiceColumn::getY() const
     return y;
 }
 
+void ChoiceColumn::setValidMinefieldCount(SolverFloat count)
+{
+    validMinefieldCount = count;
+}
+
 QFuture<void> ChoiceColumn::precomputePathsForward(int mineCount)
 {
     // map seems to hate lambdas
@@ -64,29 +69,23 @@ QFuture<void> ChoiceColumn::precomputePathsBack(int mineCount)
     return QtConcurrent::map(&(*columnCalcThreadPool), choicesInColumn, std::bind(&precomputePathsBackForNode, std::placeholders::_1, mineCount));
 }
 
-QFuture<void> ChoiceColumn::calculateWaysToBe(int mineCount)
+QFuture<void> ChoiceColumn::calculateWaysToBeMine(int mineCount)
 {
     waysToBeMine = 0;
-    waysToBeClear = 0;
-
+    
     // map seems to hate lambdas
-    return QtConcurrent::map(&(*columnCalcThreadPool), choicesInColumn, std::bind(&calculateWaysToBeForNode, std::placeholders::_1, this, mineCount));
+    return QtConcurrent::map(&(*columnCalcThreadPool), choicesInColumn, std::bind(&calculateWaysToBeMineForNode, std::placeholders::_1, this, mineCount));
 }
 
 double ChoiceColumn::getPercentChanceToBeMine() const
 {
     // cast in case we rework the type again to be larger than a normal double
-    return static_cast<double>(waysToBeMine / (waysToBeMine + waysToBeClear));
+    return static_cast<double>(waysToBeMine / validMinefieldCount);
 }
 
 SolverFloat ChoiceColumn::getWaysToBeMine() const
 {
     return waysToBeMine;
-}
-
-SolverFloat ChoiceColumn::getWaysToBeClear() const
-{
-    return waysToBeClear;
 }
 
 void ChoiceColumn::precomputePathsForwardForNode(const QSharedPointer<ChoiceNode> &choiceNode, int mineCount)
@@ -99,12 +98,11 @@ void ChoiceColumn::precomputePathsBackForNode(const QSharedPointer<ChoiceNode> &
     choiceNode->precomputePathsBack(mineCount);
 }
 
-void ChoiceColumn::calculateWaysToBeForNode(const QSharedPointer<ChoiceNode> &choiceNode, ChoiceColumn *column, int mineCount)
+void ChoiceColumn::calculateWaysToBeMineForNode(const QSharedPointer<ChoiceNode> &choiceNode, ChoiceColumn *column, int mineCount)
 {
-    choiceNode->calculateWaysToBe(mineCount);
+    choiceNode->calculateWaysToBeMine(mineCount);
 
     QMutexLocker locker(&column->waysToBeMutex);
 
     column->waysToBeMine += choiceNode->getWaysToBeMine();
-    column->waysToBeClear += choiceNode->getWaysToBeClear();
 }

@@ -219,13 +219,19 @@ void Solver::analyzeSolutionGraph()
     {
         qDebug() << "path count precompution complete";
     }
+    
+    // the total number of valid fields is the number of paths forward from the first node
+    auto validMinefieldCount = choiceColumns.first()->getChoiceNodes().first()->findPathsForward(mineCount);
 
     for(auto column : choiceColumns)
     {// calculate all the ways to be
         CHECK_CANCELLED;
 
+        // set it so we can compute percentages
+        column->setValidMinefieldCount(validMinefieldCount);
+        
         // we compute the ways to be for all columns, including the final column
-        currentFuture = column->calculateWaysToBe(mineCount);
+        currentFuture = column->calculateWaysToBeMine(mineCount);
         currentFuture.waitForFinished();
 
         if(column->getX() >= 0 && column->getY() >= 0)
@@ -244,7 +250,7 @@ void Solver::analyzeSolutionGraph()
     }
 
     // if all mines are known and passed in as previous state, it's possible for there to only be one choice column at (-1, -1)
-    legalFieldCount = std::max(static_cast<SolverFloat>(1), choiceColumns.first()->getWaysToBeClear() + choiceColumns.first()->getWaysToBeMine());
+    legalFieldCount = std::max(static_cast<SolverFloat>(1), validMinefieldCount);
 
     if(!minefieldPopulated)
     {// if the minefield was unpopulated there's actually no chance to get a mine because the first click is guaranteed to be not a mine

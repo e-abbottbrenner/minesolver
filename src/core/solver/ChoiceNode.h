@@ -36,16 +36,16 @@ public:
     void precomputePathsForward(int mineCount);
     void precomputePathsBack(int mineCount);
 
-    void calculateWaysToBe(int mineCount);
+    void calculateWaysToBeMine(int mineCount);
 
     SolverFloat getWaysToBeMine() const;
-
-    SolverFloat getWaysToBeClear() const;
 
     bool isEndpoint() const;
     void setEndpoint(bool newEndpoint);
 
     void setTailPathCellCount(int count);
+
+    SolverFloat findPathsForward(int mineCount) const;
 
 private:
     SolverMinefield minefield;
@@ -60,20 +60,17 @@ private:
     QList<Edge> edgesBack;
 
     QWeakPointer<ChoiceNode> mineForwardEdge;
-    QWeakPointer<ChoiceNode> clearForwardEdge;
 
     QList<SolverFloat> pathsForward;
     QList<SolverFloat> pathsBack;
 
     SolverFloat waysToBeMine = 0;
-    SolverFloat waysToBeClear = 0;
 
     bool endpoint = false;
 
     void tryAddEdge(QSharedPointer<ChoiceColumn> column, const SolverMinefield& minefield, int cost);
     void linkTarget(QSharedPointer<ChoiceNode> edgeTarget, int cost);
-
-    SolverFloat findPathsForward(int mineCount) const;
+    
     SolverFloat findPathsBack(int mineCount) const;
     SolverFloat findPaths(int mineCount, bool forward) const;
 
