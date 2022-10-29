@@ -14,7 +14,7 @@
 
 Solver::Solver(QSharedPointer<Minefield const> gameMinefield, QHash<Coordinate, double> previousMineChances)
     : startingMinefield(gameMinefield->getRevealedMinefield(), gameMinefield->getWidth(), gameMinefield->getHeight()),
-      mineCount(gameMinefield->getMineCount()), minefieldPopulated(gameMinefield->isPopulated())
+      mineCount(gameMinefield->getMineCount()), minefieldPopulated(gameMinefield->isPopulated()), previousMineChances(previousMineChances)
     // clone the passed in minefield so this is thread safe with multiple solves vs the same field
 {
     cancelled = false;
@@ -25,8 +25,6 @@ Solver::Solver(QSharedPointer<Minefield const> gameMinefield, QHash<Coordinate, 
     legalFieldCount = 0;
 
     progress = progress.create();
-
-    prepareStartingMinefield(previousMineChances);
 }
 
 Solver::~Solver()
@@ -75,10 +73,14 @@ void Solver::flagObviousCells()
 {
     progress->emitProgressStep("Flagging obvious cells");
 
+    // the previously calculated chances are the most obvious
+    prepareStartingMinefield(previousMineChances);
+
     ObviousCellFlagger flagger(startingMinefield);
 
     flagger.flagObviousCells();
 
+    // and now we've identified some more obvious ones
     prepareStartingMinefield(flagger.getChancesToBeMine());
 
     SolverMinefield flaggerMinefield = startingMinefield;

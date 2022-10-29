@@ -42,16 +42,6 @@ private:
     CoordVector path;
     // the tail path is all the unknown cells that have no adjacent count cells, these can be solved with math formulas instead of algorithmic analysis
     CoordVector tailPath;
-    QList<QSharedPointer<ChoiceColumn>> choiceColumns;
-
-    QHash<Coordinate, double> chancesToBeMine;
-    QHash<Coordinate, int> columnCounts;
-    SolverFloat legalFieldCount;
-
-    void flagObviousCells();
-    void decidePath();
-    void buildSolutionGraph();
-    void analyzeSolutionGraph();
 
     SolverMinefield startingMinefield;
 
@@ -66,6 +56,18 @@ private:
     QFuture<void> currentFuture;
 
     QSharedPointer<ProgressProxy> progress;
+
+    QList<QSharedPointer<ChoiceColumn>> choiceColumns;
+
+    QHash<Coordinate, double> chancesToBeMine;
+    QHash<Coordinate, double> previousMineChances;
+    QHash<Coordinate, int> columnCounts;
+    SolverFloat legalFieldCount;
+
+    void flagObviousCells();
+    void decidePath();
+    void buildSolutionGraph();
+    void analyzeSolutionGraph();
 
     void prepareStartingMinefield(const QHash<Coordinate, double> &previousMineChances);
 };
