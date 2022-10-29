@@ -11,8 +11,8 @@ Popup {
     property int startingFieldWidth
     property int startingFieldHeight
 
-    width: 800
-    height: 150
+    width: 750
+    height: 200
 
     modal: true
     anchors.centerIn: Overlay.overlay
@@ -29,82 +29,105 @@ Popup {
 
         anchors.fill: parent
 
-        Column {
-            anchors.fill: parent
+        Text {
+            anchors.top: parent.top
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            anchors.topMargin: 10
+
+            font.pixelSize: 20
+
+            text: "Configure Minefield"
+
+            id: title
+        }
+
+        Rectangle {
+            color: "dark gray"
+            height: 1
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: title.bottom
+            anchors.leftMargin: 20
+            anchors.rightMargin: 20
+            anchors.topMargin: 5
+        }
+
+
+        Row {
+            height: 100
+            anchors.centerIn: parent
 
             spacing: 20
 
-            Text {
-                anchors.horizontalCenter: parent.horizontalCenter
+            Column {
+                anchors.verticalCenter: parent.verticalCenter
 
-                font.pixelSize: 20
+                TextField {
+                    id: mineCountField
 
-                text: "Configure Minefield"
+                    anchors.horizontalCenter: parent.horizontalCenter
+
+                    Component.onCompleted: text = AppState.mineCount
+                    validator: IntValidator{ bottom: 1; top: 10000; }
+
+                    onTextChanged: AppState.mineCount = parseInt(text)
+                }
+
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: "Number of Mines"
+                }
             }
 
-            Row {
-                anchors.horizontalCenter: parent.horizontalCenter
+            Column {
+                anchors.verticalCenter: parent.verticalCenter
 
-                spacing: 20
+                TextField {
+                    id: widthField
 
-                Column {
-                    TextField {
-                        id: mineCountField
+                    anchors.horizontalCenter: parent.horizontalCenter
 
-                        anchors.horizontalCenter: parent.horizontalCenter
+                    Component.onCompleted: text = AppState.minefieldWidth
+                    validator: IntValidator{ bottom: 1 }
 
-                        Component.onCompleted: text = AppState.mineCount
-                        validator: IntValidator{ bottom: 1; top: 10000; }
-
-                        onTextChanged: AppState.mineCount = parseInt(text)
-                    }
-
-                    Text {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        text: "Number of Mines"
-                    }
+                    onTextChanged: AppState.minefieldWidth = parseInt(text)
                 }
 
-                Column {
-                    TextField {
-                        id: widthField
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: "Width"
+                }
+            }
 
-                        anchors.horizontalCenter: parent.horizontalCenter
+            Column {
+                anchors.verticalCenter: parent.verticalCenter
 
-                        Component.onCompleted: text = AppState.minefieldWidth
-                        validator: IntValidator{ bottom: 1 }
+                TextField {
+                    id: heightField
 
-                        onTextChanged: AppState.minefieldWidth = parseInt(text)
-                    }
+                    anchors.horizontalCenter: parent.horizontalCenter
 
-                    Text {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        text: "Width"
-                    }
+                    Component.onCompleted: text = AppState.minefieldHeight
+                    validator: IntValidator{ bottom: 1 }
+
+                    onTextChanged: AppState.minefieldHeight = parseInt(text)
                 }
 
-                Column {
-                    TextField {
-                        id: heightField
-
-                        anchors.horizontalCenter: parent.horizontalCenter
-
-                        Component.onCompleted: text = AppState.minefieldHeight
-                        validator: IntValidator{ bottom: 1 }
-
-                        onTextChanged: AppState.minefieldHeight = parseInt(text)
-                    }
-
-                    Text {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        text: "Height"
-                    }
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: "Height"
                 }
+            }
+
+            Grid {
+                columns: 2
+                spacing: 10
+
+                anchors.verticalCenter: parent.verticalCenter
 
                 Button {
-                    anchors.verticalCenter: parent.verticalCenter
-
-                    text: "Set Default"
+                    text: "Default"
 
                     onClicked: {
                         mineCountField.text = "99"
@@ -114,9 +137,7 @@ Popup {
                 }
 
                 Button {
-                    anchors.verticalCenter: parent.verticalCenter
-
-                    text: "Set Large"
+                    text: "Large"
 
                     onClicked: {
                         mineCountField.text = "500"
@@ -126,9 +147,7 @@ Popup {
                 }
 
                 Button {
-                    anchors.verticalCenter: parent.verticalCenter
-
-                    text: "Set Jumbo"
+                    text: "Jumbo"
 
                     onClicked: {
                         mineCountField.text = "2000"
@@ -136,53 +155,79 @@ Popup {
                         heightField.text = "100"
                     }
                 }
+
+                Button {
+                    text: "Humongous"
+
+                    onClicked: {
+                        mineCountField.text = "8000"
+                        widthField.text = "200"
+                        heightField.text = "200"
+                    }
+                }
+            }
+        }
+
+        Rectangle {
+            color: "dark gray"
+            height: 1
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: actionRow.top
+            anchors.leftMargin: 20
+            anchors.rightMargin: 20
+            anchors.bottomMargin: 5
+        }
+
+        Row {
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 20
+
+            id: actionRow
+
+            Text {
+                anchors.verticalCenter: parent.verticalCenter
+
+                visible: !AppState.fieldConfigValid
+
+                text: "Field config is not valid (too many mines or too many states to count)"
+
+                color: "red"
             }
 
-            Row {
-                Text {
-                    anchors.verticalCenter: parent.verticalCenter
+            anchors.right: parent.right
+            anchors.margins: 20
 
-                    visible: !AppState.fieldConfigValid
+            spacing: 20
 
-                    text: "Field config is not valid (too many mines or too many states to count)"
+            Button {
+                text: "Cancel"
 
-                    color: "red"
+                onClicked: {
+                    // back to the previous state for rejection
+                    // set the text fields so that the ui states also update
+                    mineCountField.text = startingMineCount
+                    widthField.text = startingFieldWidth
+                    heightField.text = startingFieldHeight
+
+                    newBoardDialog.close()
                 }
+            }
 
-                anchors.right: parent.right
-                anchors.margins: 20
+            Button {
+                text: "New Game"
 
-                spacing: 20
+                enabled: AppState.fieldConfigValid
 
-                Button {
-                    text: "Cancel"
-
-                    onClicked: {
-                        // back to the previous state for rejection
-                        // set the text fields so that the ui states also update
-                        mineCountField.text = startingMineCount
-                        widthField.text = startingFieldWidth
-                        heightField.text = startingFieldHeight
-
-                        newBoardDialog.close()
+                onClicked: {
+                    if(widthField.text * heightField.text > 2500)
+                    {// large board, default to the fast mode
+                        AppState.showInteractiveGameBoard = false
                     }
-                }
 
-                Button {
-                    text: "New Game"
+                    AppState.createNewMinefield()
 
-                    enabled: AppState.fieldConfigValid
-
-                    onClicked: {
-                        if(widthField.text * heightField.text > 2500)
-                        {// large board, default to the fast mode
-                            AppState.showInteractiveGameBoard = false
-                        }
-
-                        AppState.createNewMinefield()
-
-                        newBoardDialog.close()
-                    }
+                    newBoardDialog.close()
                 }
             }
         }
