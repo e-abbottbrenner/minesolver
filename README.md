@@ -6,7 +6,7 @@ Only 64 bit is supported
 
 1. Extract zip somewhere
 0. Go to the bin folder in the extracted zip contents.
-0. If you don't have the MSVC 2022 redist installed, run the included vc_redist.x64to install it.
+0. If you don't have the MSVC 2022 redist installed, run the included vc_redist.x64 to install it.
 0. Run Minesolver. If it doesn't work and you skipped step 3, try step 3.
 
 # Dependencies for building the code
