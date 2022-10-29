@@ -1,6 +1,14 @@
 # minesolver
 A solver for minesweeper that for a given board, computes the probability of each unknown cell being a mine. You can also just play minesweeper with it.
 
+# Installation
+Only 64 bit is supported
+
+1. Extract zip somewhere
+0. Go to the bin folder in the extracted zip contents.
+0. If you don't have the MSVC 2022 redist installed, run the included vc_redist.x64to install it.
+0. Run Minesolver. If it doesn't work and you skipped step 3, try step 3.
+
 # Dependencies for building the code
 Qt6 - Easiest way to get this is the open source installer, QtCreator is the best way to build the application as well.
 
