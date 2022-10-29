@@ -71,14 +71,20 @@ QSharedPointer<ProgressProxy> Solver::getProgress() const
 
 void Solver::flagObviousCells()
 {
+    CHECK_CANCELLED;
+
     progress->emitProgressStep("Flagging obvious cells");
 
     // the previously calculated chances are the most obvious
     prepareStartingMinefield(previousMineChances);
 
+    CHECK_CANCELLED;
+
     ObviousCellFlagger flagger(startingMinefield);
 
     flagger.flagObviousCells();
+
+    CHECK_CANCELLED;
 
     // and now we've identified some more obvious ones
     prepareStartingMinefield(flagger.getChancesToBeMine());
