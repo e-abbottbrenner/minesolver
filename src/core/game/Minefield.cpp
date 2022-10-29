@@ -2,9 +2,11 @@
 
 #include <QDebug>
 #include <QPair>
-#include <QRandomGenerator>
 #include <QStack>
 #include <QTimer>
+
+#include <random>
+#include <algorithm>
 
 typedef QPair<int, int> Coordinate;
 
@@ -29,40 +31,46 @@ Minefield::Minefield(int mineCount, int width, int height, int seed, QObject *pa
 
 void Minefield::populateMinefield(int originX, int originY)
 {
-    QRandomGenerator random;
-    random.seed(seed);
-
-    // this is slow, but it's guaranteed to work and I like that
-    // I also doubt it's slow enough to notice
     int bannedCells = 0;
 
+    QList<int> clearIndices;
+
+    auto addClearIndex = [&] (int x, int y) {
+        clearIndices.append(mapToArray(x, y));
+        ++bannedCells;
+    };
+
+    addClearIndex(originX, originY);
+
     // count the number of cells within bounds that aren't allowed to be mines
-    traverseAdjacentCells(originX, originY, [&] (int, int) {++bannedCells;});
+    traverseAdjacentCells(originX, originY, addClearIndex);
 
-    int freeCells = getWidth() * getHeight() - bannedCells;
+    std::sort(clearIndices.begin(), clearIndices.end());
 
-    for(int count = 0; count < mineCount && freeCells > 0; ++count, --freeCells)
+    int freeCells = underlyingMinefield.size() - bannedCells;
+
+    QByteArray newUnderlying(freeCells, SpecialStatus::Unknown);
+
+    for(int i = 0; i < mineCount && i < newUnderlying.size(); ++i)
     {
-        int mineLoc = random.bounded(freeCells);
-
-        auto placeMines = [&] (int x, int y)
-        {
-            if(underlyingMinefield[mapToArray(x, y)] != SpecialStatus::Mine
-                    && (x > originX + 1 || x < originX - 1
-                        || y > originY + 1 || y < originY - 1))
-            {// not already a mine or within a cell of the origin
-                if(mineLoc == 0)
-                {
-                    underlyingMinefield[mapToArray(x, y)] = SpecialStatus::Mine;
-                }
-
-                --mineLoc;
-            }
-        };
-
-        // place the mine at mineLoc in the remaining free cells
-        traverseCells(placeMines);
+        newUnderlying[i] = SpecialStatus::Mine;
     }
+
+    std::mt19937 mersenneTwister(seed);
+    std::shuffle(newUnderlying.begin(), newUnderlying.end(), mersenneTwister);
+
+    for(int index: clearIndices)
+    {
+        // newUnderlying is the size of underlyingMinefield - bannedCells
+        // these indices function on an array of the size of underlyingMinefield
+        // they are sorted from smallest to largest
+        // these clear indices are effectively missing from newUnderlying
+        // the first index they are missing from is the smallest index in clearIndices
+        // so once a value is inserted for that index, the array will shift and the next index will have a valid position
+        newUnderlying.insert(index, SpecialStatus::Unknown);
+    }
+
+    underlyingMinefield = newUnderlying;
 
     // declare this out here so that both can capture it
     int mineCount = 0;
