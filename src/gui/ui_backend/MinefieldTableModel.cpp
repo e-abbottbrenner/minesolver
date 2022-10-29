@@ -390,8 +390,8 @@ void MinefieldTableModel::applyCalculationResults()
 
     if(autoSolve)
     {
-        QTimer::singleShot(0, this, &MinefieldTableModel::flagGuaranteedMines);
-        QTimer::singleShot(0, this, &MinefieldTableModel::revealLowestRiskCells);
+        flagGuaranteedMines();
+        revealLowestRiskCells();
     }
 }
 
