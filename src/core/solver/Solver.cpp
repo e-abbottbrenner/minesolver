@@ -39,9 +39,6 @@ void Solver::computeSolution()
     decidePath();
     buildSolutionGraph();
     analyzeSolutionGraph();
-
-    // no longer need the data structure now that we have the final results
-    choiceColumns.clear();
 }
 
 const QHash<Coordinate, double> &Solver::getChancesToBeMine() const
@@ -106,7 +103,7 @@ void Solver::decidePath()
     tailPath = chooser.getTailPath();
 
     // there are four computational loops that go over the path size
-    progress->emitProgressMaximum(4 * path.size());
+    progress->emitProgressMaximum(5 * path.size());
 
     if(logProgress)
     {
@@ -252,6 +249,17 @@ void Solver::analyzeSolutionGraph()
     if(!minefieldPopulated)
     {// if the minefield was unpopulated there's actually no chance to get a mine because the first click is guaranteed to be not a mine
         chancesToBeMine.clear();
+    }
+
+    progress->emitProgressStep("Cleaning up.");
+
+    // no longer need the data structure now that we have the final results
+    // this can take some time so we don't want this step before complete
+    while(!choiceColumns.isEmpty())
+    {
+        choiceColumns.removeFirst();
+
+        progress->incrementProgress();
     }
 
     progress->emitProgressStep("Complete.");

@@ -124,6 +124,8 @@ Popup {
                 columns: 2
                 spacing: 10
 
+                flow: Grid.TopToBottom
+
                 anchors.verticalCenter: parent.verticalCenter
 
                 Button {
