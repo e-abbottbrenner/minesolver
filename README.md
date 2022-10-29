@@ -1,7 +1,7 @@
 # minesolver
 A solver for minesweeper that for a given board, computes the probability of each unknown cell being a mine. You can also just play minesweeper with it.
 
-# Dependencies
+# Dependencies for building the code
 Qt6 - Easiest way to get this is the open source installer, QtCreator is the best way to build the application as well.
 
 boost multiprecision - cmake gets it
