@@ -371,6 +371,7 @@ void MinefieldTableModel::deliverDataChanged()
 
 void MinefieldTableModel::applyCalculationResults()
 {
+    // TODO: Have a new threaded class AutoSolver that decouples autosolving logic from the model and allows it to be independently threaded and run faster than the model updates
     finishedSolver = activeSolver;
 
     auto optimalCells = getOptimalCells();
