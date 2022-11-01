@@ -12,7 +12,6 @@
 AutoPlayer::AutoPlayer(QSharedPointer<Minefield> minefield)
     : minefield(minefield)
 {
-    connect(minefield.data(), &Minefield::cellsRevealed, this, &AutoPlayer::queueCalculate, Qt::QueuedConnection);
 }
 
 void AutoPlayer::queueStep()
@@ -69,12 +68,20 @@ void AutoPlayer::step()
 {
     QMutexLocker locker(&writeMutex);
 
+    bool revealedCells = false;
+
     if(finishedSolver && !activeSolver && bestMineChance < 1 && !minefield->wasMineHit())
     {
         for(const auto &bestCoord : getOptimalCells())
         {
             reveal(bestCoord.first, bestCoord.second);
+            revealedCells = true;
         }
+    }
+
+    if(revealedCells)
+    {// don't wait for the update signal, that will get blocked by the main thread
+        queueCalculate();
     }
 }
 

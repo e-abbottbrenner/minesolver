@@ -71,8 +71,8 @@ protected:
         QList<Coordinate> clearCoords;
         QList<Coordinate> mineCoords;
 
-        minefield->populateMinefield(QRandomGenerator::global()->bounded(minefield->getWidth()),
-                                     QRandomGenerator::global()->bounded(minefield->getHeight()));
+        minefield->ensureMinefieldPopulated(QRandomGenerator::global()->bounded(minefield->getWidth()),
+                                            QRandomGenerator::global()->bounded(minefield->getHeight()));
 
         for(int x = 0; x < minefield->getWidth(); x++)
         {

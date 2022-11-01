@@ -6,11 +6,19 @@
 #include "Solver.h"
 
 #include <QColor>
-#include <QtConcurrent/QtConcurrent>
+#include <QThread>
 
 MinefieldTableModel::MinefieldTableModel(QObject *parent)
     : QAbstractTableModel(parent)
 {
+    autoPlayerThread = autoPlayerThread.create();
+    autoPlayerThread->start();
+}
+
+MinefieldTableModel::~MinefieldTableModel()
+{
+    autoPlayerThread->quit();
+    autoPlayerThread->wait();
 }
 
 void MinefieldTableModel::setMinefield(QSharedPointer<Minefield> minefield)
@@ -32,21 +40,25 @@ void MinefieldTableModel::setMinefield(QSharedPointer<Minefield> minefield)
     if(autoPlayer)
     {
         autoPlayer->disconnect();
-        // TODO: connect this to thread instead
+        // delete later, we'll also want to auto delete it with the thread
         autoPlayer->deleteLater();
     }
 
-    // TODO: Have a new threaded class AutoSolver that decouples autosolving logic from the model and allows it to be independently threaded and run faster than the model updates
     autoPlayer = new AutoPlayer(minefield);
+    // we run the autosolver in a separate thread so it doesn't get bottlenecked by UI updates in the main thread
+    autoPlayer->moveToThread(autoPlayerThread.data());
 
-    connect(autoPlayer, &AutoPlayer::calculationStarted, this, &MinefieldTableModel::onCalculationStarted);
-    connect(autoPlayer, &AutoPlayer::calculationComplete, this, &MinefieldTableModel::applyCalculationResults);
+    // make sure it dies if the thread does
+    connect(autoPlayerThread.data(), &QThread::finished, autoPlayer, &AutoPlayer::deleteLater);
 
-    connect(autoPlayer, &AutoPlayer::riskedLoss, this, &MinefieldTableModel::updateRiskOfLoss);
+    connect(autoPlayer, &AutoPlayer::calculationStarted, this, &MinefieldTableModel::onCalculationStarted, Qt::QueuedConnection);
+    connect(autoPlayer, &AutoPlayer::calculationComplete, this, &MinefieldTableModel::applyCalculationResults, Qt::QueuedConnection);
 
-    connect(autoPlayer, &AutoPlayer::maxProgressChanged, this, &MinefieldTableModel::setMaxRecalculationProgress);
-    connect(autoPlayer, &AutoPlayer::currentProgressChanged, this, &MinefieldTableModel::setCurrentRecalculationProgress);
-    connect(autoPlayer, &AutoPlayer::progressStepChanged, this, &MinefieldTableModel::setRecalculationStep);
+    connect(autoPlayer, &AutoPlayer::riskedLoss, this, &MinefieldTableModel::updateRiskOfLoss, Qt::QueuedConnection);
+
+    connect(autoPlayer, &AutoPlayer::maxProgressChanged, this, &MinefieldTableModel::setMaxRecalculationProgress, Qt::QueuedConnection);
+    connect(autoPlayer, &AutoPlayer::currentProgressChanged, this, &MinefieldTableModel::setCurrentRecalculationProgress, Qt::QueuedConnection);
+    connect(autoPlayer, &AutoPlayer::progressStepChanged, this, &MinefieldTableModel::setRecalculationStep, Qt::QueuedConnection);
 
     setFlagsRemaining(minefield->getMineCount());
 
@@ -58,9 +70,10 @@ void MinefieldTableModel::setMinefield(QSharedPointer<Minefield> minefield)
 
     autoPlayer->queueCalculate();
 
-    connect(minefield.data(), &Minefield::mineHit, this, &MinefieldTableModel::onMineHit);
-    connect(minefield.data(), &Minefield::allCountCellsRevealed, this, &MinefieldTableModel::onAllCountCellsRevealed);
-    connect(minefield.data(), &Minefield::cellToggled, this, &MinefieldTableModel::onCellToggled);
+    connect(minefield.data(), &Minefield::mineHit, this, &MinefieldTableModel::onMineHit, Qt::QueuedConnection);
+    connect(minefield.data(), &Minefield::allCountCellsRevealed, this, &MinefieldTableModel::onAllCountCellsRevealed, Qt::QueuedConnection);
+    connect(minefield.data(), &Minefield::cellToggled, this, &MinefieldTableModel::onCellToggled, Qt::QueuedConnection);
+    connect(minefield.data(), &Minefield::cellsRevealed, this, &MinefieldTableModel::onCellsRevealed, Qt::QueuedConnection);
 
     emit newMinefieldStarted();
 
@@ -316,6 +329,8 @@ void MinefieldTableModel::deliverDataChanged()
 {
     if(dataChangedPending)
     {
+        qDebug() << "updating UI";
+
         emit dataChanged(index(dataChangedMinRow, dataChangedMinCol), index(dataChangedMaxRow, dataChangedMaxCol));
 
         dataChangedMinRow = dataChangedMinCol = std::numeric_limits<int>::max();

@@ -8,21 +8,22 @@
 
 #include <functional>
 #include <QList>
+#include <QMutex>
 #include <QPair>
 
 typedef QPair<int, int> Coordinate;
 
-// TODO: thread safety
 class Minefield : public QObject, public TraversableGrid
 {
     Q_OBJECT
 public:
     explicit Minefield(int mineCount, int width, int height, int seed, QObject *parent = 0);
 
-    void populateMinefield(int originX, int originY);
+    void ensureMinefieldPopulated(int originX, int originY);
 
     void revealAdjacents(int x, int y);
     void revealAll();
+
     void revealCell(int x, int y, bool force = false);
     void toggleGuessMine(int x, int y);
 
@@ -45,15 +46,20 @@ signals:
     void allCountCellsRevealed();
 
 private:
-    QList<Coordinate> recursiveReveal(int x, int y);
-
     void queueCellRevealed(int x, int y);
     void deliverCellReveals();
 
+    void revealCellPrivate(int x, int y, bool force);
+    void recursiveReveal(int x, int y);
+
     void revealMines();
 
-    int mineCount = 0;
-    int seed = 0;
+    void ensureMinefieldPopulatedPrivate(int originX, int originY);
+
+    bool areAllCountCellsRevealedPrivate() const;
+
+    const int MINE_COUNT = 0;
+    const int SEED = 0;
 
     int unrevealedCount = 0;
 
@@ -65,6 +71,8 @@ private:
 
     QByteArray underlyingMinefield;
     QByteArray revealedMinefield;
+
+    mutable QMutex minefieldMutex;
 };
 
 #endif // MINEFIELD_H

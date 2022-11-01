@@ -47,6 +47,7 @@ public:
     };
 
     explicit MinefieldTableModel(QObject *parent = nullptr);
+    ~MinefieldTableModel() override;
 
     void setMinefield(QSharedPointer<Minefield> minefield);
 
@@ -123,6 +124,7 @@ private:
 
     // this is going to be added to a thread, it's easier to manager with deleteLater and signals
     AutoPlayer* autoPlayer = nullptr;
+    QSharedPointer<QThread> autoPlayerThread;
 
     bool recalculationInProgress = false;
 

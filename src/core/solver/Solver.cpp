@@ -12,11 +12,15 @@
 
 #define CHECK_CANCELLED if(cancelled) return;
 
+Q_DECLARE_METATYPE(QSharedPointer<Solver>)
+
 Solver::Solver(QSharedPointer<Minefield const> gameMinefield, QHash<Coordinate, double> previousMineChances)
     : startingMinefield(gameMinefield->getRevealedMinefield(), gameMinefield->getWidth(), gameMinefield->getHeight()),
       mineCount(gameMinefield->getMineCount()), minefieldPopulated(gameMinefield->isPopulated()), previousMineChances(previousMineChances)
     // clone the passed in minefield so this is thread safe with multiple solves vs the same field
 {
+    static int registeredMetatype = qRegisterMetaType<QSharedPointer<Solver>>();
+
     cancelled = false;
 
     choiceColumns.clear();
