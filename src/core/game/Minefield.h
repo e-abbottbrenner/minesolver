@@ -20,9 +20,9 @@ public:
 
     void populateMinefield(int originX, int originY);
 
-    QList<Coordinate> revealAdjacents(int x, int y);
-    QList<Coordinate> revealAll();
-    QList<Coordinate> revealCell(int x, int y, bool force = false);
+    void revealAdjacents(int x, int y);
+    void revealAll();
+    void revealCell(int x, int y, bool force = false);
     void toggleGuessMine(int x, int y);
 
     MineStatus getCell(int x, int y) const;
@@ -46,7 +46,7 @@ signals:
 private:
     QList<Coordinate> recursiveReveal(int x, int y);
 
-    QList<Coordinate> revealMines();
+    void revealMines();
 
     int mineCount = 0;
     int seed = 0;

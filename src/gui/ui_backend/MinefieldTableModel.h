@@ -108,6 +108,8 @@ private slots:
     void onMineHit();
     void onAllCountCellsRevealed();
 
+    void onCellRevealed(int x, int y);
+
 private:
     QSharedPointer<Minefield> minefield;
 
@@ -138,6 +140,7 @@ private:
     int dataChangedMaxCol = 0;
 
     bool dataChangedPending = false;
+    bool recalcPending = false;
 
     QList<QMetaObject::Connection> recalcProgressConnections;
 

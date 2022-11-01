@@ -31,6 +31,7 @@ void MinefieldTableModel::setMinefield(QSharedPointer<Minefield> minefield)
     setFlagsRemaining(minefield->getMineCount());
 
     autoSolve = false;
+    recalcPending = true;
 
     mineChancesCalculationWatcher.clear();
     activeSolver.clear();
@@ -41,6 +42,7 @@ void MinefieldTableModel::setMinefield(QSharedPointer<Minefield> minefield)
 
     connect(minefield.data(), &Minefield::mineHit, this, &MinefieldTableModel::onMineHit);
     connect(minefield.data(), &Minefield::allCountCellsRevealed, this, &MinefieldTableModel::onAllCountCellsRevealed);
+    connect(minefield.data(), &Minefield::cellUpdated, this, &MinefieldTableModel::onCellRevealed);
 
     emit newMinefieldStarted();
 
@@ -126,20 +128,12 @@ void MinefieldTableModel::reveal(int row, int col, bool force)
         setCumulativeRiskOfLoss(1 - (1 - cumulativeRiskOfLoss) * (1 - finishedSolver->getChancesToBeMine()[{col, row}]));
     }
 
-    auto coordsRevealed = minefield->revealCell(col, row, force);
-
-    emitUpdateSignalForCoords(coordsRevealed);
-
-    calculateChances();
+    minefield->revealCell(col, row, force);
 }
 
 void MinefieldTableModel::revealAdjacent(int row, int col)
 {
-    auto coordsRevealed = minefield->revealAdjacents(col, row);
-
-    emitUpdateSignalForCoords(coordsRevealed);
-
-    calculateChances();
+    minefield->revealAdjacents(col, row);
 }
 
 void MinefieldTableModel::toggleGuessMine(int row, int col)
@@ -303,21 +297,27 @@ int MinefieldTableModel::getMaxRecalculationProgress() const
 
 void MinefieldTableModel::calculateChances()
 {
-    QSharedPointer<Solver> solver(new Solver(minefield, finishedSolver? finishedSolver->getChancesToBeMine() : QHash<Coordinate, double>{}));
-
-    setActiveSolver(solver);
-
-    QFuture<void> mineChancesFuture = QtConcurrent::run([solver] ()
+    if(recalcPending)
     {
-        solver->computeSolution();
-    });
+        qDebug() << "recalc";
+        recalcPending = false;
 
-    mineChancesCalculationWatcher = mineChancesCalculationWatcher.create();
+        QSharedPointer<Solver> solver(new Solver(minefield, finishedSolver? finishedSolver->getChancesToBeMine() : QHash<Coordinate, double>{}));
 
-    connect(mineChancesCalculationWatcher.data(), &QFutureWatcher<void>::finished, this, &MinefieldTableModel::applyCalculationResults);
-    mineChancesCalculationWatcher->setFuture(mineChancesFuture);
+        setActiveSolver(solver);
 
-    setRecalculationInProgress(true);
+        QFuture<void> mineChancesFuture = QtConcurrent::run([solver] ()
+        {
+            solver->computeSolution();
+        });
+
+        mineChancesCalculationWatcher = mineChancesCalculationWatcher.create();
+
+        connect(mineChancesCalculationWatcher.data(), &QFutureWatcher<void>::finished, this, &MinefieldTableModel::applyCalculationResults);
+        mineChancesCalculationWatcher->setFuture(mineChancesFuture);
+
+        setRecalculationInProgress(true);
+    }
 }
 
 void MinefieldTableModel::emitUpdateSignalForCoords(QList<Coordinate> coords)
@@ -360,6 +360,7 @@ void MinefieldTableModel::deliverDataChanged()
 {
     if(dataChangedPending)
     {
+        qDebug() << "Data change";
         emit dataChanged(index(dataChangedMinRow, dataChangedMinCol), index(dataChangedMaxRow, dataChangedMaxCol));
 
         dataChangedMinRow = dataChangedMinCol = std::numeric_limits<int>::max();
@@ -500,6 +501,15 @@ void MinefieldTableModel::onMineHit()
 void MinefieldTableModel::onAllCountCellsRevealed()
 {
     setGameWon(true);
+}
+
+void MinefieldTableModel::onCellRevealed(int x, int y)
+{
+    prepareDataChanged(y, x, y, x);
+
+    recalcPending = true;
+
+    QTimer::singleShot(0, this, &MinefieldTableModel::calculateChances);
 }
 
 int MinefieldTableModel::getFlagsRemaining() const

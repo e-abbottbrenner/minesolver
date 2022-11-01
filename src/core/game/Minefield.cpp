@@ -102,10 +102,8 @@ void Minefield::populateMinefield(int originX, int originY)
     populated = true;
 }
 
-QList<Coordinate> Minefield::revealAdjacents(int x, int y)
+void Minefield::revealAdjacents(int x, int y)
 {
-    QList<Coordinate> coordsRevealed;
-
     int guessCount = 0;
 
     auto countGuess = [&] (int x, int y)
@@ -124,17 +122,15 @@ QList<Coordinate> Minefield::revealAdjacents(int x, int y)
         {
             if(revealedMinefield[mapToArray(x, y)] != SpecialStatus::GuessMine)
             {
-                coordsRevealed.append(revealCell(x, y));
+                revealCell(x, y);
             }
         };
 
         traverseAdjacentCells(x, y, reveal);
     }
-
-    return coordsRevealed;
 }
 
-QList<Coordinate> Minefield::revealCell(int x, int y, bool force)
+void Minefield::revealCell(int x, int y, bool force)
 {
     if(!populated)
     {
@@ -145,24 +141,22 @@ QList<Coordinate> Minefield::revealCell(int x, int y, bool force)
 
     if(revealedMinefield[cellIndex] == SpecialStatus::GuessMine && !force)
     {// not allowed to reveal guesses
-        return {};
+        return;
     }
 
     bool clear = underlyingMinefield[cellIndex] != SpecialStatus::Mine;
 
     if(clear)
     {
-        return recursiveReveal(x, y);
+        recursiveReveal(x, y);
     }
     else
     {
         emit mineHit();
 
-        auto mines = revealMines();
+        revealMines();
 
         revealedMinefield[cellIndex] = SpecialStatus::ExplodedMine;
-
-        return mines;
     }
 }
 
@@ -222,10 +216,8 @@ QList<Coordinate> Minefield::recursiveReveal(int x, int y)
     return coordsRevealed;
 }
 
-QList<Coordinate> Minefield::revealAll()
+void Minefield::revealAll()
 {
-    QList<Coordinate> coordsRevealed;
-
     auto reveal = [&] (int x, int y)
     {
         int cellIndex = mapToArray(x, y);
@@ -239,20 +231,15 @@ QList<Coordinate> Minefield::revealAll()
                 revealedMinefield[cellIndex] = SpecialStatus::UnexplodedMine;
             }
 
-            coordsRevealed.append({x, y});
             emit cellUpdated(x, y);
         }
     };
 
     traverseCells(reveal);
-
-    return coordsRevealed;
 }
 
-QList<Coordinate> Minefield::revealMines()
+void Minefield::revealMines()
 {
-    QList<Coordinate> coordsRevealed;
-
     auto reveal = [&] (int x, int y)
     {
         int cellIndex = mapToArray(x, y);
@@ -261,14 +248,11 @@ QList<Coordinate> Minefield::revealMines()
         {
             revealedMinefield[cellIndex] = underlyingMinefield[cellIndex];
 
-            coordsRevealed.append({x, y});
             emit cellUpdated(x, y);
         }
     };
 
     traverseCells(reveal);
-
-    return coordsRevealed;
 }
 
 bool Minefield::isPopulated() const
