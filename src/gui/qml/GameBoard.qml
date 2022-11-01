@@ -23,7 +23,7 @@ Item {
             pointerNavigationEnabled: false
             selectionBehavior: TableView.SelectionDisabled
 
-            property int cellSize: Math.min(width / columns, height / rows)
+            property int cellSize: Math.max(0, Math.min(width / columns, height / rows))
 
             Timer {
                 id: forceLayoutTimer

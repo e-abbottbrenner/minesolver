@@ -160,11 +160,21 @@ void MinefieldTableModel::reveal(int row, int col, bool force)
     }
 
     minefield->revealCell(col, row, force);
+
+    if(autoPlayer)
+    {// need to trigger calculations with the updated board
+        autoPlayer->queueCalculate();
+    }
 }
 
 void MinefieldTableModel::revealAdjacent(int row, int col)
 {
     minefield->revealAdjacents(col, row);
+
+    if(autoPlayer)
+    {// need to trigger calculations with the updated board
+        autoPlayer->queueCalculate();
+    }
 }
 
 void MinefieldTableModel::toggleGuessMine(int row, int col)
@@ -329,8 +339,6 @@ void MinefieldTableModel::deliverDataChanged()
 {
     if(dataChangedPending)
     {
-        qDebug() << "updating UI";
-
         emit dataChanged(index(dataChangedMinRow, dataChangedMinCol), index(dataChangedMaxRow, dataChangedMaxCol));
 
         dataChangedMinRow = dataChangedMinCol = std::numeric_limits<int>::max();
