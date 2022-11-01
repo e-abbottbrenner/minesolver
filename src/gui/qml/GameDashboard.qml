@@ -165,7 +165,7 @@ Rectangle {
 
             text: "Auto solve"
 
-            onClicked: { AppState.minefieldModel.autoSolve = true }
+            onClicked: { AppState.minefieldModel.autoSolve = !AppState.minefieldModel.autoSolve }
 
             visible: AppState.showSolution
         }

@@ -152,6 +152,8 @@ void Minefield::revealCell(int x, int y, bool force)
     }
     else
     {
+        mineWasHit = true;
+
         emit mineHit();
 
         revealMines();
@@ -171,6 +173,8 @@ void Minefield::toggleGuessMine(int x, int y)
         revealedMinefield[mapToArray(x, y)] = SpecialStatus::Unknown;
     }
 
+    // TODO: batch and differentiate updates
+    // TODO: thread safety
     emit cellUpdated(x, y);
 }
 
@@ -194,7 +198,7 @@ QList<Coordinate> Minefield::recursiveReveal(int x, int y)
 
             --unrevealedCount;
 
-            if(unrevealedCount <= mineCount)
+            if(areAllCountCellsRevealed())
             {
                 emit allCountCellsRevealed();
             }
@@ -260,6 +264,16 @@ bool Minefield::isPopulated() const
     return populated;
 }
 
+bool Minefield::areAllCountCellsRevealed() const
+{
+    return unrevealedCount <= mineCount;
+}
+
+bool Minefield::wasMineHit() const
+{
+    return mineWasHit;
+}
+
 int Minefield::getMineCount() const
 {
     return mineCount;
@@ -280,16 +294,3 @@ QByteArray Minefield::getRevealedMinefield() const
     return revealedMinefield;
 }
 
-QSharedPointer<Minefield> Minefield::clone() const
-{
-    QSharedPointer<Minefield> cloneField(new Minefield(mineCount, getWidth(), getHeight(), seed));
-    cloneField->populated = populated;
-    cloneField->underlyingMinefield = underlyingMinefield;
-    cloneField->revealedMinefield = revealedMinefield;
-
-    return cloneField;
-}
-
-Minefield::~Minefield()
-{
-}

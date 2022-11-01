@@ -1,5 +1,6 @@
 #include "MinefieldTableModel.h"
 
+#include "AutoPlayer.h"
 #include "Minefield.h"
 #include "ProgressProxy.h"
 #include "Solver.h"
@@ -28,17 +29,34 @@ void MinefieldTableModel::setMinefield(QSharedPointer<Minefield> minefield)
     setGameWon(false);
     setGameLost(false);
 
+    if(autoPlayer)
+    {
+        autoPlayer->disconnect();
+        // TODO: connect this to thread instead
+        autoPlayer->deleteLater();
+    }
+
+    // TODO: Have a new threaded class AutoSolver that decouples autosolving logic from the model and allows it to be independently threaded and run faster than the model updates
+    autoPlayer = new AutoPlayer(minefield);
+
+    connect(autoPlayer, &AutoPlayer::calculationStarted, this, &MinefieldTableModel::onCalculationStarted);
+    connect(autoPlayer, &AutoPlayer::calculationComplete, this, &MinefieldTableModel::applyCalculationResults);
+
+    connect(autoPlayer, &AutoPlayer::riskedLoss, this, &MinefieldTableModel::updateRiskOfLoss);
+
+    connect(autoPlayer, &AutoPlayer::maxProgressChanged, this, &MinefieldTableModel::setMaxRecalculationProgress);
+    connect(autoPlayer, &AutoPlayer::currentProgressChanged, this, &MinefieldTableModel::setCurrentRecalculationProgress);
+    connect(autoPlayer, &AutoPlayer::progressStepChanged, this, &MinefieldTableModel::setRecalculationStep);
+
     setFlagsRemaining(minefield->getMineCount());
 
-    autoSolve = false;
     recalcPending = true;
 
-    mineChancesCalculationWatcher.clear();
-    activeSolver.clear();
     finishedSolver.clear();
 
     this->minefield = minefield;
-    calculateChances();
+
+    autoPlayer->queueCalculate();
 
     connect(minefield.data(), &Minefield::mineHit, this, &MinefieldTableModel::onMineHit);
     connect(minefield.data(), &Minefield::allCountCellsRevealed, this, &MinefieldTableModel::onAllCountCellsRevealed);
@@ -125,7 +143,7 @@ void MinefieldTableModel::reveal(int row, int col, bool force)
     if(finishedSolver)
     {
         // 1 - chance to get past all the cells that were guesswork
-        setCumulativeRiskOfLoss(1 - (1 - cumulativeRiskOfLoss) * (1 - finishedSolver->getChancesToBeMine()[{col, row}]));
+        updateRiskOfLoss(finishedSolver->getChancesToBeMine()[{col, row}]);
     }
 
     minefield->revealCell(col, row, force);
@@ -149,12 +167,9 @@ void MinefieldTableModel::toggleGuessMine(int row, int col)
 
 void MinefieldTableModel::revealLowestRiskCells()
 {
-    if(finishedSolver && !activeSolver && bestMineChance < 1 && !gameLost)
+    if(autoPlayer)
     {
-        for(const auto &bestCoord : getOptimalCells())
-        {
-            reveal(bestCoord.second, bestCoord.first, true);
-        }
+        autoPlayer->queueStep();
     }
 }
 
@@ -180,44 +195,6 @@ bool MinefieldTableModel::getGameLost() const
 bool MinefieldTableModel::getGameWon() const
 {
     return gameWon;
-}
-
-QList<Coordinate> MinefieldTableModel::getOptimalCells() const
-{
-    if(minefield->isPopulated())
-    {
-        auto chances = finishedSolver->getChancesToBeMine();
-
-        // order is random, that's basically what we want though
-        auto coords = chances.keys();
-
-        QList<Coordinate> bestCoords;
-        double bestChance = 1;
-
-        for(const Coordinate &coord: coords)
-        {
-            if(bestChance > chances[coord])
-            {
-                bestChance = chances[coord];
-                bestCoords = {coord};
-            }
-            else if(bestChance == chances[coord])
-            {
-                bestCoords.append(coord);
-            }
-        }
-
-        if(bestChance > 0 && bestCoords.size() > 0)
-        {// pick a random one with the lowest odds if we didn't get to 0
-            return {bestCoords[QRandomGenerator::global()->bounded(bestCoords.size())]};
-        }
-
-        return bestCoords;
-    }
-    else
-    {
-        return {{minefield->getWidth() / 2, minefield->getHeight() / 2}};
-    }
 }
 
 const QString &MinefieldTableModel::getRecalculationStep() const
@@ -260,15 +237,12 @@ double MinefieldTableModel::getBestMineChance() const
 
 void MinefieldTableModel::setAutoSolve(bool newAutoSolve)
 {
-    if(newAutoSolve != autoSolve)
-    {
-        autoSolve = newAutoSolve;
+    autoPlayer->setAutoSolve(true);
+}
 
-        if(autoSolve)
-        {
-            revealLowestRiskCells();
-        }
-    }
+bool MinefieldTableModel::getAutoSolve() const
+{
+    return autoPlayer->getAutoSolve();
 }
 
 double MinefieldTableModel::getCumulativeRiskOfLoss() const
@@ -295,29 +269,11 @@ int MinefieldTableModel::getMaxRecalculationProgress() const
     return maxRecalculationProgress;
 }
 
-void MinefieldTableModel::calculateChances()
+void MinefieldTableModel::onCalculationStarted()
 {
-    if(recalcPending)
-    {
-        qDebug() << "recalc";
-        recalcPending = false;
-
-        QSharedPointer<Solver> solver(new Solver(minefield, finishedSolver? finishedSolver->getChancesToBeMine() : QHash<Coordinate, double>{}));
-
-        setActiveSolver(solver);
-
-        QFuture<void> mineChancesFuture = QtConcurrent::run([solver] ()
-        {
-            solver->computeSolution();
-        });
-
-        mineChancesCalculationWatcher = mineChancesCalculationWatcher.create();
-
-        connect(mineChancesCalculationWatcher.data(), &QFutureWatcher<void>::finished, this, &MinefieldTableModel::applyCalculationResults);
-        mineChancesCalculationWatcher->setFuture(mineChancesFuture);
-
-        setRecalculationInProgress(true);
-    }
+    setCurrentRecalculationProgress(0);
+    setMaxRecalculationProgress(0);
+    setRecalculationInProgress(true);
 }
 
 void MinefieldTableModel::emitUpdateSignalForCoords(QList<Coordinate> coords)
@@ -360,7 +316,6 @@ void MinefieldTableModel::deliverDataChanged()
 {
     if(dataChangedPending)
     {
-        qDebug() << "Data change";
         emit dataChanged(index(dataChangedMinRow, dataChangedMinCol), index(dataChangedMaxRow, dataChangedMaxCol));
 
         dataChangedMinRow = dataChangedMinCol = std::numeric_limits<int>::max();
@@ -370,31 +325,27 @@ void MinefieldTableModel::deliverDataChanged()
     }
 }
 
-void MinefieldTableModel::applyCalculationResults()
+void MinefieldTableModel::applyCalculationResults(QSharedPointer<Solver> solver)
 {
-    // TODO: Have a new threaded class AutoSolver that decouples autosolving logic from the model and allows it to be independently threaded and run faster than the model updates
-    finishedSolver = activeSolver;
+    finishedSolver = solver;
 
-    auto optimalCells = getOptimalCells();
-
-    if(optimalCells.size() > 0)
-    {
-        setBestMineChance(finishedSolver->getChancesToBeMine()[optimalCells.constFirst()]);
-    }
+    setBestMineChance(autoPlayer->getBestMineChance());
 
     emit logLegalFieldCountChanged(getLogLegalFieldCount());
 
     emitUpdateSignalForCoords(finishedSolver->getChancesToBeMine().keys());
 
-    mineChancesCalculationWatcher.clear();
-    activeSolver.clear();
     setRecalculationInProgress(false);
 
-    if(autoSolve)
+    if(getAutoSolve())
     {
         flagGuaranteedMines();
-        revealLowestRiskCells();
     }
+}
+
+void MinefieldTableModel::updateRiskOfLoss(double additionalRisk)
+{
+    setCumulativeRiskOfLoss(1 - (1 - cumulativeRiskOfLoss) * (1 - additionalRisk));
 }
 
 void MinefieldTableModel::setRecalculationStep(const QString &newRecalculationStep)
@@ -469,30 +420,6 @@ void MinefieldTableModel::setRecalculationInProgress(bool recalculation)
     }
 }
 
-void MinefieldTableModel::setActiveSolver(QSharedPointer<Solver> solver)
-{
-    if(activeSolver)
-    {// cancel in progress solver so they don't stack up with lots of hard calculations
-        activeSolver->cancel();
-    }
-
-    // disconnect the old solver
-    for(const auto &connection: recalcProgressConnections)
-    {
-        disconnect(connection);
-    }
-
-    setCurrentRecalculationProgress(0);
-    setMaxRecalculationProgress(0);
-
-    activeSolver = solver;
-
-    // connect the new solver
-    recalcProgressConnections << connect(activeSolver->getProgress().data(), &ProgressProxy::progressMade, this, &MinefieldTableModel::setCurrentRecalculationProgress);
-    recalcProgressConnections << connect(activeSolver->getProgress().data(), &ProgressProxy::progressMaximum, this, &MinefieldTableModel::setMaxRecalculationProgress);
-    recalcProgressConnections << connect(activeSolver->getProgress().data(), &ProgressProxy::progressStep, this, &MinefieldTableModel::setRecalculationStep);
-}
-
 void MinefieldTableModel::onMineHit()
 {
     setGameLost(true);
@@ -506,10 +433,6 @@ void MinefieldTableModel::onAllCountCellsRevealed()
 void MinefieldTableModel::onCellRevealed(int x, int y)
 {
     prepareDataChanged(y, x, y, x);
-
-    recalcPending = true;
-
-    QTimer::singleShot(0, this, &MinefieldTableModel::calculateChances);
 }
 
 int MinefieldTableModel::getFlagsRemaining() const

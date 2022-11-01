@@ -32,11 +32,10 @@ public:
 
     QByteArray getRevealedMinefield() const;
 
-    QSharedPointer<Minefield> clone() const;
-
-    ~Minefield();
-
     bool isPopulated() const;
+
+    bool areAllCountCellsRevealed() const;
+    bool wasMineHit() const;
 
 signals:
     void cellUpdated(int x, int y);
@@ -54,6 +53,8 @@ private:
     int unrevealedCount = 0;
 
     bool populated = false;
+
+    bool mineWasHit = false;
 
     QByteArray underlyingMinefield;
     QByteArray revealedMinefield;

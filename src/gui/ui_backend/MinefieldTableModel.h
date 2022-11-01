@@ -7,8 +7,11 @@
 #include <QSharedPointer>
 #include <QtQml/QtQml>
 
+class AutoPlayer;
 class Minefield;
 class Solver;
+
+class QThread;
 
 typedef QPair<int, int> Coordinate;
 
@@ -24,7 +27,7 @@ class MinefieldTableModel : public QAbstractTableModel
     Q_PROPERTY(QString recalculationStep READ getRecalculationStep NOTIFY recalculationStepChanged)
     Q_PROPERTY(int logLegalFieldCount READ getLogLegalFieldCount NOTIFY logLegalFieldCountChanged)
     Q_PROPERTY(double bestMineChance READ getBestMineChance NOTIFY bestMineChanceChanged)
-    Q_PROPERTY(bool autoSolve WRITE setAutoSolve)
+    Q_PROPERTY(bool autoSolve WRITE setAutoSolve READ getAutoSolve NOTIFY autoSolveChanged)
     Q_PROPERTY(double cumulativeRiskOfLoss READ getCumulativeRiskOfLoss NOTIFY cumulativeRiskOfLossChanged)
     Q_PROPERTY(bool gameWon READ getGameWon NOTIFY gameWonChanged)
     Q_PROPERTY(bool gameLost READ getGameLost NOTIFY gameLostChanged)
@@ -71,6 +74,7 @@ public:
     double getBestMineChance() const;
 
     void setAutoSolve(bool newAutoSolve);
+    bool getAutoSolve() const;
 
     double getCumulativeRiskOfLoss() const;
 
@@ -91,6 +95,7 @@ signals:
     void cumulativeRiskOfLossChanged(double risk);
     void gameWonChanged(bool won);
     void gameLostChanged(bool lost);
+    void autoSolveChanged(bool autoSolve);
 
     void flagsRemainingChanged(int flagsRemaining);
 
@@ -113,9 +118,10 @@ private slots:
 private:
     QSharedPointer<Minefield> minefield;
 
-    QSharedPointer<QFutureWatcher<void>> mineChancesCalculationWatcher;
-    QSharedPointer<Solver> activeSolver;
     QSharedPointer<Solver> finishedSolver;
+
+    // this is going to be added to a thread, it's easier to manager with deleteLater and signals
+    AutoPlayer* autoPlayer = nullptr;
 
     bool recalculationInProgress = false;
 
@@ -126,8 +132,6 @@ private:
     double bestMineChance = 0;
 
     double cumulativeRiskOfLoss = 0;
-
-    bool autoSolve = false;
 
     bool gameWon = false;
     bool gameLost = false;
@@ -142,17 +146,15 @@ private:
     bool dataChangedPending = false;
     bool recalcPending = false;
 
-    QList<QMetaObject::Connection> recalcProgressConnections;
-
-    QList<Coordinate> getOptimalCells() const;
-
-    void calculateChances();
+    void onCalculationStarted();
 
     void emitUpdateSignalForCoords(QList<Coordinate> coords);
     void prepareDataChanged(int minRow, int minCol, int maxRow, int maxCol);
     void deliverDataChanged();
 
-    void applyCalculationResults();
+    void applyCalculationResults(QSharedPointer<Solver> solver);
+
+    void updateRiskOfLoss(double additionalRisk);
 
     void setRecalculationInProgress(bool recalculation);
     void setMaxRecalculationProgress(int newMaxRecalculationProgress);
