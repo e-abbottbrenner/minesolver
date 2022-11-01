@@ -12,7 +12,7 @@
 AutoPlayer::AutoPlayer(QSharedPointer<Minefield> minefield)
     : minefield(minefield)
 {
-    connect(minefield.data(), &Minefield::cellUpdated, this, &AutoPlayer::queueCalculate, Qt::QueuedConnection);
+    connect(minefield.data(), &Minefield::cellsRevealed, this, &AutoPlayer::queueCalculate, Qt::QueuedConnection);
 }
 
 void AutoPlayer::queueStep()

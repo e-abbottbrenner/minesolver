@@ -60,7 +60,7 @@ void MinefieldTableModel::setMinefield(QSharedPointer<Minefield> minefield)
 
     connect(minefield.data(), &Minefield::mineHit, this, &MinefieldTableModel::onMineHit);
     connect(minefield.data(), &Minefield::allCountCellsRevealed, this, &MinefieldTableModel::onAllCountCellsRevealed);
-    connect(minefield.data(), &Minefield::cellUpdated, this, &MinefieldTableModel::onCellRevealed);
+    connect(minefield.data(), &Minefield::cellToggled, this, &MinefieldTableModel::onCellToggled);
 
     emit newMinefieldStarted();
 
@@ -430,9 +430,17 @@ void MinefieldTableModel::onAllCountCellsRevealed()
     setGameWon(true);
 }
 
-void MinefieldTableModel::onCellRevealed(int x, int y)
+void MinefieldTableModel::onCellToggled(int x, int y)
 {
     prepareDataChanged(y, x, y, x);
+}
+
+void MinefieldTableModel::onCellsRevealed(QList<Coordinate> revealed)
+{
+    for(Coordinate coord: revealed)
+    {
+        prepareDataChanged(coord.second, coord.first, coord.second, coord.first);
+    }
 }
 
 int MinefieldTableModel::getFlagsRemaining() const

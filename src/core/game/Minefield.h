@@ -12,6 +12,7 @@
 
 typedef QPair<int, int> Coordinate;
 
+// TODO: thread safety
 class Minefield : public QObject, public TraversableGrid
 {
     Q_OBJECT
@@ -38,12 +39,16 @@ public:
     bool wasMineHit() const;
 
 signals:
-    void cellUpdated(int x, int y);
+    void cellsRevealed(QList<Coordinate> cells);
+    void cellToggled(int x, int y);
     void mineHit();
     void allCountCellsRevealed();
 
 private:
     QList<Coordinate> recursiveReveal(int x, int y);
+
+    void queueCellRevealed(int x, int y);
+    void deliverCellReveals();
 
     void revealMines();
 
@@ -55,6 +60,8 @@ private:
     bool populated = false;
 
     bool mineWasHit = false;
+
+    QList<Coordinate> cellsToReveal;
 
     QByteArray underlyingMinefield;
     QByteArray revealedMinefield;

@@ -173,9 +173,7 @@ void Minefield::toggleGuessMine(int x, int y)
         revealedMinefield[mapToArray(x, y)] = SpecialStatus::Unknown;
     }
 
-    // TODO: batch and differentiate updates
-    // TODO: thread safety
-    emit cellUpdated(x, y);
+    emit cellToggled(x, y);
 }
 
 QList<Coordinate> Minefield::recursiveReveal(int x, int y)
@@ -205,7 +203,7 @@ QList<Coordinate> Minefield::recursiveReveal(int x, int y)
 
             coordsRevealed.append(coord);
 
-            emit cellUpdated(x, y);
+            queueCellRevealed(x, y);
 
             if(underlyingMinefield[mapToArray(x, y)] == 0)
             {// no nearby mines, do the recursive reveal
@@ -218,6 +216,24 @@ QList<Coordinate> Minefield::recursiveReveal(int x, int y)
     }
 
     return coordsRevealed;
+}
+
+void Minefield::queueCellRevealed(int x, int y)
+{
+    cellsToReveal.append({x, y});
+
+    QTimer::singleShot(0, this, &Minefield::deliverCellReveals);
+}
+
+void Minefield::deliverCellReveals()
+{
+    if(cellsToReveal.size() > 0)
+    {
+        auto revealed = cellsToReveal;
+        cellsToReveal.clear();
+
+        emit cellsRevealed(revealed);
+    }
 }
 
 void Minefield::revealAll()
@@ -235,7 +251,7 @@ void Minefield::revealAll()
                 revealedMinefield[cellIndex] = SpecialStatus::UnexplodedMine;
             }
 
-            emit cellUpdated(x, y);
+            queueCellRevealed(x, y);
         }
     };
 
@@ -252,7 +268,7 @@ void Minefield::revealMines()
         {
             revealedMinefield[cellIndex] = underlyingMinefield[cellIndex];
 
-            emit cellUpdated(x, y);
+            queueCellRevealed(x, y);
         }
     };
 

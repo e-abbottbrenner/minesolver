@@ -113,7 +113,8 @@ private slots:
     void onMineHit();
     void onAllCountCellsRevealed();
 
-    void onCellRevealed(int x, int y);
+    void onCellToggled(int x, int y);
+    void onCellsRevealed(QList<Coordinate> revealed);
 
 private:
     QSharedPointer<Minefield> minefield;
