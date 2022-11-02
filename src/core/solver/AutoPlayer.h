@@ -22,6 +22,9 @@ public:
     void queueStep();
     void queueCalculate();
 
+    void step();
+    void calculate();
+
     void setAutoSolve(bool newAutoSolve);
     bool getAutoSolve() const;
 
@@ -55,9 +58,6 @@ private:
 
     QMutex writeMutex;
     QMutex queueMutex;
-
-    void step();
-    void calculate();
     void onCalculationsComplete();
     void setActiveSolver(QSharedPointer<Solver> solver);
     void revealLowestRiskCells();

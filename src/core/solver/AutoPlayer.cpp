@@ -188,7 +188,7 @@ QList<Coordinate> AutoPlayer::getOptimalCells() const
     }
     else
     {
-        return {{minefield->getWidth() / 2, minefield->getHeight() / 2}};
+        return {{3, 3}};
     }
 }
 

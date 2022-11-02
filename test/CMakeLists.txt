@@ -23,5 +23,5 @@ add_executable(Minesolver_test
 
 target_link_libraries(Minesolver_test PRIVATE
     Minesolver_src
-    GTest::gtest_main
+    GTest::gtest
 )
