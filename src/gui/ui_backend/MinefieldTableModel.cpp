@@ -249,7 +249,12 @@ double MinefieldTableModel::getBestMineChance() const
 
 void MinefieldTableModel::setAutoSolve(bool newAutoSolve)
 {
-    autoPlayer->setAutoSolve(true);
+    if(autoPlayer->getAutoSolve() != newAutoSolve)
+    {
+        autoPlayer->setAutoSolve(newAutoSolve);
+
+        emit autoSolveChanged(newAutoSolve);
+    }
 }
 
 bool MinefieldTableModel::getAutoSolve() const
