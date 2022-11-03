@@ -143,7 +143,6 @@ private:
     int dataChangedMaxCol = 0;
 
     bool dataChangedPending = false;
-    bool recalcPending = false;
 
     void onCalculationStarted();
 

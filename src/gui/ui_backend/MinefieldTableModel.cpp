@@ -51,8 +51,6 @@ void MinefieldTableModel::setMinefield(QSharedPointer<Minefield> minefield)
 
     setFlagsRemaining(minefield->getMineCount());
 
-    recalcPending = true;
-
     finishedSolver.clear();
 
     this->minefield = minefield;
