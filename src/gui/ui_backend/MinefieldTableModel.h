@@ -11,8 +11,6 @@ class AutoPlayer;
 class Minefield;
 class Solver;
 
-class QThread;
-
 typedef QPair<int, int> Coordinate;
 
 class MinefieldTableModel : public QAbstractTableModel
@@ -122,9 +120,7 @@ private:
 
     QSharedPointer<Solver> finishedSolver;
 
-    // this is going to be added to a thread, it's easier to manager with deleteLater and signals
     AutoPlayer* autoPlayer = nullptr;
-    QSharedPointer<QThread> autoPlayerThread;
 
     bool recalculationInProgress = false;
 

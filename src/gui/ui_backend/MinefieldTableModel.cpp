@@ -2,23 +2,17 @@
 
 #include "AutoPlayer.h"
 #include "Minefield.h"
-#include "ProgressProxy.h"
 #include "Solver.h"
 
 #include <QColor>
-#include <QThread>
 
 MinefieldTableModel::MinefieldTableModel(QObject *parent)
     : QAbstractTableModel(parent)
 {
-    autoPlayerThread = autoPlayerThread.create();
-    autoPlayerThread->start();
 }
 
 MinefieldTableModel::~MinefieldTableModel()
 {
-    autoPlayerThread->quit();
-    autoPlayerThread->wait();
 }
 
 void MinefieldTableModel::setMinefield(QSharedPointer<Minefield> minefield)
@@ -45,11 +39,6 @@ void MinefieldTableModel::setMinefield(QSharedPointer<Minefield> minefield)
     }
 
     autoPlayer = new AutoPlayer(minefield);
-    // we run the autosolver in a separate thread so it doesn't get bottlenecked by UI updates in the main thread
-    autoPlayer->moveToThread(autoPlayerThread.data());
-
-    // make sure it dies if the thread does
-    connect(autoPlayerThread.data(), &QThread::finished, autoPlayer, &AutoPlayer::deleteLater);
 
     connect(autoPlayer, &AutoPlayer::calculationStarted, this, &MinefieldTableModel::onCalculationStarted, Qt::QueuedConnection);
     connect(autoPlayer, &AutoPlayer::calculationComplete, this, &MinefieldTableModel::applyCalculationResults, Qt::QueuedConnection);
